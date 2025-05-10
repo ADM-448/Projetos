@@ -1,0 +1,1 @@
+Projeto  HDC Events: Projeto em que visa a criar um site de eventos em que organizadores possam realizar CRUD dos eventos seja imagem, descrição, endereço e mais detalhes e que usuários possam logar e se increver nos eventos
