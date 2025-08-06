@@ -24,9 +24,9 @@ O objetivo principal da plataforma é oferecer um espaço onde organizadores pod
 
 ## 📸 Telas da Aplicação
 
-| Página Inicial | Detalhes do Evento | Dashboard do Usuário |
-| hdcevents\Pasta Imagens do projeto\Tela Inicial.jpeg | hdcevents\Pasta Imagens do projeto\Detalhes do evento.jpeg | hdcevents\Pasta Imagens do projeto\Lista dos Participantes.jpeg |
-| | | |
+|                         Página Inicial                         |                                Dashboard do Usuário                                |                                 Detalhes do Evento                                  |
+| :------------------------------------------------------------: | :--------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------: |
+| ![Página Inicial do HDC Events](screenshots/Tela-Inicial.jpeg) | ![Dashboard do usuário com seus eventos](screenshots/Lista-dos-Participantes.jpeg) | ![Página com detalhes de um evento específico](screenshots/Detalhes-do-evento.jpeg) |
 
 ## ⚙️ Como Executar o Projeto
 
