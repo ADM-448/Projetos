@@ -1,66 +1,75 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# HDC Events - Plataforma de Gerenciamento de Eventos
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+HDC Events é uma aplicação web desenvolvida com o framework Laravel que permite a criação, gerenciamento e participação em eventos. O projeto foi criado para aplicar conceitos de desenvolvimento full-stack, incluindo autenticação, manipulação de banco de dados e operações CRUD.
 
-## About Laravel
+## 🚀 Sobre o Projeto
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+O objetivo principal da plataforma é oferecer um espaço onde organizadores podem divulgar seus eventos e usuários interessados podem encontrar e se inscrever nesses eventos. A aplicação conta com um sistema de autenticação que diferencia os tipos de usuário (participante e organizador), oferecendo dashboards e funcionalidades específicas para cada perfil.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ✨ Principais Funcionalidades
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+-   [cite\_start]**Listagem Pública de Eventos:** Uma página inicial onde todos os visitantes podem ver os próximos eventos e buscar por eventos específicos[cite: 19].
+-   **Sistema de Autenticação:** Usuários podem se cadastrar e fazer login na plataforma.
+-   [cite\_start]**Dashboard de Usuário:** Após o login, o usuário tem acesso a um painel para gerenciar os eventos que criou e visualizar os eventos em que está participando[cite: 18].
+-   [cite\_start]**Gerenciamento de Eventos (CRUD):** Organizadores de eventos podem criar, ler, atualizar e deletar seus próprios eventos[cite: 1].
+-   [cite\_start]**Upload de Imagem:** Funcionalidade para adicionar uma foto de capa para cada evento durante sua criação ou edição[cite: 1].
+-   **Inscrição em Eventos:** Usuários logados podem se inscrever nos eventos de seu interesse.
 
-## Learning Laravel
+## 🛠️ Tecnologias Utilizadas
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+-   [cite\_start]**Backend:** Laravel e PHP [cite: 1]
+-   [cite\_start]**Frontend:** HTML5, CSS [cite: 1]
+-   [cite\_start]**Banco de Dados:** MySQL (gerenciado com PhpMyAdmin) [cite: 1]
+-   **Controle de Versão:** Git
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 📸 Telas da Aplicação
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Página Inicial | Detalhes do Evento | Dashboard do Usuário |
+| hdcevents\Pasta Imagens do projeto\Tela Inicial.jpeg | hdcevents\Pasta Imagens do projeto\Detalhes do evento.jpeg | hdcevents\Pasta Imagens do projeto\Lista dos Participantes.jpeg |
+| | | |
 
-## Laravel Sponsors
+## ⚙️ Como Executar o Projeto
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Siga os passos abaixo para executar o projeto em seu ambiente local.
 
-### Premium Partners
+```bash
+# 1. Clone este repositório
+git clone https://github.com/ADM-448/Projetos.git
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+# 2. Navegue até o diretório do projeto
+cd Projetos/hdcevents
 
-## Contributing
+# 3. Instale as dependências do Composer
+composer install
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# 4. Copie o arquivo de ambiente e configure suas variáveis
+cp .env.example .env
 
-## Code of Conduct
+# 5. Gere a chave da aplicação
+php artisan key:generate
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 6. Configure seu banco de dados no arquivo .env
+# Exemplo:
+# DB_CONNECTION=mysql
+# DB_HOST=127.0.0.1
+# DB_PORT=3306
+# DB_DATABASE=hdcevents
+# DB_USERNAME=root
+# DB_PASSWORD=
 
-## Security Vulnerabilities
+# 7. Execute as migrações do banco de dados
+php artisan migrate
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# 8. Inicie o servidor local
+php artisan serve
 
-## License
+# 9. Acesse a aplicação em seu navegador
+http://127.0.0.1:8000
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 👨‍💻 Autor
+
+Desenvolvido por **Ademar Araújo Teisen**.
+
+-   **LinkedIn:** [Ademar Araújo Teisen](https://www.linkedin.com/in/ademar-teisen-38588b334/)
+-   **GitHub:** [@ADM-448](https://www.google.com/search?q=https://github.com/ADM-448)
