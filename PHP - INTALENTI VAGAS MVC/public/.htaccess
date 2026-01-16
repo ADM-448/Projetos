@@ -1,0 +1,19 @@
+RewriteEngine On
+Options -Indexes
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+# em produção
+# <IfModule mod_rewrite.c>
+#     Options -MultiViews
+#     RewriteEngine On
+
+#     # ESSA LINHA É A MAIS IMPORTANTE DE TODAS:
+#     RewriteBase /vagas/IntalenTIVagasMVC/public/
+
+#     RewriteCond %{REQUEST_FILENAME} !-f
+#     RewriteCond %{REQUEST_FILENAME} !-d
+#     RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+# </IfModule>
