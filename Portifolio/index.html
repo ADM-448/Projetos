@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ademar Teisen | Software Engineer</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Plus Jakarta Sans Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- GLOW ORBS (Luzes de Fundo) -->
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+
+    <!-- A. HEADER & NAVEGAÇÃO -->
+    <header class="navbar glass-nav">
+        <div class="container nav-container">
+            <a href="#home" class="logo">Ademar Teisen <span class="accent">.dev</span></a>
+            <input type="checkbox" id="menu-toggle">
+            <label for="menu-toggle" class="menu-icon"><i class="fas fa-bars"></i></label>
+            <nav class="menu">
+                <ul>
+                    <li><a href="#home">Início</a></li>
+                    <li><a href="#sobre">Sobre</a></li>
+                    <li><a href="#projetos">Projetos & Cases</a></li>
+                    <li><a href="#experiencia">Trajetória</a></li>
+                    <li><a href="#competencias">Tech Stack</a></li>
+                    <li><a href="#contato">Contato</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- B. HERO SECTION -->
+    <section class="hero reveal" id="home">
+        <div class="container hero-container">
+            <div class="badge">🚀 Desenvolvedor Full Stack PHP / Laravel</div>
+            <h1 class="text-gradient">Desenvolvendo Sistemas Escaláveis, SaaS e Arquiteturas de Alto Impacto.</h1>
+            <p class="hero-desc">Especialista no ecossistema PHP e Laravel. Transformo regras de negócio B2B complexas
+                em softwares robustos, integrando Inteligência Artificial, processamento assíncrono, modelagem de banco
+                de dados otimizada e infraestrutura segura.</p>
+
+            <div class="hero-actions">
+                <a href="#projetos" class="btn btn-primary">Ver Projetos & Cases</a>
+                <a href="Curriculo_Ademar_Teisen_Desenvolvedor_Laravel.pdf" download
+                    class="btn btn-outline glass-btn"><i class="fas fa-download"></i> Baixar Currículo PDF</a>
+            </div>
+
+            <div class="hero-socials">
+                <a href="https://github.com/ADM-448/Projetos" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/ademar-teisen-38588b334" target="_blank"><i
+                        class="fab fa-linkedin"></i></a>
+                <a href="mailto:ademarteisen2004@gmail.com"><i class="fas fa-envelope"></i></a>
+                <a href="https://wa.me/5544999640895" target="_blank"><i class="fab fa-whatsapp"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- C. PROJETOS E CASES -->
+    <section class="projetos" id="projetos">
+        <div class="container">
+            <h2 class="section-title reveal">Projetos & <span class="text-gradient">Cases de Destaque</span></h2>
+
+            <div class="projects-bento-grid">
+
+                <!-- TalentiPro (Destaque - Ocupa 2 colunas) -->
+                <div class="project-card destaque reveal glass-card">
+                    <div class="project-content">
+                        <div class="project-tags">
+                            <span class="tag tag-accent">SaaS Multi-tenant</span>
+                            <span class="tag glass-tag">PHP 8</span>
+                            <span class="tag glass-tag">Laravel</span>
+                            <span class="tag glass-tag">IA</span>
+                            <span class="tag glass-tag">Queues</span>
+                        </div>
+                        <h3>TalentiPro — Plataforma SaaS de Gestão de RH</h3>
+                        <p>Arquitetura back-end baseada no padrão Service Layer para isolamento e manutenibilidade.
+                            Conta com rotinas assíncronas de processamento e transcrição de áudio por Inteligência
+                            Artificial, integradas ao disparo de notificações via API do WhatsApp utilizando filas e
+                            jobs em background. Estrutura multi-tenant com isolamento rígido no MySQL.</p>
+                        <div class="project-links">
+                            <a href="https://talentipro.com.br/" target="_blank" class="btn-link"><i
+                                    class="fas fa-external-link-alt"></i> Acessar Produto</a>
+                            <a href="https://github.com/ADM-448/Projetos/blob/main/%F0%9F%8F%97%EF%B8%8F%20Showcase%20de%20Arquitetura_%20TalentiPro%20(SaaS).md"
+                                target="_blank" class="btn-link btn-link-outline"><i class="fab fa-github"></i> Estudo
+                                de Caso</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- InTalenti Vagas -->
+                <div class="project-card reveal glass-card">
+                    <div class="project-content">
+                        <div class="project-tags">
+                            <span class="tag glass-tag">MVC</span>
+                            <span class="tag glass-tag">Laravel</span>
+                            <span class="tag glass-tag">MySQL Full-Text</span>
+                            <span class="tag glass-tag">Form Requests</span>
+                        </div>
+                        <h3>InTalenti Vagas — Recrutamento & Seleção</h3>
+                        <p>Sistema completo de triagem de candidatos e gestão de vagas desenvolvido sob o padrão MVC
+                            estrito. Otimização de consultas com Full-Text Search (Boolean Mode) no MySQL para respostas
+                            ultrarrápidas sob carga. Camada de aplicação blindada com validações customizadas via Form
+                            Requests.</p>
+                        <div class="project-links">
+                            <a href="https://intalenti.com.br/vagas/IntalenTIVagasMVC" target="_blank"
+                                class="btn-link"><i class="fas fa-external-link-alt"></i> Acessar Plataforma</a>
+                            <a href="https://github.com/ADM-448/Projetos/blob/main/%F0%9F%92%BC%20Showcase%20de%20Arquitetura_%20InTalenti%20Vagas.md"
+                                target="_blank" class="btn-link btn-link-outline"><i class="fab fa-github"></i> Estudo
+                                de Caso</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- InvestHunter -->
+                <div class="project-card reveal glass-card">
+                    <div class="project-content">
+                        <div class="project-tags">
+                            <span class="tag glass-tag">B2B Fintech</span>
+                            <span class="tag glass-tag">Interface Responsiva</span>
+                        </div>
+                        <h3>InvestHunter — Captação & Financiamento B2B</h3>
+                        <p>Interface responsiva de alta conversão e sistema inteligente de triagem para análise de
+                            elegibilidade de crédito corporativo (FINEP, BNDES, BRDE). Pipeline seguro de captação e
+                            fluxo de leads qualificados integrado ao banco de dados.</p>
+                        <div class="project-links">
+                            <a href="https://investhunter.com.br/" target="_blank" class="btn-link"><i
+                                    class="fas fa-external-link-alt"></i> Acessar Plataforma</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HDC Events (Ocupa 2 colunas) -->
+                <div class="project-card destaque reveal glass-card">
+                    <div class="project-content">
+                        <div class="project-tags">
+                            <span class="tag glass-tag">Laravel</span>
+                            <span class="tag glass-tag">Autenticação Dupla</span>
+                            <span class="tag glass-tag">CRUD Completo</span>
+                        </div>
+                        <h3>HDC Events — Gerenciamento de Eventos</h3>
+                        <p>Aplicação web completa em MVC no Laravel para gestão do ciclo de vida de eventos
+                            corporativos. Autenticação dupla para segregação de perfis (organizador vs. participante)
+                            com dashboards restritos e modelagem MySQL focada na integridade referencial.</p>
+                        <div class="project-links">
+                            <a href="https://github.com/ADM-448/Projetos" target="_blank"
+                                class="btn-link btn-link-outline"><i class="fab fa-github"></i> Repositório GitHub</a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- D. SOBRE E DIFERENCIAL -->
+    <section class="sobre" id="sobre">
+        <div class="container">
+            <div class="sobre-content reveal glass-card" style="padding: 3rem;">
+                <div class="sobre-text">
+                    <h2 class="section-title">Além do <span class="text-gradient">Código</span></h2>
+                    <p>Meu principal diferencial competitivo é a intersecção entre a <strong>alta capacidade
+                            arquitetural</strong> (código) e a <strong>visão estratégica B2B</strong>. Entendo que o
+                        software não é um fim em si mesmo, mas uma ferramenta para resolver problemas e escalar
+                        resultados de negócio.</p>
+                    <p>Ao longo da minha trajetória, desenvolvi sólida bagagem no <strong>levantamento de requisitos,
+                            atendimento ao cliente corporativo</strong> e mapeamento de regras de negócios complexas
+                        (ERPs, RH, Fintechs e Indústria).</p>
+                    <p>Possuo <strong>total autonomia operacional</strong>: atuo desde as reuniões iniciais de
+                        alinhamento com stakeholders até a modelagem do banco de dados, escrita de APIs robustas no
+                        padrão Service Layer e, finalmente, o deploy seguro gerenciando servidores Apache, apontamentos
+                        DNS e ambiente de produção no cPanel.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- E. TRAJETÓRIA PROFISSIONAL -->
+    <section class="experiencia" id="experiencia">
+        <div class="container">
+            <h2 class="section-title reveal">Trajetória <span class="text-gradient">Profissional</span></h2>
+
+            <div class="timeline reveal">
+
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-card" style="padding: 2rem;">
+                        <div class="timeline-date">Janeiro 2025 – Atual</div>
+                        <h3>Desenvolvedor Full Stack PHP/Laravel</h3>
+                        <h4>InTalenti Group / Software House</h4>
+                        <ul>
+                            <li>Arquitetura backend em <strong>Service Layer</strong>, promovendo alto isolamento e
+                                manutenibilidade para produtos B2B.</li>
+                            <li>Integração com <strong>Inteligência Artificial</strong> e rotinas assíncronas
+                                (Queues/Workers) para transcrição de áudio e notificações via WhatsApp.</li>
+                            <li>Modelagem <strong>Multi-tenant</strong> robusta e queries otimizadas em MySQL utilizando
+                                <strong>Full-Text Search</strong>.
+                            </li>
+                            <li>Responsável pela blindagem de dados com Form Requests customizados e gerenciamento de
+                                infraestrutura de Deploys (Apache/DNS).</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content glass-card" style="padding: 2rem;">
+                        <div class="timeline-date">Outubro 2023 – Dezembro 2024</div>
+                        <h3>Analista de Requisitos B2B / Relacionamento</h3>
+                        <h4>InTalenti Group / Consultoria B2B</h4>
+                        <ul>
+                            <li><strong>Mapeamento de Regras de Negócio</strong> em fluxos corporativos (ERPs, RH,
+                                Automação).</li>
+                            <li>Atuou como <strong>ponte técnica</strong> entre as demandas estratégicas dos clientes e
+                                a execução da equipe de desenvolvimento.</li>
+                            <li>Otimização de processos que reduziram drasticamente o retrabalho no ciclo de
+                                desenvolvimento de software.</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- F. TECH STACK & G. FORMAÇÃO -->
+    <section class="competencias-formacao" id="competencias">
+        <div class="container">
+
+            <h2 class="section-title reveal">Tech <span class="text-gradient">Stack</span></h2>
+            <div class="tech-grid">
+
+                <div class="tech-card reveal glass-card">
+                    <i class="fas fa-server text-gradient"
+                        style="font-size: 2rem; -webkit-background-clip: text; background-clip: text; color: transparent; background-image: linear-gradient(135deg, #FF2D20, #FFA7A1);"></i>
+                    <h3 style="margin-top: 1rem;">Back-end & Arquitetura</h3>
+                    <p>PHP 8.x, Laravel, APIs RESTful, Service Layer Pattern, Queues/Workers, Multi-tenancy, Princípios
+                        SOLID.</p>
+                </div>
+
+                <div class="tech-card reveal glass-card">
+                    <i class="fas fa-database text-gradient"
+                        style="font-size: 2rem; -webkit-background-clip: text; background-clip: text; color: transparent; background-image: linear-gradient(135deg, #FF2D20, #FFA7A1);"></i>
+                    <h3 style="margin-top: 1rem;">Banco de Dados & Performance</h3>
+                    <p>MySQL, Eloquent ORM, Migrations, Índices Full-Text Search, Queries Otimizadas.</p>
+                </div>
+
+                <div class="tech-card reveal glass-card">
+                    <i class="fas fa-network-wired text-gradient"
+                        style="font-size: 2rem; -webkit-background-clip: text; background-clip: text; color: transparent; background-image: linear-gradient(135deg, #FF2D20, #FFA7A1);"></i>
+                    <h3 style="margin-top: 1rem;">DevOps & Infraestrutura</h3>
+                    <p>Git, GitHub, Servidores Apache, cPanel, .htaccess, Composer, Linux Básico, Postman/Insomnia.</p>
+                </div>
+
+                <div class="tech-card reveal glass-card">
+                    <i class="fas fa-laptop-code text-gradient"
+                        style="font-size: 2rem; -webkit-background-clip: text; background-clip: text; color: transparent; background-image: linear-gradient(135deg, #FF2D20, #FFA7A1);"></i>
+                    <h3 style="margin-top: 1rem;">Front-end & UI</h3>
+                    <p>JavaScript (ES6+), HTML5, CSS3, Bootstrap, Tailwind CSS.</p>
+                </div>
+
+            </div>
+
+            <div class="formacao-container">
+                <h2 class="section-title reveal" style="margin-top: 80px;">Formação & <span
+                        class="text-gradient">Certificações</span></h2>
+                <div class="formacao-grid">
+                    <div class="formacao-item reveal glass-card">
+                        <h4><i class="fas fa-graduation-cap"></i> Bacharelado em Engenharia de Software</h4>
+                        <p>UniCesumar (Previsão: 2026)</p>
+                    </div>
+                    <div class="formacao-item reveal glass-card">
+                        <h4><i class="fas fa-university"></i> Engenharia da Computação</h4>
+                        <p>FEITEP (1 ano cursado)</p>
+                    </div>
+                    <div class="formacao-item reveal glass-card">
+                        <h4><i class="fas fa-certificate"></i> PHP 8 Completo do Zero c/ MVC e MySQL</h4>
+                        <p>Udemy (62.5h)</p>
+                    </div>
+                    <div class="formacao-item reveal glass-card">
+                        <h4><i class="fas fa-certificate"></i> PHP do Zero a Maestria</h4>
+                        <p>Udemy (36h)</p>
+                    </div>
+                    <div class="formacao-item reveal glass-card">
+                        <h4><i class="fas fa-star"></i> Eventos e Workshops</h4>
+                        <p>The Developer's Life Weekend (14h) & WorkinTech (8h)</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- H. FOOTER & CONTATO -->
+    <footer class="footer" id="contato">
+        <div class="container footer-container reveal">
+            <div class="footer-info">
+                <h3>Ademar Teisen <span class="accent">.dev</span></h3>
+                <p>Maringá – PR, Brasil</p>
+                <div class="contact-links">
+                    <a href="mailto:ademarteisen2004@gmail.com"><i class="fas fa-envelope"></i>
+                        ademarteisen2004@gmail.com</a>
+                    <a href="https://wa.me/5544999640895" target="_blank"><i class="fab fa-whatsapp"></i> (44)
+                        99964-0895</a>
+                </div>
+            </div>
+
+            <div class="footer-socials">
+                <a href="https://www.linkedin.com/in/ademar-teisen-38588b334/" target="_blank"><i
+                        class="fab fa-linkedin"></i> LinkedIn</a>
+                <a href="https://github.com/ADM-448/Projetos" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                <a href="#home"><i class="fas fa-globe"></i> Portfólio</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Ademar A. Teisen. Todos os direitos reservados. Desenvolvido com foco em Arquitetura e
+                Performance.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
