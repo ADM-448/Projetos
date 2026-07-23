@@ -1,0 +1,8 @@
+Nome;Email;CPF;Perfil;Cargo;Departamento;Senha
+Ana Gestora;ana.gestora@teste.com;111.111.111-11;gestor;Gerente de Vendas;Vendas;123456
+Bruno RH (Mediador);bruno.rh@teste.com;222.222.222-22;mediador;Especialista RH;Recursos Humanos;123456
+Carlos Dev;carlos.dev@teste.com;333.333.333-33;colaborador;Desenvolvedor;TI;123456
+Daniela Admin;daniela.admin@teste.com;444.444.444-44;admin;Administrativo;Financeiro;123456
+Eduardo Master;eduardo.master@teste.com;555.555.555-55;master;Diretor;Diretoria;123456
+Fernanda MKT;fernanda.mkt@teste.com;666.666.666-66;colaborador;Analista de Marketing;Marketing;123456
+Gabriel Op;gabriel.op@teste.com;777.777.777-77;colaborador;Operador;Operacional;123456

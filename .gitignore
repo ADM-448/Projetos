@@ -1,0 +1,67 @@
+﻿# Root gitignore for multi-project repository
+
+# Environment & Credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+chave_*.json
+client_secret_*.json
+*.secret.json
+service_account*.json
+firebase*.json
+*.credentials.json
+
+# Dependencies
+vendor/
+**/vendor/
+node_modules/
+**/node_modules/
+
+# Laravel Storage & Cache
+storage/*.key
+**/storage/*.key
+storage/oauth-*.key
+**/storage/oauth-*.key
+storage/framework/cache/data/*
+**/storage/framework/cache/data/*
+storage/framework/sessions/*
+**/storage/framework/sessions/*
+storage/framework/views/*
+**/storage/framework/views/*
+storage/logs/*.log
+**/storage/logs/*.log
+bootstrap/cache/*.php
+**/bootstrap/cache/*.php
+
+# Builds & Assets
+public/hot
+**/public/hot
+public/storage
+**/public/storage
+public/build
+**/public/build
+
+# Media & Heavy Files
+*.webm
+*.mp4
+*.mp3
+*.wav
+
+# Database & Backups
+*.sqlite
+*.sqlite3
+*.db
+*.sql
+*.dump
+*.zip
+*.tar.gz
+
+# IDE & OS
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db

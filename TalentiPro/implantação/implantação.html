@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Manual de Treinamento - TalentiPro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CONFIGURAÇÕES PARA PDF / A4 */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #e5e7eb;
+            color: #333;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* Simula a folha A4 na tela */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            margin: 10mm auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        /* Regras reais de impressão */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .page {
+                margin: 0;
+                box-shadow: none;
+                width: 100%;
+                min-height: auto;
+                padding: 15mm;
+            }
+
+            .page-break {
+                page-break-before: always;
+            }
+
+            .no-break {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* CAPA */
+        .cover {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            height: 250mm;
+        }
+
+        .cover-logo {
+            font-size: 48px;
+            color: #6a4c7c;
+            margin-bottom: 20px;
+        }
+
+        .cover-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 10px;
+        }
+
+        .cover-subtitle {
+            font-size: 18px;
+            color: #666;
+        }
+
+        /* CABEÇALHOS DE SEÇÃO POR PERFIL */
+        .section-header {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 30px 0 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: white;
+            page-break-after: avoid;
+        }
+
+        .header-admin {
+            background: linear-gradient(135deg, #6a4c7c 0%, #4a3b55 100%);
+        }
+
+        .header-gestor {
+            background: linear-gradient(135deg, #3b5998 0%, #2d4373 100%);
+        }
+
+        .header-colab {
+            background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+        }
+
+        .section-header i {
+            font-size: 24px;
+        }
+
+        .section-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        /* CONTEÚDO E LISTAS */
+        h3 {
+            font-size: 16px;
+            color: #333;
+            margin: 20px 0 10px 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            page-break-after: avoid;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* CAIXAS DE DESTAQUE (Callouts) */
+        .callout {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: flex;
+            gap: 15px;
+            page-break-inside: avoid;
+        }
+
+        .callout i {
+            font-size: 18px;
+            margin-top: 2px;
+        }
+
+        .callout-tip {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+
+        .callout-important {
+            background-color: #fce4ec;
+            border-left: 4px solid #d81b60;
+            color: #88153f;
+        }
+
+        /* CHECKLIST ESTÁTICO PARA PDF */
+        .checklist {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .checklist li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            page-break-inside: avoid;
+        }
+
+        .checklist i {
+            color: #ccc;
+            font-size: 18px;
+        }
+
+        /* RODAPÉ DO PDF */
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            color: #999;
+            margin-top: 40px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- PÁGINA 1: CAPA -->
+    <div class="page">
+        <div class="cover">
+            <div class="cover-logo"><i class="fa-solid fa-brain"></i></div>
+            <div class="cover-title">TALENTPRO</div>
+            <div class="cover-subtitle">Guia Oficial de Implantação e Uso</div>
+            <div style="margin-top: 50px; font-size: 14px; color: #888;">
+                Versão 1.0<br>
+                Classificação: Uso Interno
+            </div>
+        </div>
+    </div>
+
+    <!-- PÁGINA 2: ADMINISTRAÇÃO E RH (A página tem quebra automática se o conteúdo vazar) -->
+    <div class="page page-break">
+
+        <div class="section-header header-admin">
+            <i class="fa-solid fa-crown"></i>
+            <h2>1. Perfil Administrador / RH</h2>
+        </div>
+        <p>Este módulo é exclusivo para os responsáveis por configurar a estrutura da empresa, cadastrar usuários e
+            lançar as avaliações no sistema.</p>
+
+        <div class="no-break">
+            <h3>Fase 1: Cadastros Base (Fundação)</h3>
+            <p>Antes de iniciar qualquer processo, o sistema precisa espelhar a estrutura real da empresa.</p>
+            <ul>
+                <li><strong>Departamentos:</strong> Cadastre as áreas da empresa (Ex: Comercial, TI, Diretoria).</li>
+                <li><strong>Cargos:</strong> Vincule as funções aos departamentos (Ex: Vendedor, Desenvolvedor Júnior).
+                </li>
+                <li><strong>Usuários:</strong> Cadastre os colaboradores definindo seus níveis de acesso (Admin, Gestor
+                    ou Colaborador) e vinculando-os ao seu gestor direto.</li>
+            </ul>
+            <div style="text-align: center; margin: 15px 0;">
+                <img src="img/passo_cadastros.png" alt="Tela de Cadastros" style="max-width: 100%; border-radius: 8px; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <p style="font-size: 12px; color: #666; text-align: center; margin-top: 5px;">Exemplo: Tela de listagem de usuários e departamentos.</p>
+            </div>
+        </div>
+
+        <div class="no-break">
+            <h3>Fase 2: Construindo a Matriz de Competências</h3>
+            <p>A inteligência por trás das avaliações.</p>
+            <ul>
+                <li><strong>Competências:</strong> Crie os grandes grupos de avaliação (Ex: Liderança, Comunicação).
+                </li>
+                <li><strong>Skills:</strong> Dentro de cada competência, cadastre as perguntas ou comportamentos
+                    observáveis (Ex: "Ouve atentamente e respeita a opinião dos colegas?").</li>
+            </ul>
+            <div style="text-align: center; margin: 15px 0;">
+                <img src="img/passo_competencias.png" alt="Tela de Competências" style="max-width: 100%; border-radius: 8px; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <p style="font-size: 12px; color: #666; text-align: center; margin-top: 5px;">Exemplo: Criando uma nova Skill dentro de uma Competência.</p>
+            </div>
+        </div>
+
+        <div class="no-break">
+            <h3>Fase 3: Lançamento de Avaliações</h3>
+            <p>Com a base pronta, crie os ciclos de avaliação de desempenho.</p>
+            <ul>
+                <li><strong>Criando o Ciclo:</strong> Defina Título, Data Limite e selecione as Competências.</li>
+                <li><strong>Participantes (360º):</strong> Defina quem é o Avaliado (Alvo), quem irá avaliá-lo (Pares,
+                    Gestor) e o Mediador (quem dará o veredito final).</li>
+            </ul>
+            <div style="text-align: center; margin: 15px 0;">
+                <img src="img/passo_criar_avaliacao.png" alt="Tela de Criação de Avaliação" style="max-width: 100%; border-radius: 8px; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <p style="font-size: 12px; color: #666; text-align: center; margin-top: 5px;">Exemplo: Definindo os participantes (Alvo e Avaliadores).</p>
+            </div>
+        </div>
+
+        <div class="callout callout-tip no-break">
+            <i class="fa-solid fa-lightbulb"></i>
+            <div><strong>Dica de Implantação:</strong> Recomendamos fazer um ciclo de teste apenas com a equipe de RH
+                antes de lançar a avaliação para a empresa inteira.</div>
+        </div>
+
+        <div class="no-break" style="margin-top: 30px;">
+            <h3><i class="fa-solid fa-check-double"></i> Checklist do 1º Dia (Setup)</h3>
+            <ul class="checklist">
+                <li><i class="fa-regular fa-square"></i> Configurar os dados gerais da Empresa.</li>
+                <li><i class="fa-regular fa-square"></i> Criar pelo menos 3 Departamentos e 5 Cargos.</li>
+                <li><i class="fa-regular fa-square"></i> Cadastrar 1 Gestor e 3 Colaboradores para a equipe dele.</li>
+                <li><i class="fa-regular fa-square"></i> Cadastrar 2 Competências com 3 Skills cada.</li>
+                <li><i class="fa-regular fa-square"></i> Criar 1 Avaliação de Teste com os usuários acima.</li>
+            </ul>
+        </div>
+
+        <div class="footer">TalentPro - Guia do Usuário | Módulo RH</div>
+    </div>
+
+    <!-- PÁGINA 3: GESTORES E LÍDERES -->
+    <div class="page page-break">
+
+        <div class="section-header header-gestor">
+            <i class="fa-solid fa-user-tie"></i>
+            <h2>2. Perfil Gestor / Líder de Equipe</h2>
+        </div>
+        <p>Este módulo é voltado para líderes que precisam avaliar seus liderados, mediar conflitos de notas e criar
+            planos de ação.</p>
+
+        <div class="no-break">
+            <h3>Painel de Mediação</h3>
+            <p>Quando um colaborador faz sua Autoavaliação e o Gestor dá a sua nota, pode haver divergências de
+                percepção. O papel do mediador é calibrar essa nota final.</p>
+            <ul>
+                <li>Acesse a aba <strong>Ação Necessária > Realizar Mediação</strong>.</li>
+                <li>Visualize lado a lado a nota que o colaborador se deu e as notas recebidas por terceiros.</li>
+                <li>Atribua a nota final (Fechamento) baseada em fatos e registre um comentário de feedback.</li>
+            </ul>
+            <div style="text-align: center; margin: 15px 0;">
+                <img src="img/passo_mediacao.png" alt="Tela de Mediação" style="max-width: 100%; border-radius: 8px; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <p style="font-size: 12px; color: #666; text-align: center; margin-top: 5px;">Exemplo: Visão do mediador comparando as notas antes de fechar a avaliação.</p>
+            </div>
+        </div>
+
+        <div class="no-break">
+            <h3>Visão da Equipe e Relatórios</h3>
+            <p>O Gestor enxerga exclusivamente os dados da sua hierarquia.</p>
+            <ul>
+                <li>Acesse <strong>Minha Equipe</strong> para ver o status atual das avaliações e PDIs dos seus
+                    liderados.</li>
+                <li>Nos relatórios individuais, utilize o <strong>Mapa de Calor (Gráfico de Radar)</strong> para
+                    identificar rapidamente as lacunas de competência (Gaps) do funcionário.</li>
+            </ul>
+        </div>
+
+        <div class="no-break">
+            <h3>Plano de Desenvolvimento Individual (PDI)</h3>
+            <p>A avaliação de desempenho só tem valor se gerar desenvolvimento. É responsabilidade do líder guiar este
+                processo.</p>
+            <ul>
+                <li>Através da tela <em>Minha Equipe</em>, o Gestor pode <strong>Atribuir um PDI</strong> ao
+                    colaborador.</li>
+                <li>Crie metas tangíveis (Ex: "Concluir curso de Excel Avançado") e defina prazos de início e término.
+                </li>
+                <li>O Gestor acompanha a porcentagem de conclusão em tempo real conforme o funcionário avança.</li>
+            </ul>
+            <div style="text-align: center; margin: 15px 0;">
+                <img src="img/passo_pdi_gestor.png" alt="Tela de Criação de PDI" style="max-width: 100%; border-radius: 8px; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <p style="font-size: 12px; color: #666; text-align: center; margin-top: 5px;">Exemplo: Formulário de criação de um novo PDI para um liderado.</p>
+            </div>
+        </div>
+
+        <div class="callout callout-important no-break">
+            <i class="fa-solid fa-star"></i>
+            <div><strong>Boas Práticas:</strong> Os PDIs devem ser construídos atacando diretamente as Skills que
+                obtiveram as notas mais baixas após a etapa de Mediação. Não crie PDIs genéricos.</div>
+        </div>
+
+        <div class="footer">TalentPro - Guia do Usuário | Módulo Gestão</div>
+    </div>
+
+    <!-- PÁGINA 4: COLABORADORES -->
+    <div class="page page-break">
+
+        <div class="section-header header-colab">
+            <i class="fa-solid fa-users"></i>
+            <h2>3. Perfil Colaborador</h2>
+        </div>
+        <p>Este é o módulo de uso contínuo, focado na autogestão e execução das tarefas atribuídas.</p>
+
+        <div class="no-break">
+            <h3>Minhas Avaliações</h3>
+            <p>Assim que um ciclo de avaliação é iniciado pelo RH, o colaborador recebe uma notificação.</p>
+            <ul>
+                <li>Acesse o menu <strong>Minhas Avaliações</strong>.</li>
+                <li>Nesta tela aparecerão todas as avaliações pendentes. Elas podem ser <strong>Autoavaliações</strong>
+                    (avaliar a si mesmo) ou <strong>Avaliação de Pares/Gestores</strong> (avaliar colegas de trabalho).
+                </li>
+                <li>Ao clicar em responder, o colaborador deve atribuir notas (geralmente de 0 a 10) e é fortemente
+                    encorajado a deixar comentários justificando a nota na caixa de texto.</li>
+            </ul>
+            <div style="text-align: center; margin: 15px 0;">
+                <img src="img/passo_responder.png" alt="Tela de Resposta" style="max-width: 100%; border-radius: 8px; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <p style="font-size: 12px; color: #666; text-align: center; margin-top: 5px;">Exemplo: Colaborador preenchendo as notas e comentários do formulário.</p>
+            </div>
+        </div>
+
+        <div class="no-break">
+            <h3>Meu PDI (Plano de Desenvolvimento)</h3>
+            <p>O funcionário não cria o seu próprio PDI do zero, ele executa o plano estratégico desenhado pelo seu
+                líder e pelo RH.</p>
+            <ul>
+                <li>Acesse a aba <strong>Meu PDI</strong> no menu esquerdo.</li>
+                <li>Visualize as metas ativas, as datas de entrega e a descrição exata do que precisa ser feito.</li>
+                <li><strong>Atualização de Progresso:</strong> O colaborador clica no PDI e marca os <em>checklists</em>
+                    das etapas que já cumpriu. A barra de progresso (0 a 100%) avança automaticamente.</li>
+                <li><strong>Comprovantes:</strong> Caso a meta exija (como o certificado de um curso), o colaborador faz
+                    o upload do arquivo diretamente dentro da janela do PDI.</li>
+            </ul>
+        </div>
+
+        <div class="no-break">
+            <h3>Meus Relatórios</h3>
+            <p>Após o fechamento (mediação) do ciclo, o colaborador ganha acesso ao seu boletim de desempenho.</p>
+            <ul>
+                <li>Ele pode visualizar suas notas finais por competência, entendendo exatamente onde superou as
+                    expectativas e onde precisa melhorar no próximo ciclo.</li>
+            </ul>
+        </div>
+
+        <div class="footer">TalentPro - Guia do Usuário | Módulo Colaborador</div>
+    </div>
+
+</body>
+
+</html>
