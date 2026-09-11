@@ -15,16 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([
-            EmpresaSeeder::class,
-            DepartamentoSeeder::class,
-            CargoSeeder::class,
-            UserSeeder::class,
-            CompetenciaSeeder::class,
-        ]);
+        $this->call(AdminSeeder::class);
 
-        $this->command->info('✅ Banco de dados populado com sucesso!');
-        $this->command->info('📧 Login: admin@talentipro.com');
-        $this->command->info('🔑 Senha: password');
+        User::factory(10)->create();
     }
 }

@@ -1,17 +1,11 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Database\Factories;
 
-use App\Models\ClimateCategory;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\ClimateQuestion;
 use App\Models\ClimateSurvey;
-use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends Factory<ClimateQuestion>
- */
 class ClimateQuestionFactory extends Factory
 {
     protected $model = ClimateQuestion::class;
@@ -19,27 +13,10 @@ class ClimateQuestionFactory extends Factory
     public function definition(): array
     {
         return [
-            'survey_id'   => ClimateSurvey::factory(),
-            'category_id' => null,
-            'texto'       => fake()->sentence() . '?',
-            'tipo'        => 'nota',
-            'obrigatoria' => true,
-            'ordem'       => fake()->numberBetween(0, 20),
+            'climate_survey_id' => ClimateSurvey::factory(),
+            'texto_pergunta' => $this->faker->sentence . '?',
+            'tipo_resposta' => 'escala_1_10',
+            'dimensao' => 'Geral'
         ];
-    }
-
-    public function tipoNota(): static
-    {
-        return $this->state(['tipo' => 'nota']);
-    }
-
-    public function tipoTexto(): static
-    {
-        return $this->state(['tipo' => 'texto']);
-    }
-
-    public function opcional(): static
-    {
-        return $this->state(['obrigatoria' => false]);
     }
 }

@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Enums\StatusEmpresa;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Empresa extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'nome',
         'cnpj',
@@ -16,44 +18,30 @@ class Empresa extends Model
         'telefone',
         'logo',
         'status',
-        'ativo',
         'max_usuarios',
         'data_contratacao',
+        'ia_ativa',
+        'ia_limite_transcricoes_mes',
+        'ia_transcricoes_utilizadas',
+        'ia_limite_reset_em',
+        'whatsapp_ativo',
     ];
 
-    protected $casts = [
-        'data_contratacao' => 'date',
-    ];
-
-    /**
-     * Usuários da empresa
-     */
-    public function users()
+    public function usuarios()
     {
         return $this->hasMany(User::class);
     }
 
-    /**
-     * Departamentos da empresa
-     */
-    public function departamentos()
+    public function configuracaoGoogle()
     {
-        return $this->hasMany(Departamento::class);
+        return $this->hasOne(ConfiguracaoGoogle::class);
     }
 
-    /**
-     * Cargos da empresa
-     */
-    public function cargos()
-    {
-        return $this->hasMany(Cargo::class);
-    }
-
-    /**
-     * Competências da empresa
-     */
-    public function competencias()
-    {
-        return $this->hasMany(Competencia::class);
-    }
+    protected $casts = [
+        'status' => StatusEmpresa::class,
+        'data_contratacao' => 'date',
+        'ia_ativa' => 'boolean',
+        'ia_limite_reset_em' => 'date',
+        'whatsapp_ativo' => 'boolean',
+    ];
 }

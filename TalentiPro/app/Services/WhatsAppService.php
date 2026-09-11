@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\WhatsappQueue;
+use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -47,13 +48,15 @@ class WhatsAppService
 
         try {
             // Tenta verificar se ela existe primeiro
-            $response = Http::timeout(10)
+            $response = Http::withoutVerifying()
+                ->timeout(10)
                 ->withHeaders(['apikey' => $this->apiKey])
                 ->get("{$this->baseUrl}/instance/connectionState/{$this->instance}");
 
             // Se retornar erro ou não encontrar, cria
             if ($response->failed() || empty($response->json('instance.state') ?? $response->json('state'))) {
-                Http::timeout(30)
+                Http::withoutVerifying()
+                    ->timeout(60)
                     ->withHeaders([
                         'apikey'       => $this->apiKey,
                         'Content-Type' => 'application/json',
@@ -61,6 +64,7 @@ class WhatsAppService
                     ->post("{$this->baseUrl}/instance/create", [
                         'instanceName' => $this->instance,
                         'qrcode'       => true,
+                        'integration'  => 'WHATSAPP-BAILEYS',
                     ]);
             }
         } catch (\Exception $e) {
@@ -69,6 +73,19 @@ class WhatsAppService
                 'erro'      => $e->getMessage()
             ]);
         }
+    }
+
+    /**
+     * Helper usado pelo AtividadeService
+     */
+    public function notificar(User $user, string $mensagem): void
+    {
+        if (empty($user->telefone)) {
+            Log::info("WhatsApp: usuário {$user->name} sem telefone, ignorando envio.");
+            return;
+        }
+        
+        $this->enviar($user->telefone, $mensagem, $user->id);
     }
 
     /**
@@ -82,42 +99,49 @@ class WhatsAppService
     public function enviar(string $telefone, string $mensagem, ?int $userId = null): bool
     {
         if (!$this->enabled) {
-            return false;
-        }
-
-        // Se passar o userId, define a empresa dele para enviar da instância correta
-        if ($userId) {
-            $user = \App\Models\User::withoutGlobalScope('empresa')->find($userId);
-            if ($user && $user->empresa_id) {
-                $this->setEmpresaId($user->empresa_id);
-            }
+            Log::info("WhatsApp (Mock): Para {$telefone} -> {$mensagem}");
+            return true;
         }
 
         $numero = $this->normalizarNumero($telefone);
 
-        // 1. Tenta enviar imediatamente
-        [$sucesso, $erro] = $this->tentarEnvio($numero, $mensagem);
-
-        if ($sucesso) {
-            return true;
-        }
-
-        // 2. Falhou → salva na fila para reenvio automático
-        WhatsappQueue::create([
+        // Salva IMEDIATAMENTE na fila (sem tentar envio síncrono)
+        $queueItem = WhatsappQueue::create([
             'user_id'        => $userId,
             'numero'         => $numero,
             'mensagem'       => $mensagem,
             'status'         => 'pendente',
-            'tentativas'     => 1,
+            'tentativas'     => 0, // Vai incrementar quando o Job processar
             'max_tentativas' => 3,
-            'ultimo_erro'    => $erro,
+            'ultimo_erro'    => null,
         ]);
 
-        Log::warning('WhatsApp: mensagem na fila para reenvio', [
+        // Despacha o Job para enviar em background (100% assíncrono)
+        \App\Jobs\SendWhatsAppMessageJob::dispatch($queueItem->id);
+
+        Log::info('WhatsApp: mensagem enfileirada para envio assíncrono', [
             'numero' => $numero,
-            'erro'   => $erro,
+            'queue_id' => $queueItem->id,
         ]);
 
+        return true;
+    }
+
+    /**
+     * Executa a requisição real de envio e atualiza o status na fila.
+     * Pode ser chamado tanto pelo Job individual (SendWhatsAppMessageJob)
+     * quanto pelo processamento em lote (ProcessarFilaWhatsApp).
+     */
+    public function processarItem(WhatsappQueue $item): bool
+    {
+        [$sucesso, $erro] = $this->tentarEnvio($item->numero, $item->mensagem);
+
+        if ($sucesso) {
+            $item->marcarEnviada();
+            return true;
+        }
+
+        $item->registrarFalha($erro);
         return false;
     }
 
@@ -147,13 +171,11 @@ class WhatsAppService
             $empresaId = $item->user ? $item->user->empresa_id : 1;
             $this->setEmpresaId($empresaId);
 
-            [$sucesso, $erro] = $this->tentarEnvio($item->numero, $item->mensagem);
+            $sucesso = $this->processarItem($item);
 
             if ($sucesso) {
-                $item->marcarEnviada();
                 $enviadas++;
             } else {
-                $item->registrarFalha($erro);
                 if ($item->fresh()->status === 'falhou') {
                     $falhadas++;
                 }
@@ -179,7 +201,8 @@ class WhatsAppService
         $this->garantirInstanciaCriada();
 
         try {
-            $response = Http::timeout(15)
+            $response = Http::withoutVerifying()
+                ->timeout(15)
                 ->withHeaders(['apikey' => $this->apiKey])
                 ->get("{$this->baseUrl}/instance/connectionState/{$this->instance}");
 
@@ -202,7 +225,8 @@ class WhatsAppService
         $this->garantirInstanciaCriada();
 
         try {
-            $response = Http::timeout(15)
+            $response = Http::withoutVerifying()
+                ->timeout(15)
                 ->withHeaders(['apikey' => $this->apiKey])
                 ->get("{$this->baseUrl}/instance/connectionState/{$this->instance}");
 
@@ -222,7 +246,8 @@ class WhatsAppService
         $this->garantirInstanciaCriada();
 
         try {
-            $response = Http::timeout(30)
+            $response = Http::withoutVerifying()
+                ->timeout(60)
                 ->withHeaders([
                     'apikey' => $this->apiKey,
                     'Accept' => 'application/json', // Solicita JSON prioritariamente
@@ -261,6 +286,30 @@ class WhatsAppService
         return $this->enabled;
     }
 
+    /**
+     * Exclui a instância na Evolution API (libera a VPS).
+     */
+    public function excluirInstancia(int $empresaId): void
+    {
+        if (!$this->enabled) return;
+
+        $this->setEmpresaId($empresaId);
+
+        try {
+            Http::withoutVerifying()
+                ->timeout(15)
+                ->withHeaders(['apikey' => $this->apiKey])
+                ->delete("{$this->baseUrl}/instance/delete/{$this->instance}");
+                
+            Log::info("WhatsApp: Instância {$this->instance} excluída da Evolution API.");
+        } catch (\Exception $e) {
+            Log::error('WhatsApp: erro ao excluir instância', [
+                'instancia' => $this->instance,
+                'erro'      => $e->getMessage()
+            ]);
+        }
+    }
+
     // ─── Internos ──────────────────────────────────────────────────────────────
 
     /**
@@ -272,16 +321,15 @@ class WhatsAppService
         $this->garantirInstanciaCriada();
 
         try {
-            $response = Http::timeout(10)
+            $response = Http::withoutVerifying()
+                ->timeout(10)
                 ->withHeaders([
                     'apikey'       => $this->apiKey,
                     'Content-Type' => 'application/json',
                 ])
                 ->post("{$this->baseUrl}/message/sendText/{$this->instance}", [
                     'number' => $numero,
-                    'textMessage' => [
-                        'text' => $mensagem
-                    ],
+                    'text'   => $mensagem,
                 ]);
 
             if ($response->successful()) {

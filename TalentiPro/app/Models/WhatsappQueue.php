@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class WhatsappQueue extends Model
 {
-    protected $table = 'whatsapp_queue';
+    protected $table = 'whatsapp_queues';
 
     protected $fillable = [
         'user_id',

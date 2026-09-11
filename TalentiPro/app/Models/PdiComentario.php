@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PdiComentario extends Model
 {
-    use HasFactory;
-    
+    // A tabela correspondente é pdi_comentarios
     protected $table = 'pdi_comentarios';
 
     protected $fillable = [
@@ -17,8 +16,19 @@ class PdiComentario extends Model
         'comentario',
     ];
 
-    public function user()
+    /**
+     * O comentário pertence a um PDI.
+     */
+    public function pdi(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Pdi::class, 'pdi_id');
+    }
+
+    /**
+     * O comentário pertence a um usuário (colaborador ou gestor).
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

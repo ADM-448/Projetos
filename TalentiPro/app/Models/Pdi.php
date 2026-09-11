@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\StatusPdi;
 use App\Models\Traits\BelongsToEmpresa;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Pdi extends Model
 {
@@ -13,37 +16,71 @@ class Pdi extends Model
         'empresa_id',
         'colaborador_id',
         'gestor_id',
+        'pdi_grupo_id',
+        'reuniao_feedback_id',
         'titulo',
         'descricao',
-        'prazo',
         'data_inicio',
         'data_fim',
         'data_conclusao',
         'status',
         'progresso',
+        'comprovante',
     ];
 
     protected $casts = [
-        'prazo' => 'date',
+        'status' => StatusPdi::class,
+        'data_inicio' => 'date',
+        'data_fim' => 'date',
+        'data_conclusao' => 'date',
+        'progresso' => 'integer',
     ];
 
-    public function colaborador()
+    /**
+     * O PDI pertence a um colaborador.
+     */
+    public function colaborador(): BelongsTo
     {
         return $this->belongsTo(User::class, 'colaborador_id');
     }
 
-    public function gestor()
+    /**
+     * O PDI é gerenciado/criado por um gestor (ou master).
+     */
+    public function gestor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'gestor_id');
     }
 
-    public function acoes()
+    /**
+     * O PDI pode pertencer a um grupo de PDIs.
+     */
+    public function grupo(): BelongsTo
     {
-        return $this->hasMany(PdiAcao::class);
+        return $this->belongsTo(PdiGrupo::class, 'pdi_grupo_id');
     }
 
-    public function comentarios()
+    /**
+     * O PDI pode ter sido gerado a partir de uma reunião de feedback.
+     */
+    public function reuniaoFeedback(): BelongsTo
     {
-        return $this->hasMany(PdiComentario::class)->orderBy('created_at', 'desc');
+        return $this->belongsTo(ReuniaoFeedback::class, 'reuniao_feedback_id');
+    }
+
+    /**
+     * Um PDI possui várias ações/etapas de desenvolvimento.
+     */
+    public function acoes(): HasMany
+    {
+        return $this->hasMany(PdiAcao::class, 'pdi_id');
+    }
+
+    /**
+     * Um PDI possui vários comentários no chat de alinhamento.
+     */
+    public function comentarios(): HasMany
+    {
+        return $this->hasMany(PdiComentario::class, 'pdi_id');
     }
 }

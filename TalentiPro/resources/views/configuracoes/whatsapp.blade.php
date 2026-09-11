@@ -1,10 +1,15 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 @section('title', 'Configuração WhatsApp')
+@section('body-class', 'has-sidebar')
+
+@section('sidebar')
+    @include('layouts.partials.sidebar')
+@endsection
 
 @section('content')
 @push('styles')
 <style>
-.wpp-page { max-width: 900px; margin: 0 auto; }
+.wpp-page { max-width: 900px; margin: 0 auto; padding-top: 20px; }
 
 /* Header */
 .wpp-header { display: flex; align-items: center; gap: 16px; margin-bottom: 30px; }
@@ -14,9 +19,22 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 26px; color: white;
     box-shadow: 0 4px 14px rgba(37,211,102,.35);
+    flex-shrink: 0;
 }
 .wpp-header h1 { font-size: 1.6rem; color: #1a1a2e; margin: 0; }
 .wpp-header p  { color: #666; margin: 2px 0 0; font-size: .9rem; }
+
+@media(max-width: 768px) {
+    .wpp-header {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 12px !important;
+        margin-bottom: 20px !important;
+    }
+    .wpp-icon {
+        margin: 0 auto !important;
+    }
+}
 
 /* Seletor de Empresa */
 .wpp-company-selector {
@@ -136,7 +154,7 @@
     @endif
 
     {{-- Seletor de Empresa para Administrador Global --}}
-    @if(auth()->user()->perfil_acesso === 'admin' && $empresas->isNotEmpty())
+    @if(auth()->user()->perfil_acesso->value === 'admin' && $empresas->isNotEmpty())
     <div class="wpp-company-selector">
         <div>
             <label for="wpp-empresa-select"><i class="fa-solid fa-building"></i> Configurando para a empresa:</label>
@@ -214,14 +232,16 @@
                     <span class="env-label">Empresa</span>
                     <span class="env-value" style="font-family: inherit; font-size: inherit;">{{ $empresaSelecionada->nome ?? 'N/A' }}</span>
                 </div>
+                @if(auth()->user()->perfil_acesso->value === 'admin')
                 <div class="env-row">
                     <span class="env-label">Instância WhatsApp</span>
-                    <span class="env-value">talentipro_{{ $empresaId }}</span>
+                    <span class="env-value">{{ config('whatsapp.instance') }}_{{ $empresaId }}</span>
                 </div>
                 <div class="env-row">
                     <span class="env-label">Servidor</span>
                     <span class="env-value">{{ config('whatsapp.base_url') }}</span>
                 </div>
+                @endif
                 <div class="env-row">
                     <span class="env-label">Reenvio automático</span>
                     <span class="env-value">A cada 10 minutos</span>
@@ -342,26 +362,12 @@
     <div class="card" style="margin-top:24px;">
         <div class="card-title"><i class="fa-solid fa-bell"></i> Notificações Automáticas Configuradas</div>
         <ul class="notif-list">
-            <li><span class="notif-icon">📋</span><div class="notif-text"><strong>Novo PDI atribuído</strong><span>Quando um PDI é criado/editado com o colaborador</span></div></li>
-            <li><span class="notif-icon">📊</span><div class="notif-text"><strong>Nova Auto-Avaliação</strong><span>Quando o colaborador é incluído como avaliado</span></div></li>
-            <li><span class="notif-icon">📊</span><div class="notif-text"><strong>Avaliador (Gestor) designado</strong><span>Quando gestor é adicionado como avaliador</span></div></li>
-            <li><span class="notif-icon">📊</span><div class="notif-text"><strong>Mediador designado</strong><span>Quando um usuário é designado como mediador</span></div></li>
-            <li><span class="notif-icon">🔔</span><div class="notif-text"><strong>Solicitação de reabertura</strong><span>Quando colaborador solicita reabertura de avaliação</span></div></li>
+            <li><span class="notif-icon">📋</span><div class="notif-text"><strong>Nova Avaliação / Auto-Avaliação</strong><span>Quando uma avaliação é atribuída na plataforma.</span></div></li>
+            <li><span class="notif-icon">✅</span><div class="notif-text"><strong>Avaliação Concluída</strong><span>Quando o colaborador responde sua avaliação.</span></div></li>
+            <li><span class="notif-icon">⚠️</span><div class="notif-text"><strong>Alerta do Sistema</strong><span>Avisos críticos de sistema desconectado.</span></div></li>
         </ul>
     </div>
 
-    {{-- Card Instruções .env --}}
-    <div class="card" style="margin-top:24px;">
-        <div class="card-title"><i class="fa-solid fa-gear"></i> Configuração no Servidor</div>
-        <pre style="background:#1e1e2e; color:#cdd6f4; padding:18px; border-radius:10px; font-size:.82rem; overflow-x:auto; line-height:1.7;"># ===== WhatsApp — Evolution API (gratuito) =====
-WHATSAPP_ENABLED=true
-WHATSAPP_BASE_URL=https://seu-servidor.com
-WHATSAPP_API_KEY=sua_chave_aqui
-WHATSAPP_INSTANCE=talentipro
-
-# Ativar o scheduler (cron no Linux — 1 linha no crontab):
-# * * * * * cd /caminho/do/projeto &amp;&amp; php artisan schedule:run >> /dev/null 2>&amp;1</pre>
-    </div>
 
 </div>
 @endsection

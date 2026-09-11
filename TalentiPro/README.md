@@ -1,94 +1,59 @@
+<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+
 <p align="center">
-  <img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo">
+<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-# 🚀 TalentiPro - Plataforma de Gestão de Talentos e Desempenho
+## About Laravel
 
-O **TalentiPro** é uma plataforma inovadora e completa focada na Gestão de Talentos, Mapeamento de Competências e Avaliação de Desempenho para empresas que buscam modernizar e profissionalizar seu setor de Recursos Humanos.
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-## 🌟 Principais Módulos e Funcionalidades
+- [Simple, fast routing engine](https://laravel.com/docs/routing).
+- [Powerful dependency injection container](https://laravel.com/docs/container).
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+- [Robust background job processing](https://laravel.com/docs/queues).
+- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-*   🏢 **Gestão Organizacional Completa:**
-    *   Estruturação de **Departamentos**, **Cargos** e **Colaboradores**.
-    *   Mapeamento inteligente de **Hard Skills** e **Soft Skills** (Competências) atreladas a cada cargo.
-    *   Suporte a importação em massa para onboarding acelerado de grandes volumes de colaboradores e competências.
-*   📊 **Avaliação de Desempenho Inteligente:**
-    *   Fluxos dinâmicos de avaliação (Autoavaliação, Avaliação Múltipla/360 graus).
-    *   Papel do Gestor como "Mediador" (fechamento, calibração de notas).
-    *   Dashboards interativos e emissão de **Relatórios Individuais** e **Relatórios de Mediação**, evidenciando lacunas (gaps) de desempenho em relação ao cargo.
-    *   Alimentação responsiva via API (para modais interativos e respostas rápidas).
-*   📈 **PDI (Plano de Desenvolvimento Individual):**
-    *   Criação de planos de ação personalizados para o desenvolvimento contínuo pós-avaliação.
-    *   Sistema de acompanhamento em comentários entre a liderança e o liderado.
-    *   Upload e anexação de **comprovantes** (certificados, cursos e documentos) atrelados às ações do PDI.
-*   📞 **Canal de Solicitações de RH:**
-    *   Central de atendimento na qual o colaborador pode solicitar férias, enviar atestados médicos, entre outros, e o RH monitora, aprova ou recusa as demandas em tempo real.
-*   🏢 **Multi-empresa (Multi-tenant):**
-    *   Ambiente preparado para **holdings** ou infraestruturas corporais de grande escala, permitindo o intercâmbio centralizado entre filiais e empresas no próprio painel (`/login/select-company`).
+Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## 🛠️ Stack Tecnológico
+## Learning Laravel
 
-O TalentiPro foi construído visando estabilidade, segurança e performance utilizando o estado da arte do PHP contendo padrões consolidados de engenharia de software:
+Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
 
-- **Linguagem Back-end:** PHP 8.2+
-- **Framework Core:** Laravel 12.0 (MVC tradicional com modulação em Controllers e Middlewares)
-- **Frontend / UI:** Motor assíncrono Blade + Vite (JavaScript, ES6+) e CSS Utilitário modernoizado (TailwindCSS).
-- **Banco de Dados:** MySQL
-- **Módulo de Autenticação:** Scaffold robusto customizado em cima do Laravel Breeze.
+If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
 
-## 🚀 Instalação e Ambiente de Desenvolvimento
+## Laravel Sponsors
 
-Siga as etapas rigorosamente para configurar o projeto limpo com integridade no seu setup local:
+We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
-1. **Clone do Repositório**
-   ```bash
-   git clone [URL_DO_REPOSITORIO]
-   cd TalentiPro
-   ```
+### Premium Partners
 
-2. **Dependências Back-end (Composer)**
-   ```bash
-   composer install
-   ```
+- **[Vehikl](https://vehikl.com)**
+- **[Tighten Co.](https://tighten.co)**
+- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
+- **[64 Robots](https://64robots.com)**
+- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
+- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
+- **[Redberry](https://redberry.international/laravel-development)**
+- **[Active Logic](https://activelogic.com)**
 
-3. **Arquivo de Variáveis de Ambiente (.Env)**
-   Copie o modelo de ambiente `.env.example` para gerar o seu `.env` contendo as variáveis únicas do projeto (como Banco de Dados).
-   ```bash
-   # Utilizando Windows (CMD/PowerShell)
-   copy .env.example .env
-   # Ou Linux / Mac / WSL
-   cp .env.example .env
-   ```
-   Logo depois, gere a chave única de APP:
-   ```bash
-   php artisan key:generate
-   ```
+## Contributing
 
-4. **Dependências Front-end (NPM / Vite)**
-   Instale os node_modules e faça a pre-compilação dos assets otimizados da aplicação.
-   ```bash
-   npm install
-   npm run build
-   ```
-   *Se for codar com "Hot Reload", após o install deixe rodando `npm run dev` no terminal aberto.*
+Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-5. **Banco de Dados (Migrations e Seeds)**
-   A aplicação subirá as tabelas da infraestrutura base ativando logo em seguida as Seeds padrões (como permissões super admin, `UserSeeder.php` etc.).
-   ```bash
-   php artisan migrate --seed
-   ```
+## Code of Conduct
 
-6. **Acionar Engine Local**
-   ```bash
-   php artisan serve
-   ```
-   *Painel acessível via browser no IP dinâmico emitido (Geralmente http://localhost:8000).*
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-## 📦 Deploy para Produção (VPS / cPanel / Hostgator)
+## Security Vulnerabilities
 
-As regras de roteamento na raiz (`/public`) foram padronizadas e empacotadas. Todo o plano rigoroso de deploy (incluindo permissões de chmod e configuração de servidor com Subpastas) consta no guia corporativo oficial de homologação.
-👉 [**Guia de Deploy (README_DEPLOY.md)**](./README_DEPLOY.md)
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
----
-**Engenharia de Software & Produto by _Seu Time / Intalenti_**
-> Projetos robustos demandam manutenção constante e clean code. Contate os Devs em caso de ampliações modulares futuras (Mobile ou Restful API escalável).
+## License
+
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

@@ -10,17 +10,13 @@ class Competencia extends Model
 {
     use HasFactory, BelongsToEmpresa;
 
-    protected $fillable = ['nome', 'descricao', 'empresa_id']; // Adicione 'tipo' se tiver no banco
+    protected $fillable = [
+        'nome',
+        'descricao',
+    ];
 
-    // Relacionamento com Skills (Itens da competência)
     public function skills()
     {
         return $this->hasMany(Skill::class);
-    }
-
-    // Relacionamento com Cargos (Muitos para Muitos)
-    public function cargos()
-    {
-        return $this->belongsToMany(Cargo::class, 'cargo_competencia');
     }
 }

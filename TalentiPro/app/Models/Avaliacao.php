@@ -2,53 +2,59 @@
 
 namespace App\Models;
 
+use App\Enums\StatusAvaliacao;
 use App\Models\Traits\BelongsToEmpresa;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Avaliacao extends Model
 {
     use HasFactory, BelongsToEmpresa;
 
-    // CORREÇÃO 1: Nome da tabela conforme seu print
-    protected $table = 'avaliacaos';
+    protected $table = 'avaliacoes';
 
     protected $fillable = [
+        'empresa_id',
+        'grau',
         'titulo',
         'descricao',
+        'filtros_aplicados',
+        'mediadores',
         'data_inicio',
         'data_fim',
         'status',
-        'forma_avaliacao',   // CORREÇÃO 2: Mudou de tipo_avaliacao para forma_avaliacao
-        'senioridade',       // Novo campo
-        'data_admissao',     // Novo campo
-        'created_by',        // Quem criou a avaliação
-        'empresa_id',
-        'filtros'            // Novo campo JSON
+        'created_by',
     ];
 
     protected $casts = [
         'data_inicio' => 'date',
         'data_fim' => 'date',
-        'data_admissao' => 'date',
-        'filtros' => 'array', // Cast automático para array
+        'status' => StatusAvaliacao::class,
+        'filtros_aplicados' => 'array',
+        'mediadores' => 'array',
     ];
 
-    public function participantes()
+    public function criador(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function competencias(): BelongsToMany
+    {
+        return $this->belongsToMany(Competencia::class, 'avaliacao_competencias', 'avaliacao_id', 'competencia_id')
+                    ->withTimestamps();
+    }
+
+    public function participantes(): HasMany
     {
         return $this->hasMany(AvaliacaoParticipante::class, 'avaliacao_id');
     }
 
-    // Relacionamento Muitos-para-Muitos
-    public function competencias()
+    public function fechamentos(): HasMany
     {
-        // Cria uma tabela pivo 'avaliacao_competencia' automaticamente se usar a convenção
-        // Mas como estamos fazendo na raça, vamos assumir que você vai criar a tabela pivô
-        return $this->belongsToMany(Competencia::class, 'avaliacao_competencias', 'avaliacao_id', 'competencia_id');
-    }
-
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->hasMany(AvaliacaoFechamento::class, 'avaliacao_id');
     }
 }

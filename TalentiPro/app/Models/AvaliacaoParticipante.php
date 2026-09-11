@@ -2,49 +2,47 @@
 
 namespace App\Models;
 
+use App\Enums\TipoAvaliacao;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AvaliacaoParticipante extends Model
 {
     use HasFactory;
 
-    protected $table = 'avaliacao_participantes'; // Conforme seu print
+    protected $table = 'avaliacao_participantes';
 
     protected $fillable = [
         'avaliacao_id',
         'avaliado_id',
         'avaliador_id',
-        'tipo', // autoavaliacao, gestor, par, subordinado
-        'status', // pendente, realizada
-        'nota',
-        'comentario',
-        'observacao_avaliado'
+        'tipo',
+        'status',
     ];
 
+    protected $casts = [
+        'tipo' => TipoAvaliacao::class,
+    ];
 
-    public function avaliacao()
+    public function avaliacao(): BelongsTo
     {
         return $this->belongsTo(Avaliacao::class);
     }
 
-    public function avaliado()
+    public function avaliado(): BelongsTo
     {
         return $this->belongsTo(User::class, 'avaliado_id');
     }
 
-    public function avaliador()
+    public function avaliador(): BelongsTo
     {
         return $this->belongsTo(User::class, 'avaliador_id');
     }
 
-    public function mediador()
+    public function respostas(): HasMany
     {
-        return $this->belongsTo(User::class, 'mediador_id');
-    }
-
-    public function respostas()
-    {
-        return $this->hasMany(AvaliacaoResposta::class);
+        return $this->hasMany(AvaliacaoResposta::class, 'avaliacao_participante_id');
     }
 }

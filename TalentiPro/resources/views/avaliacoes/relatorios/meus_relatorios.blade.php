@@ -1,314 +1,262 @@
-@extends(in_array(auth()->user()->perfil_acesso, ['admin', 'master']) ? 'layouts.admin' : (auth()->user()->perfil_acesso === 'gestor' ? 'layouts.gestor' : 'layouts.colaborador'))
+@extends('layouts.app')
 
-@section('title', 'Meus Relatórios')
+@section('title', 'Meus Resultados')
+@section('body-class', 'has-sidebar')
 
-
-
-@section('content')
-<div class="page-content">
-    
-    <div class="report-header">
-        <h1 class="page-title">Meus Resultados</h1>
-        
-
-    </div>
-
-    <div class="report-filter" style="display: flex; flex-wrap: wrap; gap: 10px;">
-        <select class="report-select" id="selAvaliacao" style="flex: 1; min-width: 200px;">
-            @forelse($avaliacoes as $av)
-                <option value="{{ $av->id }}">{{ $av->titulo }} ({{ \Carbon\Carbon::parse($av->data_inicio)->format('m/Y') }})</option>
-            @empty
-                <option value="">Nenhuma avaliação disponível</option>
-            @endforelse
-        </select>
-        <button class="btn-view" onclick="carregarRelatorio()" style="padding: 10px 20px;">Filtrar</button>
-    </div>
-
-    {{-- Content Area --}}
-    <div id="reportContent" style="display:none;">
-        
-        <div class="charts-grid">
-            <div class="chart-card">
-                <h4>Minha Autoavaliação</h4>
-                <div class="chart-circle" id="circleAuto">
-                    <div class="chart-inner" id="scoreAuto">-</div>
-                </div>
-            </div>
-            <div class="chart-card">
-                <h4>Avaliação (Gestor/Pares)</h4>
-                <div class="chart-circle" id="circleGestor">
-                    <div class="chart-inner" id="scoreGestor">-</div>
-                </div>
-            </div>
-            <div class="chart-card">
-                <h4>Consenso Final</h4>
-                <div class="chart-circle" id="circleFinal">
-                    <div class="chart-inner" id="scoreFinal">-</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="details-card">
-            <h3 class="details-title">Detalhamento por Competência</h3>
-            <div id="detailsContainer">
-                <!-- JS Insert Rows Here -->
-            </div>
-
-            <div style="margin-top: 20px; background: #f9f9f9; padding: 15px; border-radius: 5px; display:none;" id="feedbackContainer">
-                <strong>Feedback / Comentários Gerais:</strong>
-                <p id="feedbackText" style="color: #666; font-size: 14px; margin-top: 5px;">-</p>
-            </div>
-        </div>
-
-    </div>
-    
-    <div id="noDataMsg" style="text-align: center; color: #777; margin-top: 50px;">
-        Selecione uma avaliação e clique em Filtrar.
-    </div>
-
-
-
-</div>
-
-<div class="loading-overlay" id="loading">
-    <i class="fa-solid fa-spinner fa-spin fa-2x" style="color: #3b5998;"></i>
-</div>
+@section('sidebar')
+    @include('layouts.partials.sidebar')
 @endsection
 
-@push('scripts')
+@section('content')
+<div class="header-actions">
+    <div>
+        <h1 class="page-title">Meus Resultados</h1>
+        <p style="color: #666; font-size: 0.95rem;">Acompanhe o seu desempenho e o feedback recebido nas avaliações que você participou.</p>
+    </div>
+</div>
+
 <style>
-    @media (max-width: 768px) {
-        .charts-grid {
-            grid-template-columns: 1fr !important;
-            gap: 15px !important;
+    .filter-panel {
+        background: linear-gradient(to right, #ffffff, #f8fafc);
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 25px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        margin-bottom: 30px;
+    }
+    
+    .filter-label {
+        display: block; 
+        font-weight: 700; 
+        color: #4a5568; 
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+    }
+    
+    .custom-select {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 2px solid #e2e8f0;
+        background-color: #ffffff;
+        color: #2d3748;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 1em;
+    }
+    
+    .custom-select:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+    
+    .btn-generate {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white; 
+        border-radius: 10px; 
+        padding: 12px 25px; 
+        font-weight: 800; 
+        height: 48px; 
+        border: none; 
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1rem;
+    }
+
+    .btn-generate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    }
+
+    .empty-results-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 50px 30px;
+        text-align: center;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+        max-width: 650px;
+        margin: 40px auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+    
+    .empty-results-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.08);
+    }
+    
+    .empty-results-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #ebf8ff, #bee3f8);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        color: #3182ce;
+        font-size: 2.2rem;
+        animation: pulse-soft 2.5s infinite ease-in-out;
+    }
+    
+    .empty-results-card h3 {
+        color: #2d3748;
+        font-size: 1.35rem;
+        font-weight: 800;
+        margin-bottom: 10px;
+        margin-top: 0;
+    }
+    
+    .empty-results-card p {
+        color: #4a5568;
+        font-size: 1.02rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        margin-top: 0;
+        max-width: 500px;
+    }
+    
+    .empty-results-card .sub-desc {
+        color: #718096;
+        font-size: 0.92rem;
+        font-weight: 400;
+        line-height: 1.6;
+        margin-bottom: 25px;
+        max-width: 520px;
+    }
+    
+    .empty-results-footer {
+        border-top: 1px solid #edf2f7;
+        width: 100%;
+        padding-top: 20px;
+        display: flex;
+        justify-content: center;
+    }
+    
+    .empty-results-footer .tip {
+        color: #4a5568;
+        font-size: 0.85rem;
+        background-color: #f7fafc;
+        padding: 10px 18px;
+        border-radius: 12px;
+        border: 1px dashed #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        max-width: 500px;
+        text-align: left;
+        line-height: 1.4;
+    }
+    
+    .empty-results-footer .tip i {
+        color: #dd6b20;
+        font-size: 0.95rem;
+        flex-shrink: 0;
+    }
+
+    @keyframes pulse-soft {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(49, 130, 206, 0.2);
         }
-        .mobile-cards-table, .mobile-cards-table thead, .mobile-cards-table tbody, .mobile-cards-table th, .mobile-cards-table td, .mobile-cards-table tr {
-            display: block !important;
-            width: 100% !important;
-            min-width: 0 !important;
-        }
-        .mobile-cards-table thead { display: none !important; }
-        .mobile-cards-table tr {
-            margin-bottom: 20px !important;
-            border: 1px solid #ccc !important;
-            border-radius: 8px !important;
-            background: #fff !important;
-            padding: 15px !important;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
-            overflow: hidden !important;
-        }
-        .mobile-cards-table td {
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            text-align: left !important;
-            padding: 10px 0 !important;
-            border: none !important;
-            background-color: transparent !important;
-        }
-        .mobile-cards-table td::before {
-            content: attr(data-label);
-            font-weight: 700;
-            font-size: 13px;
-            color: #3b5998;
-            margin-bottom: 5px;
-            width: 100%;
-            display: block;
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 10px rgba(49, 130, 206, 0);
         }
     }
 </style>
+
+@if($avaliacoes->isEmpty())
+    <div class="empty-results-card">
+        <div class="empty-results-icon">
+            <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <h3>Tudo pronto para a sua evolução!</h3>
+        <p>Você ainda não possui nenhuma avaliação de desempenho finalizada.</p>
+        <p class="sub-desc">Assim que a equipe de Recursos Humanos ou seu gestor encerrarem uma campanha de avaliação de desempenho na qual você participou, todo o seu relatório de competências, gráficos de evolução e PDIs serão liberados aqui para você acompanhar.</p>
+        <div class="empty-results-footer">
+            <span class="tip">
+                <i class="fa-regular fa-lightbulb"></i> 
+                <span><strong>Dica:</strong> Fique atento às comunicações da empresa e ao seu painel principal para saber quando novas campanhas forem abertas.</span>
+            </span>
+        </div>
+    </div>
+@else
+    {{-- Seleção da Campanha --}}
+    <div class="filter-panel">
+        <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end;">
+            <div style="flex: 1; min-width: 250px;">
+                <label class="filter-label"><i class="fa-solid fa-list-check" style="color: #3498db; margin-right: 5px;"></i> Selecione a Avaliação</label>
+                <select id="avaliacao_id" class="custom-select">
+                    <option value="">-- Selecione uma Avaliação --</option>
+                    @foreach($avaliacoes as $av)
+                        <option value="{{ $av->id }}">{{ $av->titulo }} ({{ \Carbon\Carbon::parse($av->data_inicio)->format('d/m/Y') }})</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <button onclick="buscarMeuRelatorio()" class="btn-generate">
+                    <i class="fa-solid fa-chart-line"></i> Ver Resultados
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loader -->
+    <div id="loading" style="display: none; text-align: center; margin: 40px 0;">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: #3498db;"></i>
+        <p style="color: #718096; margin-top: 10px;">Buscando seus resultados...</p>
+    </div>
+
+    <!-- Área do Relatório Injetado -->
+    @include('avaliacoes.relatorios.partials.report_view')
+@endif
+
+@endsection
+
+@push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // Auto load first if exists
-        const sel = document.getElementById('selAvaliacao');
-        if(sel.options.length > 0 && sel.value) {
-            carregarRelatorio();
+    async function buscarMeuRelatorio() {
+        const avaliacaoId = document.getElementById('avaliacao_id').value;
+        const colaboradorId = {{ auth()->id() }};
+
+        if(!avaliacaoId) {
+            alert('Selecione uma avaliação primeiro.');
+            return;
         }
-    });
 
-    async function carregarRelatorio() {
-        const id = document.getElementById('selAvaliacao').value;
-        if(!id) return;
-
-        document.getElementById('loading').style.display = 'flex';
         document.getElementById('reportContent').style.display = 'none';
-        document.getElementById('noDataMsg').style.display = 'none';
+        document.getElementById('loading').style.display = 'block';
 
         try {
-            // Rota: GET /api/relatorios/dados?avaliacao_id=X&colaborador_id=Y
-            // Pega o ID logado via Blade ou deixa o backend pegar sozinho? 
-            // O endpoint getDadosRelatorio pede colaborador_id.
-            const userId = {{ auth()->id() }};
-            
-            const url = `{{ route('relatorios.dados') }}?avaliacao_id=${id}&colaborador_id=${userId}`;
+            const url = `{{ route('relatorios.dados') }}?avaliacao_id=${avaliacaoId}&colaborador_id=${colaboradorId}`;
             const res = await fetch(url);
+            
+            if(!res.ok) throw new Error('Erro no servidor');
+            
             const data = await res.json();
-
-            if(data.error) throw new Error(data.error);
-
             renderReport(data);
 
-        }catch (error) {
+        } catch (error) {
             console.error(error);
             alert('Erro ao carregar dados: ' + error.message);
         } finally {
             document.getElementById('loading').style.display = 'none';
         }
     }
-
-    function renderReport(data) {
-        document.getElementById('reportContent').style.display = 'block';
-
-        // 1. Scores (Circles)
-        const sAuto = parseFloat(data.scores.colab.media);
-        const sGestor = parseFloat(data.scores.aval.media);
-        const sFinal = parseFloat(data.scores.med.media); // Nota de Fechamento ou Final
-
-        updateCircle('circleAuto', 'scoreAuto', sAuto, '#1565c0');
-        updateCircle('circleGestor', 'scoreGestor', sGestor, '#2e7d32');
-        updateCircle('circleFinal', 'scoreFinal', sFinal, '#7b1fa2');
-
-        // 2. Detalhamento
-        const container = document.getElementById('detailsContainer');
-        container.innerHTML = '';
-
-        let competencias = {};
-
-        if (data.scores.colab && data.scores.colab.detalhes) {
-            data.scores.colab.detalhes.forEach(d => {
-                let comp = d.competencia || 'Geral';
-                if(!competencias[comp]) competencias[comp] = { skills: {}, notasColab: [], notasAval: [] };
-                if(!competencias[comp].skills[d.pergunta]) competencias[comp].skills[d.pergunta] = { colab: null, aval: null };
-                
-                competencias[comp].skills[d.pergunta].colab = d;
-                if (!isNaN(parseFloat(d.nota))) {
-                    competencias[comp].notasColab.push(parseFloat(d.nota));
-                }
-            });
-        }
-
-        if (data.scores.aval && data.scores.aval.detalhes) {
-            data.scores.aval.detalhes.forEach(d => {
-                let comp = d.competencia || 'Geral';
-                if(!competencias[comp]) competencias[comp] = { skills: {}, notasColab: [], notasAval: [] };
-                if(!competencias[comp].skills[d.pergunta]) competencias[comp].skills[d.pergunta] = { colab: null, aval: null };
-                
-                competencias[comp].skills[d.pergunta].aval = d;
-                if (!isNaN(parseFloat(d.nota))) {
-                    competencias[comp].notasAval.push(parseFloat(d.nota));
-                }
-            });
-        }
-
-        for (const [compName, dados] of Object.entries(competencias)) {
-            let avgColab = dados.notasColab.length > 0 ? (dados.notasColab.reduce((a,b)=>a+b,0) / dados.notasColab.length).toFixed(2) : '-';
-            let avgAval = dados.notasAval.length > 0 ? (dados.notasAval.reduce((a,b)=>a+b,0) / dados.notasAval.length).toFixed(2) : '-';
-
-            let card = document.createElement('div');
-            card.style.cssText = "border: 1px solid #ccc; border-radius: 8px; margin-bottom: 20px; overflow: hidden;";
-            
-            let html = `
-                <div style="display: flex; justify-content: space-between; background: #3b5998; color: white; padding: 10px 15px; align-items: center; flex-wrap: wrap;">
-                    <h3 style="margin: 0; font-size: 16px;">${compName}</h3>
-                    <div style="display: flex; gap: 20px; font-size: 14px; margin-top: 5px;">
-                        <span>Média Líder: <strong>${avgAval}</strong></span>
-                        <span>Média Colaborador: <strong>${avgColab}</strong></span>
-                    </div>
-                </div>
-                <div style="padding: 15px; background: #fff; overflow-x: auto;">
-                    <table class="mobile-cards-table" style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="border-bottom: 2px solid #eee; text-align: left;">
-                                <th style="padding: 8px;">Pergunta (Skill)</th>
-                                <th style="padding: 8px; text-align: center;">Nota Líder</th>
-                                <th style="padding: 8px; text-align: center;">Nota Colab</th>
-                                <th style="padding: 8px;">Comentário Líder</th>
-                                <th style="padding: 8px;">Comentário Colab</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            for (const [skillName, skillData] of Object.entries(dados.skills)) {
-                let nColab = skillData.colab && skillData.colab.nota !== null ? skillData.colab.nota : '-';
-                let nAval = skillData.aval && skillData.aval.nota !== null ? skillData.aval.nota : '-';
-                
-                let cColab = skillData.colab && skillData.colab.comentarios && skillData.colab.comentarios.length ? skillData.colab.comentarios.join('<br>') : '-';
-                let cAval = skillData.aval && skillData.aval.comentarios && skillData.aval.comentarios.length ? skillData.aval.comentarios.join('<br>') : '-';
-
-                html += `
-                    <tr style="border-bottom: 1px solid #eee;">
-                        <td data-label="Pergunta (Skill)" style="padding: 8px; vertical-align: top;"><strong>${skillName}</strong></td>
-                        <td data-label="Nota Líder" style="padding: 8px; text-align: center; vertical-align: top; font-weight: bold; color: #2e7d32;">${nAval}</td>
-                        <td data-label="Nota Colab" style="padding: 8px; text-align: center; vertical-align: top; font-weight: bold; color: #1565c0;">${nColab}</td>
-                        <td data-label="Comentário Líder" style="padding: 8px; font-size: 13px; color: #555; vertical-align: top;">${cAval}</td>
-                        <td data-label="Comentário Colab" style="padding: 8px; font-size: 13px; color: #555; vertical-align: top;">${cColab}</td>
-                    </tr>
-                `;
-            }
-
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
-            
-            card.innerHTML = html;
-            container.appendChild(card);
-        }
-
-        // 3. Feedback
-        // TODO: Backend does not explicitly return "General Feedback" in simple field.
-        // It returns comments array in aval details.
-        // 3. Feedback / Comentários Gerais (Fechamento do Master)
-        const fbContainer = document.getElementById('feedbackContainer');
-        const fbText = document.getElementById('feedbackText');
-        
-        // Comentário do Fechamento (Master)
-        const obsMaster = data.scores.med.comentarios;
-
-        // Comentários dos Avaliadores (Agregado)
-        const comments = [];
-        if(data.scores.aval.detalhes) {
-            data.scores.aval.detalhes.forEach(d => {
-                if(d.comentarios && Array.isArray(d.comentarios)) {
-                    comments.push(...d.comentarios);
-                }
-            });
-        }
-
-        let htmlContent = '';
-        
-        if(obsMaster) {
-            htmlContent += `<strong>Observações do Gestor/RH:</strong><br>${obsMaster}<br><br>`;
-        }
-
-        if(comments.length > 0) {
-            htmlContent += `<strong>Comentários nas Competências:</strong><br>${comments.map(c => `• ${c}`).join('<br>')}`;
-        }
-
-        if(htmlContent) {
-            fbContainer.style.display = 'block';
-            fbText.innerHTML = htmlContent;
-        } else {
-            fbContainer.style.display = 'none';
-        }
-        
-
-    }
-
-    function updateCircle(elemId, textId, score, colorHex) {
-        const elem = document.getElementById(elemId);
-        const text = document.getElementById(textId);
-        
-        // Normalize score 0-10 or 0-100? Assuming 0-10.
-        // Conic gradient percent: (score / 10) * 100
-        const percent = (score / 10) * 100;
-
-        text.innerText = score.toFixed(1);
-        elem.style.background = `conic-gradient(${colorHex} ${percent}%, #eee 0)`;
-    }
-
-
 </script>
 @endpush

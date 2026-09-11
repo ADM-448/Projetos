@@ -1,52 +1,31 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ClimateQuestion extends Model
 {
     use HasFactory;
 
-    // Sem BelongsToEmpresa: escopo garantido via survey_id → ClimateSurvey tem BelongsToEmpresa.
-
-    protected $table = 'climate_questions';
-
     protected $fillable = [
-        'survey_id',
-        'category_id',
-        'texto',
-        'tipo',
-        'obrigatoria',
+        'climate_survey_id',
+        'dimensao',
+        'texto_pergunta',
+        'tipo_resposta',
         'ordem',
-    ];
-
-    protected $casts = [
-        'obrigatoria' => 'boolean',
-        'ordem'       => 'integer',
     ];
 
     public function survey(): BelongsTo
     {
-        return $this->belongsTo(ClimateSurvey::class, 'survey_id');
+        return $this->belongsTo(ClimateSurvey::class, 'climate_survey_id');
     }
 
-    public function category(): BelongsTo
+    public function respostas(): HasMany
     {
-        return $this->belongsTo(ClimateCategory::class, 'category_id');
-    }
-
-    public function isTipoNota(): bool
-    {
-        return $this->tipo === 'nota';
-    }
-
-    public function isTipoTexto(): bool
-    {
-        return $this->tipo === 'texto';
+        return $this->hasMany(ClimateResponse::class, 'climate_question_id');
     }
 }

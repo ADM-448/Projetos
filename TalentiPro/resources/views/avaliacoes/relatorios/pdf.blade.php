@@ -1,157 +1,185 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Relatório - {{ $colaborador->name }}</title>
+    <title>Relatório de Avaliação - {{ $data['colaborador']['name'] }}</title>
     <style>
-        body { font-family: sans-serif; font-size: 14px; color: #333; margin: 0; padding: 0; }
-        .header { text-align: center; border-bottom: 2px solid #3b5998; padding-bottom: 20px; margin-bottom: 30px; }
-        .logo { font-size: 24px; font-weight: bold; color: #6a4c7c; margin-bottom: 10px; }
-        .report-title { font-size: 20px; color: #555; }
-        .info-box { background-color: #f8f9fa; border: 1px solid #ddd; padding: 15px; border-radius: 5px; margin-bottom: 30px; }
-        .info-box table { width: 100%; }
-        .info-box td { padding: 5px; }
-        .info-box strong { color: #3b5998; }
-        .charts-container { width: 100%; margin-bottom: 30px; text-align: center; }
-        .chart-card { display: inline-block; width: 22%; margin: 1%; background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd; text-align: center; box-sizing: border-box; }
-        .chart-title { font-size: 12px; font-weight: bold; color: #555; margin-bottom: 10px; text-transform: uppercase; }
-        .chart-number { font-size: 24px; font-weight: bold; color: #3b5998; }
-        .scores-box { text-align: center; margin-bottom: 30px; }
-        .score-item { display: inline-block; background-color: #dbe6f0; border-radius: 8px; padding: 15px 30px; margin: 0 10px; }
-        .score-label { font-size: 12px; font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
-        .score-value { font-size: 20px; font-weight: bold; color: #000; }
-        .competence-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; page-break-inside: avoid; }
-        .competence-table th { background-color: #3b5998; color: white; padding: 10px; text-align: left; }
-        .competence-table td { padding: 10px; border: 1px solid #ddd; vertical-align: top; }
-        .competence-name { font-weight: bold; background-color: #eef2f5; font-size: 16px; padding: 10px; border: 1px solid #ddd; border-bottom: none; margin-top: 20px; }
-        .note-leader { color: #2e7d32; font-weight: bold; text-align: center; }
-        .note-colab { color: #1565c0; font-weight: bold; text-align: center; }
-        .footer { position: fixed; bottom: -30px; left: 0px; right: 0px; height: 50px; text-align: center; font-size: 10px; color: #999; border-top: 1px solid #ddd; padding-top: 10px; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 12px; color: #333; }
+        .header { text-align: center; border-bottom: 2px solid #6a4c7c; padding-bottom: 10px; margin-bottom: 20px; }
+        h1 { color: #6a4c7c; font-size: 20px; margin: 0; }
+        h2 { color: #2d3748; font-size: 16px; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-top: 25px; }
+        .info-table, .score-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .info-table td { padding: 5px; }
+        .score-table th, .score-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .score-table th { background-color: #f8fafc; font-weight: bold; color: #4a5568; }
+        .text-center { text-align: center; }
+        .highlight { font-weight: bold; font-size: 14px; }
+        .purple { color: #6a4c7c; }
+        .blue { color: #3498db; }
+        .orange { color: #e67e22; }
+        .footer { text-align: center; font-size: 10px; color: #999; margin-top: 50px; border-top: 1px solid #eee; padding-top: 10px; }
         .page-break { page-break-after: always; }
+        
+        .box-comparativo { width: 24%; display: inline-block; text-align: center; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 0; margin-right: 1%; }
+        .box-comparativo.last { margin-right: 0; }
+        .box-comparativo .title { font-size: 10px; color: #718096; margin-bottom: 5px; }
+        .box-comparativo .value { font-size: 18px; font-weight: bold; color: #2d3748; }
     </style>
 </head>
 <body>
-    <div class="footer">
-        Gerado em {{ now()->format('d/m/Y H:i') }} - TalentiPro
-    </div>
 
     <div class="header">
-        <div class="logo">TALENTIPRO</div>
-        <div class="report-title">Relatório de Avaliação - {{ $avaliacao->titulo }}</div>
+        <h1>Relatório de Desempenho</h1>
+        <p style="margin: 5px 0 0 0;">Campanha: <strong>{{ $data['avaliacao']['titulo'] ?? 'Avaliação' }}</strong></p>
     </div>
 
-    <div class="info-box">
-        <table>
-            <tr>
-                <td><strong>Colaborador:</strong> {{ $colaborador->name }}</td>
-                <td><strong>Cargo:</strong> {{ $colaborador->cargo ? $colaborador->cargo->nome : '-' }}</td>
-            </tr>
-            <tr>
-                <td><strong>Departamento:</strong> {{ $colaborador->departamento ? $colaborador->departamento->nome : '-' }}</td>
-                <td><strong>Gestor:</strong> {{ $colaborador->gestor ? $colaborador->gestor->name : 'Sem Gestor' }}</td>
-            </tr>
-        </table>
-    </div>
+    <!-- Informações do Colaborador -->
+    <table class="info-table">
+        <tr>
+            <td width="15%"><strong>Nome:</strong></td>
+            <td width="35%">{{ $data['colaborador']['name'] }}</td>
+            <td width="15%"><strong>Cargo:</strong></td>
+            <td width="35%">{{ $data['colaborador']['cargo']['nome'] ?? 'N/A' }}</td>
+        </tr>
+        <tr>
+            <td><strong>Setor:</strong></td>
+            <td>{{ $data['colaborador']['departamento']['nome'] ?? 'N/A' }}</td>
+            <td><strong>Líder Direto:</strong></td>
+            <td>{{ $data['colaborador']['gestor']['name'] ?? 'N/A' }}</td>
+        </tr>
+    </table>
 
-    <div class="charts-container">
-        <div class="chart-card">
-            <div class="chart-title">Média Individual</div>
-            <div class="chart-number">{{ $charts['individual'] }}</div>
-        </div>
-        <div class="chart-card">
-            <div class="chart-title">Média Cargo</div>
-            <div class="chart-number">{{ $charts['cargo'] }}</div>
-        </div>
-        <div class="chart-card">
-            <div class="chart-title">Média Setor</div>
-            <div class="chart-number">{{ $charts['setor'] }}</div>
-        </div>
-        <div class="chart-card">
-            <div class="chart-title">Média Empresa</div>
-            <div class="chart-number">{{ $charts['empresa'] }}</div>
-        </div>
-    </div>
+    <!-- Resumo dos Scores -->
+    <h2>Resumo das Notas</h2>
+    <table class="info-table text-center" style="margin: 20px 0;">
+        <tr>
+            <td width="33%">
+                <div style="font-size: 12px; color: #6a4c7c;">Autoavaliação</div>
+                <div style="font-size: 24px; font-weight: bold; color: #6a4c7c;">{{ $data['scores']['colab']['media'] }}</div>
+            </td>
+            <td width="33%">
+                <div style="font-size: 12px; color: #3498db;">Avaliadores (Líder/Pares)</div>
+                <div style="font-size: 24px; font-weight: bold; color: #3498db;">{{ $data['scores']['aval']['media'] }}</div>
+            </td>
+            <td width="33%">
+                <div style="font-size: 12px; color: #e67e22;">Consenso / Final</div>
+                <div style="font-size: 24px; font-weight: bold; color: #e67e22;">{{ $data['scores']['med']['media'] }}</div>
+            </td>
+        </tr>
+    </table>
 
-    <div class="scores-box">
-        <div class="score-item">
-            <span class="score-label">Média Avaliadores</span>
-            <span class="score-value">{{ $scores['aval']['media'] }}</span>
+    <!-- Médias Comparativas -->
+    <h2>Comparativo (Médias)</h2>
+    <div style="margin-top: 10px;">
+        <div class="box-comparativo">
+            <div class="title">Indivíduo</div>
+            <div class="value">{{ number_format((float)$data['charts']['individual'], 1) }}</div>
         </div>
-        <div class="score-item" style="border: 2px solid #3b5998;">
-            <span class="score-label">Média Mediação</span>
-            <span class="score-value">{{ $scores['med']['media'] > 0 ? $scores['med']['media'] : '0.00' }}</span>
+        <div class="box-comparativo">
+            <div class="title">Cargo</div>
+            <div class="value">{{ number_format((float)$data['charts']['cargo'], 1) }}</div>
+        </div>
+        <div class="box-comparativo">
+            <div class="title">Setor</div>
+            <div class="value">{{ number_format((float)$data['charts']['setor'], 1) }}</div>
+        </div>
+        <div class="box-comparativo last">
+            <div class="title">Empresa</div>
+            <div class="value">{{ number_format((float)$data['charts']['empresa'], 1) }}</div>
         </div>
     </div>
+    
+    <div style="clear: both;"></div>
 
-    @if(!empty($scores['observacao_avaliado']))
-    <div class="info-box" style="margin-bottom: 20px;">
-        <strong>Observação do Avaliado:</strong><br>
-        {{ $scores['observacao_avaliado'] }}
-    </div>
-    @endif
+    <div class="page-break"></div>
 
-    @if(!empty($scores['med']['comentarios']))
-    <div class="info-box" style="margin-bottom: 30px;">
-        <strong>Comentários de Fechamento / Plano de Ação:</strong><br>
-        {{ $scores['med']['comentarios'] }}
-    </div>
-    @endif
+    <!-- Detalhamento por Competência -->
+    <h2>Detalhamento por Competência</h2>
 
     @php
-        // Processar competências
+        // Agrupa as notas de colab e aval para gerar a tabela, semelhante ao JS
         $competencias = [];
         
-        if (isset($scores['colab']) && isset($scores['colab']['detalhes'])) {
-            foreach ($scores['colab']['detalhes'] as $d) {
-                $comp = $d['competencia'] ?? 'Geral';
-                if (!isset($competencias[$comp])) $competencias[$comp] = ['skills' => []];
-                if (!isset($competencias[$comp]['skills'][$d['pergunta']])) $competencias[$comp]['skills'][$d['pergunta']] = ['colab' => null, 'aval' => null];
-                $competencias[$comp]['skills'][$d['pergunta']]['colab'] = $d;
+        if (isset($data['scores']['colab']['detalhes']) && is_array($data['scores']['colab']['detalhes'])) {
+            foreach ($data['scores']['colab']['detalhes'] as $d) {
+                $comp = $d['competencia'] ?: 'Geral';
+                if (!isset($competencias[$comp])) $competencias[$comp] = [];
+                $competencias[$comp][$d['pergunta']]['colab'] = $d;
             }
         }
 
-        if (isset($scores['aval']) && isset($scores['aval']['detalhes'])) {
-            foreach ($scores['aval']['detalhes'] as $d) {
-                $comp = $d['competencia'] ?? 'Geral';
-                if (!isset($competencias[$comp])) $competencias[$comp] = ['skills' => []];
-                if (!isset($competencias[$comp]['skills'][$d['pergunta']])) $competencias[$comp]['skills'][$d['pergunta']] = ['colab' => null, 'aval' => null];
-                $competencias[$comp]['skills'][$d['pergunta']]['aval'] = $d;
+        if (isset($data['scores']['aval']['detalhes']) && is_array($data['scores']['aval']['detalhes'])) {
+            foreach ($data['scores']['aval']['detalhes'] as $d) {
+                $comp = $d['competencia'] ?: 'Geral';
+                if (!isset($competencias[$comp])) $competencias[$comp] = [];
+                $competencias[$comp][$d['pergunta']]['aval'] = $d;
             }
         }
     @endphp
 
-    @foreach($competencias as $compName => $dados)
-        <div class="competence-name">{{ $compName }}</div>
-        <table class="competence-table">
+    @foreach($competencias as $compName => $skills)
+        <div style="background-color: #6a4c7c; color: #fff; padding: 5px 10px; font-weight: bold; margin-top: 20px;">
+            {{ $compName }}
+        </div>
+        <table class="score-table">
             <thead>
                 <tr>
-                    <th style="width: 30%;">Pergunta (Skill)</th>
-                    <th style="width: 10%; text-align: center;">Nota Líder</th>
-                    <th style="width: 10%; text-align: center;">Nota Colab</th>
-                    <th style="width: 25%;">Comentário Líder</th>
-                    <th style="width: 25%;">Comentário Colab</th>
+                    <th width="40%">Pergunta (Skill)</th>
+                    <th width="15%" class="text-center">Autoavaliação</th>
+                    <th width="15%" class="text-center">Avaliadores</th>
+                    <th width="30%">Comentários</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($dados['skills'] as $skillName => $skillData)
+                @foreach($skills as $skillName => $dadosSkill)
                     @php
-                        $nColab = isset($skillData['colab']) && $skillData['colab']['nota'] !== null ? $skillData['colab']['nota'] : '-';
-                        $nAval = isset($skillData['aval']) && $skillData['aval']['nota'] !== null ? $skillData['aval']['nota'] : '-';
-                        
-                        $cColab = isset($skillData['colab']) && isset($skillData['colab']['comentarios']) && count($skillData['colab']['comentarios']) ? implode('<br>', $skillData['colab']['comentarios']) : '-';
-                        $cAval = isset($skillData['aval']) && isset($skillData['aval']['comentarios']) && count($skillData['aval']['comentarios']) ? implode('<br>', $skillData['aval']['comentarios']) : '-';
+                        $nColab = isset($dadosSkill['colab']['nota']) ? $dadosSkill['colab']['nota'] : '-';
+                        $nAval = isset($dadosSkill['aval']['nota']) ? $dadosSkill['aval']['nota'] : '-';
+                        $comentarios = [];
+                        if (isset($dadosSkill['aval']['comentarios']) && is_array($dadosSkill['aval']['comentarios'])) {
+                            $comentarios = $dadosSkill['aval']['comentarios'];
+                        }
                     @endphp
                     <tr>
                         <td>{{ $skillName }}</td>
-                        <td class="note-leader">{{ $nAval }}</td>
-                        <td class="note-colab">{{ $nColab }}</td>
-                        <td>{!! $cAval !!}</td>
-                        <td>{!! $cColab !!}</td>
+                        <td class="text-center purple highlight">{{ $nColab }}</td>
+                        <td class="text-center blue highlight">{{ $nAval }}</td>
+                        <td style="font-size: 11px;">
+                            @if(count($comentarios) > 0)
+                                <ul style="margin: 0; padding-left: 15px;">
+                                    @foreach($comentarios as $c)
+                                        <li>{{ $c }}</li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <span style="color: #999;">Sem comentários</span>
+                            @endif
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     @endforeach
+
+    <!-- Considerações Finais -->
+    @if(!empty($data['scores']['med']['comentarios']) || !empty($data['scores']['observacao_avaliado']))
+        <h2>Considerações Finais</h2>
+        <div style="background-color: #fffaf0; border: 1px solid #fbd38d; padding: 15px;">
+            @if(!empty($data['scores']['med']['comentarios']))
+                <h4 style="margin: 0 0 5px 0; color: #dd6b20;">Fechamento (RH/Gestor)</h4>
+                <p style="margin: 0 0 15px 0;">{!! nl2br(e($data['scores']['med']['comentarios'])) !!}</p>
+            @endif
+
+            @if(!empty($data['scores']['observacao_avaliado']))
+                <h4 style="margin: 0 0 5px 0; color: #dd6b20;">Auto-reflexão do Colaborador</h4>
+                <p style="margin: 0;">{!! nl2br(e($data['scores']['observacao_avaliado'])) !!}</p>
+            @endif
+        </div>
+    @endif
+
+    <div class="footer">
+        Gerado pelo sistema Talenti-Pro em {{ date('d/m/Y H:i') }}
+    </div>
 
 </body>
 </html>

@@ -1,10 +1,12 @@
 <?php
 
-use App\Jobs\ProcessarFilaWhatsApp;
-use Illuminate\Console\Scheduling\Schedule;
+use App\Http\Middleware\EnsureEmpresaAtiva;
+use App\Http\Middleware\EnsurePerfilAcesso;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
+use Illuminate\Session\TokenMismatchException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,19 +15,24 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Temporarily disabled for debugging
-        // $middleware->web(append: [
-        //     \App\Http\Middleware\EnsureUserBelongsToEmpresa::class,
-        // ]);
-    })
-    ->withSchedule(function (Schedule $schedule): void {
-        // Processa a fila de mensagens WhatsApp pendentes a cada 10 minutos.
-        // Reenvio automático quando o WhatsApp cai e volta a funcionar.
-        $schedule->job(new ProcessarFilaWhatsApp)->everyTenMinutes()
-                 ->withoutOverlapping()
-                 ->name('whatsapp-queue');
+        $middleware->alias([
+            'empresa.ativa' => EnsureEmpresaAtiva::class,
+            'role' => EnsurePerfilAcesso::class,
+        ]);
+
+        $middleware->redirectUsersTo(function (Request $request) {
+            $user = $request->user();
+            if ($user && $user->perfil_acesso === \App\Enums\UserRole::ADMIN) {
+                return '/admin/dashboard';
+            }
+            return '/dashboard';
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
-    })->create();
-
+        $exceptions->render(function (TokenMismatchException $e, Request $request) {
+            return redirect()->back()
+                ->withInput($request->except('password', 'password_confirmation', '_token'))
+                ->withErrors(['email' => 'Sua sessão expirou por inatividade. Por favor, tente novamente.']);
+        });
+    })
+    ->create();

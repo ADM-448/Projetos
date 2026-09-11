@@ -1,11 +1,7 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Models;
 
-use App\Models\Traits\BelongsToEmpresa;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,9 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ClimateSurvey extends Model
 {
-    use HasFactory, BelongsToEmpresa;
-
-    protected $table = 'climate_surveys';
+    use HasFactory;
 
     protected $fillable = [
         'empresa_id',
@@ -24,61 +18,63 @@ class ClimateSurvey extends Model
         'data_inicio',
         'data_fim',
         'status',
-        'visibilidade_gestor',
-        'resultado_liberado_colaboradores',
+        'anonima',
         'created_by',
     ];
 
     protected $casts = [
-        'data_inicio'                     => 'date',
-        'data_fim'                        => 'date',
-        'resultado_liberado_colaboradores' => 'boolean',
+        'data_inicio' => 'date',
+        'data_fim'    => 'date',
+        'anonima'     => 'boolean',
     ];
 
-    // --- Scopes ---
-
-    public function scopeAtiva(Builder $query): Builder
+    public function empresa(): BelongsTo
     {
-        return $query->where('status', 'ativa');
+        return $this->belongsTo(Empresa::class);
     }
 
-    public function scopeEncerrada(Builder $query): Builder
-    {
-        return $query->where('status', 'encerrada');
-    }
-
-    public function scopeRascunho(Builder $query): Builder
-    {
-        return $query->where('status', 'rascunho');
-    }
-
-    // --- Relacionamentos ---
-
-    public function questions(): HasMany
-    {
-        return $this->hasMany(ClimateQuestion::class, 'survey_id')
-                    ->orderBy('ordem');
-    }
-
-    public function participations(): HasMany
-    {
-        return $this->hasMany(ClimateSurveyParticipation::class, 'survey_id');
-    }
-
-    public function creator(): BelongsTo
+    public function criador(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    // --- Helpers ---
+    public function perguntas(): HasMany
+    {
+        return $this->hasMany(ClimateQuestion::class)->orderBy('ordem');
+    }
+
+    public function respostas(): HasMany
+    {
+        return $this->hasMany(ClimateResponse::class);
+    }
+
+    public function participacoes(): HasMany
+    {
+        return $this->hasMany(ClimateSurveyParticipation::class);
+    }
+
+    public function auditLogs(): HasMany
+    {
+        return $this->hasMany(ClimateSurveyAuditLog::class);
+    }
 
     public function isAtiva(): bool
     {
         return $this->status === 'ativa';
     }
 
-    public function gestorVeApenasDepto(): bool
+    public function isEncerrada(): bool
     {
-        return $this->visibilidade_gestor === 'apenas_departamento';
+        return $this->status === 'encerrada';
+    }
+
+    public function isRascunho(): bool
+    {
+        return $this->status === 'rascunho';
+    }
+
+    public function isAgendada(): bool
+    {
+        return $this->status === 'agendada';
     }
 }

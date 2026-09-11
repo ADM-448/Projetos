@@ -1,185 +1,204 @@
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AvaliacaoController;
+use App\Http\Controllers\AvaliacaoRespostaController;
+use App\Http\Controllers\CargoController;
+use App\Http\Controllers\ColaboradorController;
+use App\Http\Controllers\CompetenciaController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DepartamentoController;
+use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SkillController;
+use App\Http\Controllers\WhatsAppController;
+use App\Http\Controllers\PdiController;
+use App\Http\Controllers\SolicitacaoController;
+use App\Http\Controllers\GoogleOAuthController;
+use App\Http\Controllers\ReuniaoFeedbackController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Web\{
-    DashboardController,
-    DepartamentoWebController,
-    CargoWebController,
-    ColaboradorWebController,
-    CompetenciaWebController,
-    AvaliacaoWebController,
-    PdiWebController,
-    RelatorioWebController,
-    SolicitacaoWebController,
-    EmpresaWebController,
-    AuthController,
-    ReuniaoFeedbackWebController,
-    GoogleConfigController,
-    WhatsAppController
-};
 
-// Redireciona a raiz para o login
+// ==========================================
+// PÁGINA INICIAL (Pública para o Google)
+// ==========================================
 Route::get('/', function () {
-    return redirect()->route('login');
+    return view('welcome');
+})->name('home');
+
+// ==========================================
+// PÁGINAS INSTITUCIONAIS E LEGAIS
+// ==========================================
+Route::get('/politica-privacidade', function () {
+    return view('pages.politica-privacidade');
+})->name('politica.privacidade');
+
+Route::get('/termos-uso', function () {
+    return view('pages.termos-uso');
+})->name('termos.uso');
+
+// Rotas de Autenticação (Públicas / Acessíveis para Visitantes)
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
 });
 
-// Rotas de Autenticação
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+// Rotas Protegidas (Exigem Autenticação)
+Route::middleware(['auth', 'empresa.ativa'])->group(function () {
 
-// Rota de Seleção de Empresa (Login Multi-Empresa)
-Route::get('/login/select-company', [AuthController::class, 'showSelectCompany'])->name('auth.select-company');
-Route::post('/login/select-company', [AuthController::class, 'selectCompany'])->name('auth.select-company.post');
+    // Rota de Logout (POST obrigatório por segurança)
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// GRUPO PROTEGIDO (Só acessa logado)
-Route::middleware(['auth'])->group(function () {
+    // Dashboard do Tenant (Master, Gestor, Colaborador)
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard')
+        ->middleware('role:master,gestor,colaborador');
 
-    // 1. Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // APIs Internas do Dashboard (Modais)
+    Route::middleware('role:master,gestor')->group(function () {
+        Route::get('/dashboard/api/avaliacoes-ativas', [DashboardController::class, 'apiAvaliacoesAtivas'])->name('dashboard.api.avaliacoes-ativas');
+        Route::get('/dashboard/api/pdis-pendentes', [DashboardController::class, 'apiPdisPendentes'])->name('dashboard.api.pdis-pendentes');
+    });
 
-    // Pesquisa de Clima Organizacional
-    Route::get('/clima', [\App\Http\Controllers\Web\ClimateSurveyWebController::class, 'index'])->name('clima.index');
-    Route::get('/clima/criar', [\App\Http\Controllers\Web\ClimateSurveyWebController::class, 'create'])->name('clima.create');
-    Route::post('/clima', [\App\Http\Controllers\Web\ClimateSurveyWebController::class, 'store'])->name('clima.store');
-    Route::get('/clima/{id}', [\App\Http\Controllers\Web\ClimateSurveyWebController::class, 'show'])->name('clima.show');
-    Route::post('/clima/{id}/responder', [\App\Http\Controllers\Web\ClimateSurveyWebController::class, 'submit'])->name('clima.submit');
-    Route::post('/clima/{id}/abrir', [\App\Http\Controllers\Web\ClimateSurveyWebController::class, 'abrir'])->name('clima.abrir');
-    Route::post('/clima/{id}/encerrar', [\App\Http\Controllers\Web\ClimateSurveyWebController::class, 'encerrar'])->name('clima.encerrar');
-    Route::post('/clima/{id}/toggle-gestor', [\App\Http\Controllers\Web\ClimateSurveyWebController::class, 'toggleGestor'])->name('clima.toggle-gestor');
-    Route::post('/clima/{id}/toggle-colaborador', [\App\Http\Controllers\Web\ClimateSurveyWebController::class, 'toggleColaborador'])->name('clima.toggle-colaborador');
-    Route::get('/clima/{id}/resultados', [\App\Http\Controllers\Web\ClimateSurveyWebController::class, 'dashboard'])->name('clima.dashboard');
-    Route::get('/clima/{id}/auditoria', [\App\Http\Controllers\Web\ClimateSurveyWebController::class, 'auditoria'])->name('clima.auditoria');
+    // Meus Dados (Perfil)
+    Route::get('/meus-dados', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/meus-dados', [ProfileController::class, 'update'])->name('profile.update');
 
-    // 2. Cadastros (Departamento, Cargos, Colaboradores)
-    Route::resource('departamentos', DepartamentoWebController::class);
-    Route::resource('cargos', CargoWebController::class);
-    Route::resource('colaboradores', ColaboradorWebController::class);
+    // Painel Administrativo Global (Apenas para o Admin)
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'adminIndex'])->name('dashboard');
+        
+        // Rotas de gestão de tenants com throttle restritivo para escrita
+        Route::middleware('throttle:30,1')->group(function () {
+            Route::resource('empresas', EmpresaController::class)->except(['show']);
+        });
+    });
 
-    Route::post('/colaboradores/importar', [ColaboradorWebController::class, 'importar'])->name('colaboradores.importar');
-    // Rota extra para "Contas" - Gerenciar acesso ao sistema
-    Route::get('/contas', [ColaboradorWebController::class, 'contas'])->name('contas.index');
+    // Relatórios de Avaliações (Público autenticado)
+    Route::get('avaliacoes/meus-relatorios', [\App\Http\Controllers\AvaliacaoRelatorioController::class, 'meusRelatorios'])->name('avaliacoes.relatorios.meus');
+    Route::get('api/relatorios/alvos/{avaliacao_id}', [\App\Http\Controllers\AvaliacaoRelatorioController::class, 'getAlvosDaAvaliacao']);
+    Route::get('api/relatorios/dados', [\App\Http\Controllers\AvaliacaoRelatorioController::class, 'getDadosRelatorio'])->name('relatorios.dados');
+    Route::get('avaliacoes/relatorios/pdf', [\App\Http\Controllers\AvaliacaoRelatorioController::class, 'exportarPdf'])->name('relatorios.exportar.pdf');
 
-    // Rota para "Minha Conta"
-    Route::get('/minha-conta', [ColaboradorWebController::class, 'meuPerfil'])->name('perfil.index');
+    // Rotas de Gestão de RH (Apenas Master e Gestor)
+    Route::middleware(['role:master,gestor'])->group(function () {
 
-    // Gestão de Empresas (Admin only)
-    Route::get('/empresas', [EmpresaWebController::class, 'index'])->name('empresas.index');
-    Route::post('/empresas', [EmpresaWebController::class, 'store'])->name('empresas.store');
-    Route::put('/empresas/{empresa}', [EmpresaWebController::class, 'update'])->name('empresas.update');
-    Route::post('/empresas/{empresa}/toggle', [EmpresaWebController::class, 'toggleStatus'])->name('empresas.toggle');
-    Route::delete('/empresas/{empresa}', [EmpresaWebController::class, 'destroy'])->name('empresas.destroy');
+        // Rotas de LEITURA — throttle generoso (120 req/min)
+        // Protege contra raspagem e crawlers sem prejudicar uso normal
+        Route::middleware('throttle:120,1')->group(function () {
+            Route::get('departamentos', [DepartamentoController::class, 'index'])->name('departamentos.index');
+            Route::get('cargos', [CargoController::class, 'index'])->name('cargos.index');
+            Route::get('colaboradores', [ColaboradorController::class, 'index'])->name('colaboradores.index');
+        });
 
-    // Configurações do Google (Admin/Master)
-    Route::get('/configuracoes/google', [GoogleConfigController::class, 'index'])->name('configuracoes.google');
-    Route::post('/configuracoes/google', [GoogleConfigController::class, 'store'])->name('configuracoes.google.store');
+        // Rotas de ESCRITA — throttle restritivo (30 req/min)
+        // Protege criação, edição e exclusão contra abuso automatizado
+        Route::middleware('throttle:30,1')->group(function () {
+            Route::resource('departamentos', DepartamentoController::class)->except(['index']);
+            Route::resource('cargos', CargoController::class)->except(['index']);
+            Route::post('colaboradores/importar', [ColaboradorController::class, 'importar'])->name('colaboradores.importar');
+            Route::delete('colaboradores/lote', [ColaboradorController::class, 'destroyLote'])->name('colaboradores.destroyLote');
+            Route::resource('colaboradores', ColaboradorController::class)->except(['index']);
+        });
 
-    // Configuração WhatsApp (apenas Master)
-    Route::get('/configuracoes/whatsapp', [WhatsAppController::class, 'index'])->name('whatsapp.config');
-    Route::post('/configuracoes/whatsapp/teste', [WhatsAppController::class, 'teste'])->name('whatsapp.teste');
-    Route::post('/configuracoes/whatsapp/reprocessar', [WhatsAppController::class, 'reprocessar'])->name('whatsapp.reprocessar');
+        // Competências e Skills
+        Route::post('competencias/importar', [CompetenciaController::class, 'importar'])->name('competencias.importar');
+        Route::resource('competencias', CompetenciaController::class)->except(['show', 'create', 'edit']);
+        Route::get('competencias/{competencia}/skills', [SkillController::class, 'index'])->name('skills.index');
+        Route::post('competencias/{competencia}/skills', [SkillController::class, 'store'])->name('skills.store');
+        Route::delete('competencias/{competencia}/skills/{skill}', [SkillController::class, 'destroy'])->name('skills.destroy');
 
-    // 3. Treinamentos (Competências e Avaliações)
-    Route::post('/competencias/importar', [CompetenciaWebController::class, 'importar'])->name('competencias.importar');
-    Route::resource('competencias', CompetenciaWebController::class);
+        // Relatórios de Avaliações (Equipe)
+        Route::get('avaliacoes/relatorios', [\App\Http\Controllers\AvaliacaoRelatorioController::class, 'index'])->name('avaliacoes.relatorios');
+        
+        // Avaliações (Gestão)
+        Route::resource('avaliacoes', AvaliacaoController::class)->parameters([
+            'avaliacoes' => 'avaliacao'
+        ]);
+        Route::get('avaliacoes/{avaliacao}/mediar/{avaliado}', [AvaliacaoController::class, 'mediar'])->name('avaliacoes.mediar');
+        Route::post('avaliacoes/{avaliacao}/mediar/{avaliado}', [AvaliacaoController::class, 'salvarFechamento'])->name('avaliacoes.salvar-fechamento');
+        
+        // IA para Relatórios
+        Route::post('avaliacoes/gerar-pdi-ia', [\App\Http\Controllers\AvaliacaoRelatorioController::class, 'gerarPdiIa'])->name('avaliacoes.gerar_pdi_ia');
+    });
 
+    // Responder Avaliações (Todos podem, se houver um participante associado)
+    Route::get('minhas-avaliacoes', [AvaliacaoRespostaController::class, 'index'])->name('avaliacoes.minhas');
+    Route::post('/lembretes', [App\Http\Controllers\LembreteController::class, 'store'])->name('lembretes.store');
     
-    // Minhas Avaliações (Tela de Responder)
-    Route::get('/avaliacoes/gerenciar', [AvaliacaoWebController::class, 'gerenciarAvaliacoes'])->name('avaliacoes.gerenciar');
-    Route::get('/avaliacoes/mediar', [AvaliacaoWebController::class, 'mediarAvaliacoes'])->name('avaliacoes.mediar'); // Nova Rota Gestor
-    // Relatórios
-    Route::get('/avaliacoes/relatorios', [AvaliacaoWebController::class, 'relatoriosIndividuais'])->name('avaliacoes.relatorios');
-    Route::get('/avaliacoes/meus-relatorios', [AvaliacaoWebController::class, 'meusRelatorios'])->name('avaliacoes.relatorios.meus');
-    Route::get('/avaliacoes/relatorios/mediacao', [AvaliacaoWebController::class, 'relatoriosMediacao'])->name('avaliacoes.relatorios.mediacao'); // Nova Rota // Nova Rota Gestor
-    Route::get('/minhas-avaliacoes', [AvaliacaoWebController::class, 'pendentes'])->name('avaliacoes.pendentes');
-    Route::post('/avaliacoes/responder', [AvaliacaoWebController::class, 'responder'])->name('avaliacoes.responder');
-    Route::post('/avaliacoes/reabrir', [AvaliacaoWebController::class, 'reabrirAvaliacao'])->name('avaliacoes.reabrir');
+    Route::get('/avaliacoes', [AvaliacaoController::class, 'index'])->name('avaliacoes.index');
+    Route::get('responder-avaliacao/{participante}', [AvaliacaoRespostaController::class, 'create'])->name('avaliacoes.responder');
+    Route::post('responder-avaliacao/{participante}', [AvaliacaoRespostaController::class, 'store'])->name('avaliacoes.store-resposta');
 
-    Route::put('/avaliacoes/{id}/status/{status}', [AvaliacaoWebController::class, 'alterarStatus'])->name('avaliacoes.status');
-    Route::get('/api/avaliacao-detalhes/{id}', [AvaliacaoWebController::class, 'getDetalhes']); // Fixed 'show' to 'getDetalhes' just in case
-    Route::resource('avaliacoes', AvaliacaoWebController::class);
-
-    // APIs para os Modais
-    Route::get('/api/avaliacao/{id}/detalhes', [AvaliacaoWebController::class, 'getDetalhes']); // Ver Mais (Gestão)
-    Route::get('/api/avaliacao/{id}/alvos', [AvaliacaoWebController::class, 'getMeusAlvos']);   // Responder (Execução)
-    Route::get('/api/avaliacao-participante/{id}/respostas', [AvaliacaoWebController::class, 'getRespostas']); // Carregar Respostas (Edição)
-    Route::get('/api/avaliacao/{id}/participantes', [AvaliacaoWebController::class, 'getAlvosDaAvaliacao']); // Listar Avaliados (Relatório)
-
-
-    // Rota da API usada no Dashboard/Charts se houver
-    Route::get('/api/avaliacao-dados/{id}', [AvaliacaoWebController::class, 'buscarDadosAvaliacao']);
-    Route::get('/api/avaliacao-dashboard/{id}', [AvaliacaoWebController::class, 'dadosDashboard']);
-
-
-    // 4. PDI
-    // Rotas customizadas ANTES do resource para não cair no {pdi}
-    Route::post('/pdis/update-group', [PdiWebController::class, 'updateGroup'])->name('pdis.update.group');
-    Route::delete('/pdis/destroy-group', [PdiWebController::class, 'destroyGroup'])->name('pdis.destroy.group');
-    Route::get('/pdis/destroy-group', function() { return redirect()->route('pdis.index'); }); // Fallback for refresh
-    Route::get('/meus-pdis', [PdiWebController::class, 'meusPdis'])->name('pdis.meus');
-    Route::post('/pdis/{id}/comentar', [PdiWebController::class, 'salvarComentario'])->name('pdis.comentar');
-    Route::post('/pdis/acao/{id}/toggle', [PdiWebController::class, 'toggleAcao'])->name('pdis.acao.toggle');
+    // Módulo de PDI (Planos de Desenvolvimento Individual)
+    Route::resource('pdis', PdiController::class)->parameters([
+        'pdis' => 'pdi'
+    ]);
+    Route::post('pdis/{pdi}/comentarios', [PdiController::class, 'storeComentario'])->name('pdis.comentarios.store');
+    Route::post('pdi-acoes/{acao}/toggle', [PdiController::class, 'toggleAcao'])->name('pdi-acoes.toggle');
+    Route::post('pdis/{pdi}/comprovante', [PdiController::class, 'uploadComprovante'])->name('pdis.comprovante.upload');
     
-    Route::post('/pdis/{id}/comprovante', [PdiWebController::class, 'uploadComprovante'])->name('pdis.upload');
-    Route::get('/pdis/{id}/download-comprovante', [PdiWebController::class, 'downloadComprovante'])->name('pdis.download');
-    Route::resource('pdis', PdiWebController::class)->except(['show', 'create', 'edit']);
+    // Configurações de Google Workspace / OAuth
+    Route::get('/auth/google', [GoogleOAuthController::class, 'redirectToGoogle'])->name('google.login');
+    Route::get('/auth/google/callback', [GoogleOAuthController::class, 'handleGoogleCallback'])->name('google.callback');
+    Route::post('/auth/google/disconnect', [GoogleOAuthController::class, 'disconnect'])->name('google.disconnect');
 
-    // 5. Reuniões de Feedback (IA)
-    Route::get('/reunioes-feedback', [ReuniaoFeedbackWebController::class, 'index'])->name('reunioes.index');
-    Route::post('/reunioes-feedback/agendar', [ReuniaoFeedbackWebController::class, 'storeAgendamento'])->name('reunioes.agendar');
-    Route::get('/reunioes-feedback/sala/{id}', [ReuniaoFeedbackWebController::class, 'salaVideo'])->name('reunioes.sala');
-    Route::get('/reunioes-feedback/nova', [ReuniaoFeedbackWebController::class, 'create'])->name('reunioes.create');
-    Route::post('/reunioes-feedback/processar', [ReuniaoFeedbackWebController::class, 'processar'])->name('reunioes.processar');
-    Route::post('/reunioes-feedback/salvar', [ReuniaoFeedbackWebController::class, 'store'])->name('reunioes.store');
-    Route::get('/reunioes-feedback/{id}', [ReuniaoFeedbackWebController::class, 'show'])->name('reunioes.show');
-    Route::delete('/reunioes-feedback/{id}', [ReuniaoFeedbackWebController::class, 'destroy'])->name('reunioes.destroy');
-    Route::delete('/reunioes-feedback/agendamento/{id}', [ReuniaoFeedbackWebController::class, 'destroyAgendamento'])->name('reunioes.agendamento.destroy');
-    
-    // API interna para transcrição
-    Route::post('/api/reunioes/fetch-transcript', [ReuniaoFeedbackWebController::class, 'fetchTranscriptFromDrive'])->name('reunioes.fetch_transcript');
-    Route::post('/api/reunioes/upload-audio', [ReuniaoFeedbackWebController::class, 'uploadAudioAndProcess'])->name('reunioes.upload_audio');
+    // Reuniões de Feedback (Google Meet / IA)
+    Route::resource('reunioes', ReuniaoFeedbackController::class)->parameters([
+        'reunioes' => 'reuniao'
+    ]);
+    Route::get('/reunioes/{reuniao}/sala',                  [ReuniaoFeedbackController::class, 'sala'])->name('reunioes.sala');
+    Route::post('/reunioes/{reuniao}/upload-audio',         [ReuniaoFeedbackController::class, 'uploadAudio'])->name('reunioes.upload_audio');
+    Route::post('/reunioes/{reuniao}/processar-transcricao',[ReuniaoFeedbackController::class, 'processarTranscricao'])->name('reunioes.processar_transcricao');
+    Route::post('/reunioes/{reuniao}/salvar-com-ia',        [ReuniaoFeedbackController::class, 'salvarComIa'])->name('reunioes.salvar_com_ia');
+    Route::post('/reunioes/{reuniao}/salvar-manual',        [ReuniaoFeedbackController::class, 'salvarManual'])->name('reunioes.salvar_manual');
+    Route::post('/reunioes/{reuniao}/update-registro',      [ReuniaoFeedbackController::class, 'updateRegistro'])->name('reunioes.update_registro');
+    Route::get('pdis/{pdi}/comprovante/download', [PdiController::class, 'downloadComprovante'])->name('pdis.comprovante.download');
+    Route::delete('pdi-grupos/{grupo}', [PdiController::class, 'destroyGrupo'])->name('pdi-grupos.destroy');
+    Route::get('pdi-grupos/{grupo}/edit', [PdiController::class, 'editGrupo'])->name('pdi-grupos.edit');
+    Route::put('pdi-grupos/{grupo}', [PdiController::class, 'updateGrupo'])->name('pdi-grupos.update');
 
-    // Integração Google Drive
-    Route::get('/auth/google/redirect', [\App\Http\Controllers\Web\GoogleAuthController::class, 'redirect'])->name('google.redirect');
-    Route::get('/auth/google/callback', [\App\Http\Controllers\Web\GoogleAuthController::class, 'callback'])->name('google.callback');
-    Route::post('/auth/google/unlink', [\App\Http\Controllers\Web\GoogleAuthController::class, 'unlink'])->name('google.unlink');
-    Route::post('/auth/google/unlink-empresa', [\App\Http\Controllers\Web\GoogleAuthController::class, 'unlinkEmpresa'])->name('google.unlink.empresa');
+    // Notificações
+    Route::get('notificacoes/{id}/ler', [\App\Http\Controllers\NotificacaoController::class, 'ler'])->name('notificacoes.ler');
+    Route::post('notificacoes/ler-todas', [\App\Http\Controllers\NotificacaoController::class, 'lerTodas'])->name('notificacoes.ler-todas');
 
-    // 6. Relatórios e Solicitações
-    Route::get('/relatorios/individuais', [AvaliacaoWebController::class, 'relatoriosIndividuais'])->name('relatorios.individuais');
-    Route::get('/api/relatorio/dados', [AvaliacaoWebController::class, 'getDadosRelatorio'])->name('relatorios.dados');
-    Route::get('/relatorios/exportar-pdf', [AvaliacaoWebController::class, 'exportarPdf'])->name('relatorios.exportar.pdf');
-    Route::post('/api/relatorio/salvar-fechamento', [AvaliacaoWebController::class, 'salvarFechamento']);
-    
-    // Solicitações RH
-    Route::get('/solicitacoes', [SolicitacaoWebController::class, 'index'])->name('solicitacoes.index');
-    Route::post('/solicitacoes/{id}/aprovar', [SolicitacaoWebController::class, 'aprovar'])->name('solicitacoes.aprovar');
-    Route::post('/solicitacoes/{id}/recusar', [SolicitacaoWebController::class, 'recusar'])->name('solicitacoes.recusar');
-    Route::post('/solicitacoes', [SolicitacaoWebController::class, 'store'])->name('solicitacoes.store');
-    // 6. Notificações
-    Route::get('/api/notificacoes', [App\Http\Controllers\Web\NotificacaoWebController::class, 'index']);
-    Route::get('/api/notificacoes/count', [App\Http\Controllers\Web\NotificacaoWebController::class, 'count']);
-    Route::post('/api/notificacoes/{id}/ler', [App\Http\Controllers\Web\NotificacaoWebController::class, 'ler']);
-    Route::post('/api/notificacoes/ler-todas', [App\Http\Controllers\Web\NotificacaoWebController::class, 'lerTodas']);
+    // ── Módulo de Solicitações (Reaberturas e Contestações) ──────────────
+    // Qualquer usuário autenticado pode ver a listagem (filtrada por perfil no controller)
+    Route::get('solicitacoes', [SolicitacaoController::class, 'index'])->name('solicitacoes.index');
+    // Apenas colaboradores criam (Policy::create valida)
+    Route::post('solicitacoes', [SolicitacaoController::class, 'store'])->name('solicitacoes.store');
+    // Apenas master/gestor aprovam ou recusam (Policy::aprovar / Policy::recusar validam)
+    Route::post('solicitacoes/{solicitacao}/aprovar', [SolicitacaoController::class, 'aprovar'])->name('solicitacoes.aprovar');
+    Route::post('solicitacoes/{solicitacao}/recusar', [SolicitacaoController::class, 'recusar'])->name('solicitacoes.recusar');
 
-});
+    // Integrações & Configurações (Apenas Master e Admin)
+    Route::middleware('role:master,admin')->group(function () {
+        Route::get('/configuracoes/whatsapp', [WhatsAppController::class, 'index'])->name('whatsapp.config');
+        Route::post('/configuracoes/whatsapp/teste', [WhatsAppController::class, 'teste'])->name('whatsapp.teste');
+        Route::post('/configuracoes/whatsapp/reprocessar', [WhatsAppController::class, 'reprocessar'])->name('whatsapp.reprocessar');
+    });
 
-// ⚠️ ROTA TEMPORÁRIA - Criar link simbólico do storage. DELETAR após usar!
-Route::get('/fix-storage-link', function () {
-    $target = storage_path('app/public');
-    $link = public_path('storage');
+    // Módulo DISC
+    Route::get('/disc/teste', [\App\Http\Controllers\DiscAssessmentController::class, 'create'])->name('disc.take');
+    Route::post('/disc/teste', [\App\Http\Controllers\DiscAssessmentController::class, 'store'])->name('disc.store');
+    Route::post('/disc/refazer', [\App\Http\Controllers\DiscAssessmentController::class, 'retake'])->name('disc.retake');
+    Route::post('/disc/solicitar-refazer', [\App\Http\Controllers\DiscSolicitacaoController::class, 'store'])->name('disc.solicitar-refazer');
+    Route::get('/disc/resultado/{assessment}', [\App\Http\Controllers\DiscAssessmentController::class, 'show'])->name('disc.result');
+    Route::get('/disc/equipe', [\App\Http\Controllers\DiscAssessmentController::class, 'equipe'])->name('disc.equipe');
 
-    if (is_link($link)) {
-        return '✅ Link simbólico já existe! Pode deletar esta rota.';
-    }
+    // Módulo Pesquisa de Clima (Colaborador)
+    Route::get('/clima', [\App\Http\Controllers\ClimateSurveyController::class, 'minhas'])->name('clima.minhas');
+    Route::get('/clima/responder/{survey}', [\App\Http\Controllers\ClimateSurveyController::class, 'responder'])->name('clima.responder');
+    Route::post('/clima/responder/{survey}', [\App\Http\Controllers\ClimateSurveyController::class, 'salvarResposta'])->name('clima.salvar-resposta');
 
-    if (file_exists($link) && !is_link($link)) {
-        return '📁 A pasta public/storage já existe como diretório real (não é symlink). Mova os arquivos de <b>storage/app/public/pdi_docs/</b> para <b>public/storage/pdi_docs/</b> manualmente pelo FileZilla.';
-    }
-
-    if (@symlink($target, $link)) {
-        return '✅ Link simbólico criado com sucesso! Agora delete esta rota do web.php.';
-    }
-
-    return '❌ Seu servidor não permite symlinks automáticos. Crie manualmente pelo FileZilla a pasta <b>public/storage/</b> e copie os arquivos de <b>storage/app/public/pdi_docs/</b> para <b>public/storage/pdi_docs/</b>.';
+    // Módulo Pesquisa de Clima (Gestão/RH)
+    Route::get('/gestao/clima', [\App\Http\Controllers\ClimateSurveyController::class, 'index'])->name('gestao.clima.index');
+    Route::get('/gestao/clima/criar', [\App\Http\Controllers\ClimateSurveyController::class, 'create'])->name('gestao.clima.create');
+    Route::post('/gestao/clima', [\App\Http\Controllers\ClimateSurveyController::class, 'store'])->name('gestao.clima.store');
+    Route::get('/gestao/clima/{survey}/editar', [\App\Http\Controllers\ClimateSurveyController::class, 'edit'])->name('gestao.clima.edit');
+    Route::put('/gestao/clima/{survey}', [\App\Http\Controllers\ClimateSurveyController::class, 'update'])->name('gestao.clima.update');
+    Route::get('/gestao/clima/{survey}/relatorio', [\App\Http\Controllers\ClimateSurveyController::class, 'relatorio'])->name('gestao.clima.relatorio');
+    Route::post('/gestao/clima/{survey}/encerrar', [\App\Http\Controllers\ClimateSurveyController::class, 'encerrar'])->name('gestao.clima.encerrar');
+    Route::post('/gestao/clima/{survey}/gerar-pdi-ia', [\App\Http\Controllers\ClimateSurveyController::class, 'gerarPdiClimaIa'])->name('gestao.clima.gerar_pdi_ia');
+    Route::delete('/gestao/clima/{survey}', [\App\Http\Controllers\ClimateSurveyController::class, 'destroy'])->name('gestao.clima.destroy');
+    Route::delete('/gestao/clima/templates/{template}', [\App\Http\Controllers\ClimateSurveyController::class, 'destroyTemplate'])->name('gestao.clima.templates.destroy');
 });

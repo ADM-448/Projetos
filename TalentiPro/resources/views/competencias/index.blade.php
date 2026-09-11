@@ -1,146 +1,344 @@
-@extends('layouts.admin')
+@extends('layouts.app')
 
-@section('title', 'Competências')
+@section('title', 'Competências e Skills')
+@section('body-class', 'has-sidebar')
+
+@section('sidebar')
+    @include('layouts.partials.sidebar')
+@endsection
 
 @section('content')
-
-@push('styles')
-<style>
-    .table-list { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-    .table-list th { text-align: left; padding: 15px; background: #f8f9fa; color: #666; font-weight: 700; border-bottom: 2px solid #eee; }
-    .table-list td { padding: 15px; border-bottom: 1px solid #eee; color: #333; vertical-align: middle; }
-    .badge-skill { background: #eef2f7; color: #3b5998; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; margin-right: 5px; display: inline-block; margin-bottom: 2px;}
-
-    /* Modal Styles */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 2000; justify-content: center; align-items: center; }
-    .modal-content { background-color: white; padding: 30px; border-radius: 10px; width: 600px; max-width: 95%; position: relative; animation: fadeIn 0.3s; }
-    .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #999; }
-    .btn-modal-save { background-color: #3b5998; color: white; padding: 12px 0; border: none; width: 100%; border-radius: 5px; font-weight: bold; margin-top: 20px; cursor: pointer; font-size: 16px; }
-    .modal-input { padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 100%; margin-top: 5px; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-</style>
-@endpush
-
 <div class="header-actions">
-    <h1 class="page-title">COMPETÊNCIAS</h1>
-    {{-- Botão agora leva para a página create --}}
-    <a href="{{ route('competencias.create') }}" class="btn-primary">
-        <i class="fa-solid fa-plus"></i> Nova Competência
-    </a>
-    <button class="btn-primary" onclick="abrirModalImportar()" style="background-color: #27ae60; margin-left: 10px;">
-        <i class="fa-solid fa-file-csv"></i> Importar
-    </button>
+    <div>
+        <h1 class="page-title">Competências</h1>
+        <p style="color: #666; font-size: 0.95rem;">Gerencie as competências e suas respectivas skills de avaliação.</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button onclick="abrirModalImportar()" class="btn-secondary" style="background-color: #27ae60; color: white; border-color: #27ae60;">
+            <i class="fa-solid fa-file-excel"></i> Importar via Planilha
+        </button>
+        <button class="btn-primary" onclick="abrirModalNova()">
+            <i class="fa-solid fa-plus"></i> Nova Competência
+        </button>
+    </div>
 </div>
 
-<div class="card-container">
+@if (session('success'))
+    <div style="background-color: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        {{ session('success') }}
+    </div>
+@endif
 
-    <table class="table-list">
-        <thead>
-            <tr>
-                <th style="width: 30%;">Competência</th>
-                <th style="width: 50%;">Skills (Critérios)</th>
-                <th style="width: 20%; text-align: right;">Ações</th>
-            </tr>
-        </thead>
+@if ($errors->any())
+    <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+        <ul style="margin: 0; padding-left: 20px;">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+<div class="unified-card">
+    <div class="table-responsive">
+        <table class="custom-table table-cards-mobile" style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="background-color: #f8fafc; border-bottom: 2px solid #6a4c7c;">
+                    <th style="width: 25%; padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">Competência</th>
+                    <th style="width: 30%; padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">Descrição</th>
+                    <th style="width: 30%; padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">Skills</th>
+                    <th style="width: 15%; padding: 12px 15px; font-weight: bold; color: #333; text-align: right;">Ações</th>
+                </tr>
+            </thead>
         <tbody>
-            @forelse($competencias as $comp)
-            <tr>
-                <td data-label="Competência">
-                    <strong>{{ $comp->nome }}</strong>
-                    <div style="font-size:12px; color:#888;">{{ $comp->descricao }}</div>
+            @forelse($competencias as $competencia)
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 15px; font-weight: bold; color: #2d3748; text-align: left;" data-label="Competência">{{ $competencia->nome }}</td>
+                <td style="padding: 15px; color: #64748b; font-size: 0.9rem; text-align: left;" data-label="Descrição">{{ $competencia->descricao ?? '-' }}</td>
+                <td style="padding: 15px; text-align: left;" data-label="Skills">
+                    <div style="display: flex; gap: 5px; flex-wrap: wrap; justify-content: flex-end; width: 100%;">
+                        @if($competencia->skills->count() > 0)
+                            @foreach($competencia->skills->take(2) as $skill)
+                                <span style="background: #edf2f7; color: #4a5568; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; white-space: normal; word-break: break-word; display: inline-block; line-height: 1.4; text-align: right; max-width: 100%;">
+                                    {{ $skill->nome }}
+                                </span>
+                            @endforeach
+                            @if($competencia->skills->count() > 2)
+                                <span style="background: #6a4c7c; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; cursor: help;" title="E mais {{ $competencia->skills->count() - 2 }} skills">
+                                    +{{ $competencia->skills->count() - 2 }}
+                                </span>
+                            @endif
+                        @else
+                            <span style="color: #999; font-size: 0.85rem; font-style: italic;">Nenhuma skill</span>
+                        @endif
+                    </div>
                 </td>
-                <td data-label="Skills">
-                    @foreach($comp->skills as $skill)
-                        <span class="badge-skill" title="{{ $skill->descricao }}">{{ $skill->nome }}</span>
-                    @endforeach
-                </td>
-                <td data-label="Ações" style="text-align: right;">
-                    <div style="display: flex; justify-content: flex-end; align-items: center; gap: 15px;">
-                        <a href="{{ route('competencias.edit', $comp->id) }}" style="color:#3b5998; font-size:1.2em; transition: 0.2s;" onmouseover="this.style.color='#2d4373'" onmouseout="this.style.color='#3b5998'" title="Editar">
+                <td style="padding: 15px; text-align: right;" data-label="Ações">
+                    <div style="display: inline-flex; gap: 8px;">
+                        <button onclick="abrirModalEditar({{ $competencia->id }}, '{{ addslashes($competencia->nome) }}', '{{ addslashes($competencia->descricao) }}', {{ json_encode($competencia->skills) }})" class="btn-secondary" style="padding: 8px 12px; font-size: 0.9rem;" title="Editar">
                             <i class="fa-solid fa-pen"></i>
-                        </a>
+                        </button>
 
-                        <form action="{{ route('competencias.destroy', $comp->id) }}" method="POST" style="margin: 0;" class="confirm-delete" data-confirm-message="Deseja excluir a competência '{{ $comp->nome }}'?">
-                            @csrf @method('DELETE')
-                            <button type="submit" style="background:none; border:none; cursor:pointer; color:#e74c3c; font-size:1.2em; transition: 0.2s;" onmouseover="this.style.color='#c0392b'" onmouseout="this.style.color='#e74c3c'" title="Excluir">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </form>
+                        <button class="btn-secondary" style="padding: 8px 12px; font-size: 0.9rem; color: #e53e3e;" onclick="abrirModalExcluir({{ $competencia->id }}, '{{ addslashes($competencia->nome) }}')" title="Excluir">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
                     </div>
                 </td>
             </tr>
             @empty
-            <tr><td colspan="3" style="text-align:center; padding:30px; color:#777;">Nenhuma competência cadastrada.</td></tr>
+            <tr>
+                <td colspan="4" style="text-align:center; padding: 30px; color:#666;">
+                    Nenhuma competência cadastrada. <br>
+                    <button class="btn-primary" style="margin-top: 15px;" onclick="abrirModalNova()">Criar a primeira</button>
+                </td>
+            </tr>
             @endforelse
         </tbody>
-    </table>
+        </table>
+    </div>
 </div>
-{{-- Modal Importar --}}
-<div id="modalImportar" class="modal-overlay">
-    <div class="modal-content">
-        <span class="close-modal" onclick="fecharModalImportar()">&times;</span>
-        <h2 style="margin-bottom:20px;">Importar Competências</h2>
-        
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #ddd; font-size: 14px; color: #444;">
-            <p><strong>Instruções:</strong></p>
-            <ul style="margin-left: 20px; list-style-type: disc;">
-                <li>Arquivo <strong>CSV</strong> ou <strong>TXT</strong>.</li>
-                <li>Colunas: <code>nome</code>, <code>descricao</code>, <code>skills</code>.</li>
-                <li>Skills devem ser separadas por <strong>|</strong> (pipe).</li>
-            </ul>
+
+<!-- Modal Nova / Editar Competencia -->
+<div id="modalCompetencia" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div class="modal-box" style="background: white; border-radius: 12px; padding: 30px; width: 100%; max-width: 550px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 id="modalCompetenciaTitle" style="margin: 0; font-size: 1.25rem;">Nova Competência</h2>
+            <button type="button" onclick="fecharModalCompetencia()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">&times;</button>
         </div>
-
-        <button type="button" class="btn-modal-save" style="background-color: #7f8c8d; margin-bottom: 15px;" onclick="baixarModeloCompetencias()">
-            <i class="fa-solid fa-download"></i> Baixar Modelo
-        </button>
-
-        <form action="{{ route('competencias.importar') }}" method="POST" enctype="multipart/form-data">
+        
+        <form id="formCompetencia" action="{{ route('competencias.store') }}" method="POST">
             @csrf
-            <label style="display:block; margin-bottom:5px; font-weight:bold;">Arquivo CSV</label>
-            <input type="file" name="arquivo" accept=".csv,.txt" class="modal-input" required>
+            <input type="hidden" name="_method" id="formCompetenciaMethod" value="POST">
             
-            <button type="submit" class="btn-modal-save" style="background-color: #27ae60;">
-                <i class="fa-solid fa-upload"></i> Importar
-            </button>
+            <div class="form-group">
+                <label class="form-label" for="nome">Nome da Competência <span style="color: red;">*</span></label>
+                <input type="text" id="nome" name="nome" class="form-control" required placeholder="Ex: Liderança">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="descricao">Descrição</label>
+                <textarea id="descricao" name="descricao" class="form-control" rows="2" placeholder="Descreva brevemente esta competência..."></textarea>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+            <div class="form-group">
+                <label class="form-label">Skills Relacionadas</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="text" id="novaSkillTemp" class="form-control" placeholder="Digite uma skill (Ex: Escuta ativa)">
+                    <button type="button" class="btn-secondary" id="btnAdicionarSkill">Adicionar</button>
+                </div>
+                
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; min-height: 80px;">
+                    <ul id="skillsListDOM" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+                        <!-- Skills inseridas dinamicamente -->
+                    </ul>
+                    <div id="skillsEmptyMsg" style="text-align: center; color: #999; font-size: 0.85rem; margin-top: 10px;">
+                        Nenhuma skill adicionada. Adicione skills acima.
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px;">
+                <button type="button" class="btn-secondary" onclick="fecharModalCompetencia()">Cancelar</button>
+                <button type="submit" class="btn-primary">Salvar</button>
+            </div>
         </form>
     </div>
 </div>
 
-@endsection
+<!-- Modal Confirmação Exclusão -->
+<div id="modalExcluir" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div class="modal-box" style="background: white; border-radius: 12px; padding: 30px; width: 100%; max-width: 450px; text-align: center;">
+        <div style="color: #e53e3e; font-size: 3rem; margin-bottom: 15px;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h2 style="margin-bottom: 10px;">Excluir Competência?</h2>
+        <p style="color: #666; margin-bottom: 25px;">
+            Você está prestes a excluir a competência <strong id="deleteTargetName"></strong>.<br>
+            <strong>Atenção:</strong> Todas as skills vinculadas também serão apagadas. Esta ação não pode ser desfeita.
+        </p>
 
-@push('scripts')
+        <form id="formExcluir" method="POST" action="">
+            @csrf
+            @method('DELETE')
+            <div style="display: flex; justify-content: center; gap: 10px;">
+                <button type="button" class="btn-secondary" onclick="fecharModalExcluir()">Cancelar</button>
+                <button type="submit" class="btn-primary" style="background-color: #e53e3e; border-color: #e53e3e;">Sim, Excluir</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Importar -->
+<div id="modalImportar" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div class="modal-box" style="background: white; border-radius: 12px; padding: 30px; width: 100%; max-width: 480px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0; font-size: 1.25rem;">Importar Competências</h2>
+            <button type="button" onclick="fecharModalImportar()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">&times;</button>
+        </div>
+        
+        <p style="color: #555; font-size: 14px; margin-bottom: 20px;">
+            Envie um arquivo Excel (.xlsx) ou CSV com as colunas: <strong>Nome, Descrição, Skills</strong>. 
+            Separe as skills por caractere pipe ( | ).<br><br>
+            <a href="{{ asset('modelos/modelo_importacao_competencia.csv') }}" download class="btn-secondary" style="font-size: 0.85rem; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+                <i class="fa-solid fa-download"></i> Baixar Arquivo Modelo (CSV)
+            </a>
+        </p>
+
+        <form action="{{ route('competencias.importar') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="arquivo_competencias" class="form-label">Arquivo <span class="text-danger">*</span></label>
+                <input type="file" name="arquivo" id="arquivo_competencias" required accept=".xlsx,.xls,.csv" class="form-control">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn-secondary" onclick="fecharModalImportar()">Cancelar</button>
+                <button type="submit" class="btn-primary" style="background-color: #27ae60; border-color: #27ae60;">Importar Planilha</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+    let tempSkills = [];
+
+    function renderSkillsDOM() {
+        const list = document.getElementById('skillsListDOM');
+        const emptyMsg = document.getElementById('skillsEmptyMsg');
+        
+        list.innerHTML = '';
+        
+        if(tempSkills.length === 0) {
+            emptyMsg.style.display = 'block';
+        } else {
+            emptyMsg.style.display = 'none';
+            tempSkills.forEach((skillName, index) => {
+                const li = document.createElement('li');
+                li.style.cssText = 'display: flex; justify-content: space-between; align-items: center; background: white; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem;';
+                
+                li.innerHTML = `
+                    <span><i class="fa-solid fa-check" style="color: var(--primary-color); margin-right: 8px;"></i> ${skillName}</span>
+                    <input type="hidden" name="skills[]" value="${skillName}">
+                    <button type="button" class="btn-remove-skill" data-index="${index}" style="background: none; border: none; color: #e53e3e; cursor: pointer;">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                `;
+                list.appendChild(li);
+            });
+
+            // Bind events for remove buttons
+            document.querySelectorAll('.btn-remove-skill').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const idx = parseInt(this.getAttribute('data-index'));
+                    removerSkillDOM(idx);
+                });
+            });
+        }
+    }
+
+    function addSkillDOM() {
+        const input = document.getElementById('novaSkillTemp');
+        const skillName = input.value.trim();
+        
+        if(skillName) {
+            const skillExists = tempSkills.some(s => s.toLowerCase() === skillName.toLowerCase());
+            if(!skillExists) {
+                tempSkills.push(skillName);
+                renderSkillsDOM();
+            }
+        }
+        input.value = '';
+        input.focus();
+    }
+
+    function removerSkillDOM(index) {
+        if(index >= 0 && index < tempSkills.length) {
+            tempSkills.splice(index, 1);
+            renderSkillsDOM();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputSkill = document.getElementById('novaSkillTemp');
+        const btnAdd = document.getElementById('btnAdicionarSkill');
+
+        if(inputSkill) {
+            inputSkill.addEventListener('keydown', function(e) {
+                if(e.key === 'Enter') {
+                    e.preventDefault();
+                    addSkillDOM();
+                }
+            });
+        }
+
+        if(btnAdd) {
+            btnAdd.addEventListener('click', function(e) {
+                e.preventDefault();
+                addSkillDOM();
+            });
+        }
+    });
+
+    function abrirModalNova() {
+        document.getElementById('modalCompetenciaTitle').innerText = 'Nova Competência';
+        document.getElementById('formCompetencia').action = "{{ route('competencias.store') }}";
+        document.getElementById('formCompetenciaMethod').value = 'POST';
+        document.getElementById('nome').value = '';
+        document.getElementById('descricao').value = '';
+        
+        tempSkills = [];
+        renderSkillsDOM();
+        
+        document.getElementById('modalCompetencia').style.display = 'flex';
+    }
+
+    function abrirModalEditar(id, nome, descricao, skillsRaw) {
+        document.getElementById('modalCompetenciaTitle').innerText = 'Editar Competência';
+        document.getElementById('formCompetencia').action = `/competencias/${id}`;
+        document.getElementById('formCompetenciaMethod').value = 'PUT';
+        document.getElementById('nome').value = nome;
+        document.getElementById('descricao').value = descricao;
+        
+        tempSkills = [];
+        if(skillsRaw && Array.isArray(skillsRaw)) {
+            skillsRaw.forEach(sk => tempSkills.push(sk.nome));
+        }
+        renderSkillsDOM();
+
+        document.getElementById('modalCompetencia').style.display = 'flex';
+    }
+
+    function fecharModalCompetencia() {
+        document.getElementById('modalCompetencia').style.display = 'none';
+    }
+
+    // Modal Excluir
+    function abrirModalExcluir(id, nome) {
+        document.getElementById('deleteTargetName').innerText = nome;
+        document.getElementById('formExcluir').action = `/competencias/${id}`;
+        document.getElementById('modalExcluir').style.display = 'flex';
+    }
+
+    function fecharModalExcluir() {
+        document.getElementById('modalExcluir').style.display = 'none';
+    }
+
     function abrirModalImportar() {
         document.getElementById('modalImportar').style.display = 'flex';
     }
-    
+
     function fecharModalImportar() {
         document.getElementById('modalImportar').style.display = 'none';
     }
 
-    function baixarModeloCompetencias() {
-        const headers = ['nome', 'descricao', 'skills'];
-        const rows = [
-            ['Exemplo Competência', 'Descrição da competência aqui', 'Skill 1 | Skill 2 | Skill 3']
-        ];
-        
-        let csvContent = "data:text/csv;charset=utf-8,\uFEFF" 
-            + headers.join(";") + "\n" 
-            + rows.map(e => e.join(";")).join("\n");
-            
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "modelo_competencias.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-    
-    window.onclick = function(event) {
-        if (event.target == document.getElementById('modalImportar')) {
-            fecharModalImportar();
+    // Abre modal automaticamente via parâmetro na URL (Ex: para atalhos)
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('action') === 'create') {
+            abrirModalNova();
         }
-    }
+    });
 </script>
-@endpush
+@endsection

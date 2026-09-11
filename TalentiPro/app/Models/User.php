@@ -2,16 +2,21 @@
 
 namespace App\Models;
 
-use App\Models\Traits\BelongsToEmpresa;
-
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\StatusUsuario;
+use App\Enums\UserRole;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, BelongsToEmpresa;
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -19,24 +24,17 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'empresa_id',
         'name',
         'email',
         'password',
         'cpf',
         'telefone',
-        'data_nascimento',
-        'genero',
-        'escolaridade',
-        'foto_perfil',
-        'data_admissao',
-        'data_rescisao', // Adicionado
+        'perfil_acesso',
         'status',
-        'vinculo',
+        'empresa_id',
         'departamento_id',
         'cargo_id',
         'gestor_id',
-        'perfil_acesso',
     ];
 
     /**
@@ -59,56 +57,44 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'data_nascimento' => 'date',
-            'data_admissao' => 'date',
-            'data_rescisao' => 'date', // Adicionado
+            'perfil_acesso' => UserRole::class, // Conversão automática para Enum!
+            'status' => StatusUsuario::class,   // Conversão automática para Enum!
         ];
     }
 
-    // --- RELACIONAMENTOS ---
-
-    public function departamento()
+    // E adicione os relacionamentos abaixo da função empresa():
+    public function departamento(): BelongsTo
     {
         return $this->belongsTo(Departamento::class);
     }
 
-    public function cargo()
+    public function cargo(): BelongsTo
     {
         return $this->belongsTo(Cargo::class);
     }
 
-    public function gestor()
+    public function gestor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'gestor_id');
     }
 
-    public function subordinados()
+    public function subordinados(): HasMany
     {
         return $this->hasMany(User::class, 'gestor_id');
     }
 
-    public function avaliacoesRecebidas()
+    public function empresa(): BelongsTo
     {
-        return $this->hasMany(AvaliacaoParticipante::class, 'avaliado_id');
+        return $this->belongsTo(Empresa::class);
     }
 
-    public function avaliacoesRealizadas()
+    public function atividades(): HasMany
     {
-        return $this->hasMany(AvaliacaoParticipante::class, 'avaliador_id');
+        return $this->hasMany(Atividade::class);
     }
 
-    public function pdis()
+    public function discAssessment(): HasOne
     {
-        return $this->hasMany(Pdi::class, 'colaborador_id');
-    }
-
-    public function notificacoes()
-    {
-        return $this->hasMany(Notificacao::class, 'destinatario_id');
-    }
-
-    public function solicitacoesAvaliacao()
-    {
-        return $this->hasMany(SolicitacaoAvaliacao::class, 'colaborador_id');
+        return $this->hasOne(DiscAssessment::class);
     }
 }

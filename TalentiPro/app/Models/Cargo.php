@@ -4,51 +4,52 @@ namespace App\Models;
 
 use App\Models\Traits\BelongsToEmpresa;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Cargo extends Model
 {
-    use BelongsToEmpresa;
+    use BelongsToEmpresa; // Injeta o Global Scope do tenant!
 
     protected $fillable = [
-        'empresa_id',
         'nome',
         'descricao',
-        'cbo',               // Certifique-se que sua tabela 'cargos' tem essa coluna
+        'empresa_id',
         'departamento_id',
-        'cargo_superior_id', // Certifique-se que sua tabela 'cargos' tem essa coluna
-        'senioridade',       // Certifique-se que sua tabela 'cargos' tem essa coluna
+        'cbo',
+        'senioridade',
+        'cargo_superior_id',
     ];
 
-    // --- SEUS RELACIONAMENTOS ORIGINAIS (MANTENHA TODOS) ---
-
-    public function departamento()
+    /**
+     * O cargo pertence a um departamento (opcional).
+     */
+    public function departamento(): BelongsTo
     {
         return $this->belongsTo(Departamento::class);
     }
 
-    public function cargoSuperior()
+    /**
+     * Relacionamento recursivo: O cargo superior (líder).
+     */
+    public function cargoSuperior(): BelongsTo
     {
         return $this->belongsTo(Cargo::class, 'cargo_superior_id');
     }
 
-    public function subordinados()
+    /**
+     * Relacionamento recursivo inverso: Cargos subordinados a este.
+     */
+    public function cargosSubordinados(): HasMany
     {
         return $this->hasMany(Cargo::class, 'cargo_superior_id');
     }
 
-    public function users()
+    /**
+     * Um cargo possui vários colaboradores (usuários).
+     */
+    public function colaboradores(): HasMany
     {
         return $this->hasMany(User::class);
-    }
-
-    public function competencias()
-    {
-        // Atenção: Isso exige que a tabela pivô se chame 'cargo_competencia'
-        return $this->belongsToMany(Competencia::class, 'cargo_competencia');
-    }
-
-    public function hardskills()
-    {
-        return $this->hasMany(CargoHardskill::class);
     }
 }

@@ -6,19 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class ReuniaoAgendamento extends Model
 {
-    protected $table = 'reuniao_agendamentos';
-
     protected $fillable = [
         'gestor_id',
         'colaborador_id',
         'titulo',
         'data_hora',
-        'link_jitsi',
         'google_event_id',
         'google_meet_link',
-        'google_transcript_file_id',
+        'transcricao_temporaria',
         'status',
-        'transcricao_temporaria'
     ];
 
     protected $casts = [
@@ -35,8 +31,13 @@ class ReuniaoAgendamento extends Model
         return $this->belongsTo(User::class, 'colaborador_id');
     }
 
-    public function reuniaoFeedback()
+    public function feedback()
     {
         return $this->hasOne(ReuniaoFeedback::class, 'agendamento_id');
+    }
+
+    public function participantes()
+    {
+        return $this->belongsToMany(User::class, 'reuniao_agendamento_participantes', 'agendamento_id', 'user_id');
     }
 }

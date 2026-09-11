@@ -10,7 +10,17 @@ class ConfiguracaoGoogle extends Model
     
     protected $fillable = [
         'empresa_id',
-        'service_account_json',
-        'drive_folder_id',
+        'access_token',
+        'refresh_token',
+        'token_expires_at',
     ];
+
+    protected $casts = [
+        'token_expires_at' => 'datetime',
+    ];
+
+    public function empresa()
+    {
+        return $this->belongsTo(Empresa::class);
+    }
 }
