@@ -1,0 +1,881 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12203F; --paper:#E8EDF4; --surface:#fff; --gold:#A8813F;
+    --ok:#1B6B52; --warn:#9C3B2E; --muted:#66748C; --line:#C9D2E0;
+    --radius:3px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0}
+  .app{
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    background:var(--paper); color:var(--ink);
+    font-size:15px; line-height:1.5; padding:0 0 60px;
+    font-variant-numeric:tabular-nums;
+  }
+  .wrap{max-width:1060px;margin:0 auto;padding:0 20px}
+  button{font:inherit;cursor:pointer;border-radius:var(--radius)}
+  input,textarea,select{font:inherit;border-radius:var(--radius)}
+
+  /* topo */
+  .top{background:var(--ink);color:#fff;padding:14px 0;position:sticky;top:0;z-index:20;border-bottom:3px solid var(--gold)}
+  .top .wrap{display:flex;align-items:center;gap:13px;flex-wrap:nowrap}
+  .brand{font-weight:600;letter-spacing:.01em;margin-right:auto;font-size:14.5px;line-height:1.25;min-width:0;flex:1 1 auto;overflow:hidden}
+  .brand span{display:block;font-weight:400;font-size:11.5px;color:#A9B6CE;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stat{text-align:right;min-width:52px;flex:none}
+  .stat b{display:block;font-size:18px;font-weight:600;line-height:1.15}
+  .stat i{font-style:normal;font-size:10.5px;color:#A9B6CE;letter-spacing:.01em;white-space:nowrap}
+  .stat.hit b{color:#8FD9BC}
+
+  h2{font-size:13px;font-weight:600;letter-spacing:.03em;color:var(--muted);margin:32px 0 10px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+
+  /* fila */
+  .fila{padding:22px 24px;border-left:4px solid var(--gold)}
+  .fila .quem{font-size:26px;font-weight:600;line-height:1.2}
+  .fila .quem em{font-style:normal;font-size:13px;font-weight:500;color:var(--gold);margin-left:10px;vertical-align:3px}
+  .fila .emp{color:var(--muted);font-size:13px;margin:5px 0 14px}
+  .msg{background:#F4F7FB;border:1px solid var(--line);padding:12px 14px;white-space:pre-wrap;font-size:14px;margin-bottom:14px;border-radius:var(--radius)}
+  .acoes{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .b1{background:var(--ink);color:#fff;border:1px solid var(--ink);padding:9px 16px;font-weight:500}
+  .b2{background:#fff;color:var(--ink);border:1px solid var(--line);padding:9px 14px}
+  .b2:hover,.b1:hover{opacity:.86}
+  .b3{background:none;border:none;color:var(--muted);text-decoration:underline;padding:9px 4px;font-size:13px}
+  .depois{color:var(--muted);font-size:13px;margin-top:12px}
+  .vazio{padding:22px 24px;color:var(--muted)}
+
+  /* pendencias */
+  .pend li{display:flex;gap:12px;align-items:center;padding:11px 24px;border-top:1px solid var(--line);font-size:14px}
+  .pend li:first-child{border-top:none}
+  .pend ul{list-style:none;margin:0;padding:0}
+  .pend .porque{color:var(--warn);font-size:12.5px;margin-left:auto;padding-right:12px;text-align:right}
+
+  /* tabela */
+  .cab{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:32px 0 10px}
+  .cab h2{margin:0}
+  .filtros{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+  .chip{background:#fff;border:1px solid var(--line);padding:5px 9px;font-size:12.5px;color:var(--muted);white-space:nowrap;flex:1 1 auto;text-align:center}
+  .chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .chip b{color:var(--ink);margin-left:2px}
+  .chip.on b{color:#fff}
+  .busca{flex:none;padding:7px 11px;border:1px solid var(--line);min-width:230px;background:#fff}
+  table{width:100%;border-collapse:collapse;background:var(--surface);font-size:13.5px}
+  th{text-align:left;font-weight:600;font-size:11.5px;letter-spacing:.03em;color:var(--muted);padding:9px 10px;border-bottom:1px solid var(--line);background:#F4F7FB}
+  td{padding:8px 10px;border-bottom:1px solid #E4EAF2;vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  .nm{font-weight:500}
+  .sub{color:var(--muted);font-size:12px}
+  .tag{display:inline-block;font-size:11px;padding:2px 7px;border:1px solid var(--line);color:var(--muted);border-radius:20px}
+  .tag.al{border-color:var(--warn);color:var(--warn)}
+  .tag.ok{border-color:var(--ok);color:var(--ok);background:#EDF7F3}
+  select.st{padding:4px 6px;border:1px solid var(--line);font-size:12.5px;max-width:150px}
+  .mini{background:#fff;border:1px solid var(--line);padding:4px 9px;font-size:12.5px}
+
+  /* config */
+  details{margin-top:14px}
+  summary{cursor:pointer;color:var(--muted);font-size:13.5px;padding:6px 0}
+  .cfg{padding:18px 24px}
+  .cfg label{display:block;font-size:12.5px;color:var(--muted);margin:14px 0 4px}
+  .cfg input,.cfg textarea{width:100%;padding:8px 10px;border:1px solid var(--line)}
+  .cfg textarea{min-height:76px;resize:vertical;font-size:13.5px}
+  .grupo{margin-top:18px}
+  .grupo .rot{font-size:11.5px;letter-spacing:.03em;color:var(--muted);margin-bottom:7px}
+  .grupo .acoes{display:flex;gap:8px;flex-wrap:wrap;align-items:stretch}
+  .acoes .b1,.acoes .b2,.acoes .b3,.grupo .b2,.grupo .b3{line-height:1.3}
+  .acoes .b1,.acoes .b2,label.arq{display:inline-flex;align-items:center;min-height:40px;padding:0 16px}
+  label.arq{cursor:pointer;color:var(--ink);font-size:15px;background:#fff;border:1px solid var(--line);border-radius:var(--radius)}
+  label.arq input{display:none}
+  #confBox b{color:var(--ink)}
+  .dica{font-size:12.5px;color:var(--muted);margin-top:6px;line-height:1.45}
+  .res{font-size:13px;margin-top:10px;padding:8px 10px;background:#F4F7FB;border:1px solid var(--line)}
+  .nav{display:flex;gap:6px;margin-right:6px;flex:none}
+  .navbtn.on{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.7)}
+  .navbtn{background:none;border:1px solid rgba(255,255,255,.4);color:#fff;padding:6px 11px;font-size:12.5px;white-space:nowrap}
+  .voltar{background:none;border:none;color:var(--muted);font-size:13.5px;padding:16px 0 0;text-decoration:underline;display:block}
+  .navbtn:hover{background:rgba(255,255,255,.12)}
+  .dia{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .bloco{padding:20px 22px}
+  .bloco h3{margin:0 0 2px;font-size:17px;font-weight:600}
+  .bloco .hora{color:var(--gold);font-size:13px;font-weight:500;margin-bottom:13px}
+  .bloco ol{margin:0;padding-left:20px}
+  .bloco li{margin-bottom:11px}
+  .bloco li span{display:block;color:var(--muted);font-size:13.5px}
+  .cal{display:flex;overflow-x:auto}
+  .cal .et{flex:1;min-width:104px;padding:13px 12px;border-left:1px solid var(--line);cursor:pointer}
+  .cal .et:first-child{border-left:none}
+  .cal .d1{font-size:12px;color:var(--muted)}
+  .cal .d2{font-size:19px;font-weight:600;line-height:1.2;margin:2px 0 4px}
+  .cal .d3{font-size:12.5px;color:var(--muted);line-height:1.35}
+  .cal .st2{font-size:12px;font-weight:600;margin-top:7px}
+  .cal .ok2{background:#EDF7F3}
+  .cal .ok2 .st2{color:var(--ok)}
+  .cal .agora{background:#FBF3E8}
+  .cal .agora .st2{color:var(--gold)}
+  .reg p{margin:0;padding:12px 22px;border-top:1px solid var(--line);font-size:14px}
+  .reg p:first-child{border-top:none}
+  .reg b{color:var(--warn)}
+  .sit{border-top:1px solid var(--line);padding:15px 22px}
+  .sit:first-child{border-top:none}
+  .sit .q{font-weight:600;font-size:14px;margin-bottom:7px}
+  .sit .a{background:#F4F7FB;border:1px solid var(--line);padding:11px 13px;white-space:pre-wrap;font-size:13.5px;border-radius:3px}
+  .sit .acao{color:var(--muted);font-size:13px;margin-top:6px}
+  @media (max-width:720px){.dia{grid-template-columns:1fr}}
+  @media (max-width:820px){
+    .top .wrap{flex-wrap:wrap;gap:12px}.brand{flex:1 1 100%}.nav{order:3}
+  }
+  @media (max-width:640px){
+    .stat{min-width:56px;text-align:left}
+    td .empcol,th .empcol{display:none}
+  }
+</style>
+
+<div class="app">
+  <div class="top"><div class="wrap">
+    <div class="brand">Coleta NPS 2026 &middot; JB Quality<span id="sub">carregando</span></div>
+    <div class="nav">
+      <button class="navbtn" id="salvoTag" style="display:none;border-color:#F0A9A2;color:#FFD9D4;background:rgba(160,40,30,.35)" onclick="gravar(0)">não salvou, tentar de novo</button>
+      <button class="navbtn" id="nvRoteiro" onclick="ir('Roteiro')">Roteiro</button>
+      <button class="navbtn" id="nvBackup" onclick="ir('Backup')">Backup/Restaurar</button>
+      <button class="navbtn" id="nvConfig" onclick="ir('Config')">Configurações</button>
+    </div>
+    <div class="stat"><b id="kHoje">0</b><i>hoje</i></div>
+    <div class="stat"><b id="kEnv">0</b><i>enviados</i></div>
+    <div class="stat"><b id="kResp">0</b><i>respostas</i></div>
+    <div class="stat" id="boxTaxa"><b id="kTaxa">0%</b><i>taxa, meta 35%</i></div>
+  </div></div>
+
+  <div class="wrap">
+   <div id="viewPainel">
+    <h2>Chamar agora</h2>
+    <div class="card fila" id="fila"></div>
+
+    <h2>Respostas do formulário</h2>
+    <div class="card cfg" style="padding:18px 22px">
+      <textarea id="imp" placeholder="cole aqui as colunas Nome da Empresa e respondida por, direto da planilha de respostas"></textarea>
+      <div class="acoes" style="margin-top:10px">
+        <button class="b1" onclick="processarColado()">Marcar quem respondeu</button>
+        <span class="dica" style="margin:0">Reconhece sozinho se o que você colou é a planilha de respostas ou um backup do andamento.</span>
+      </div>
+      <div id="confBoxP" class="res" style="display:none"></div>
+      <div class="res" id="impRes" style="display:none"></div>
+    </div>
+
+    <h2 id="hPend">Precisam de outro toque</h2>
+    <div class="card pend" id="pend"></div>
+
+    <div class="cab">
+      <h2>Todos os contatos</h2>
+      <input class="busca" id="buscaEl" placeholder="buscar nome ou empresa" oninput="busca=this.value;render()">
+    </div>
+    <div class="filtros" id="filtros"></div>
+    <div class="card" style="overflow-x:auto"><table>
+      <thead><tr>
+        <th>Contato</th><th class="empcol">Empresas</th><th>Etapa</th><th>Ação</th><th>Anotação</th>
+      </tr></thead><tbody id="tb"></tbody>
+    </table></div>
+
+    <div class="acoes" id="boxInv" style="margin-top:14px;display:none">
+      <button class="b2" onclick="listaInvalidos()">Gerar lista de números inválidos</button>
+    </div>
+    <div class="card cfg" id="invBox" style="display:none;margin-top:12px">
+      <label style="margin-top:0">Para mandar à JB Quality &middot; <span id="invRes"></span>
+        <button class="b2" style="padding:3px 12px;margin-left:8px" onclick="copiarCaixa(inv)">Copiar</button>
+        <button class="b3" style="padding:3px 8px" onclick="fechar('invBox','inv')">Fechar</button></label>
+      <textarea id="inv" readonly style="min-height:130px;margin-top:6px;font-size:12.5px"></textarea>
+    </div>
+   </div>
+
+   <div id="viewRoteiro" style="display:none">
+    <button class="voltar" onclick="ir('Painel')">&larr; Voltar ao painel</button>
+    <h2><b>A rotina do dia.</b> Cerca de 40 minutos, em dois blocos.</h2>
+    <div class="dia">
+      <div class="card bloco">
+        <h3>Bloco da manhã</h3><div class="hora">9h às 11h</div>
+        <ol>
+          <li><b>Cole as respostas do formulário</b><span>Planilha de respostas, colunas Nome da Empresa e respondida por. Confira as sugestões de semelhança antes de seguir. Isso vem antes de qualquer envio.</span></li>
+          <li><b>Resolva "Precisam de outro toque"</b><span>Quem pediu o link primeiro, depois os vencidos de 48h e os lembretes.</span></li>
+          <li><b>Abra a fila e mande metade da meta do dia</b><span>Um por vez, intervalo irregular de 2 a 5 minutos. Quem responder, marque no botão verde.</span></li>
+        </ol>
+      </div>
+      <div class="card bloco">
+        <h3>Bloco da tarde</h3><div class="hora">14h às 17h</div>
+        <ol>
+          <li><b>Cole as respostas de novo</b><span>Só nos três primeiros dias. Depois, uma vez de manhã resolve.</span></li>
+          <li><b>Complete a meta do dia</b><span>Se a fila travar por número inválido, marque e siga. Não force volume para compensar.</span></li>
+          <li><b>Gere o backup e copie</b><span>É o seu resguardo e é o que você me manda a cada dois dias para eu ler o ritmo.</span></li>
+        </ol>
+      </div>
+    </div>
+
+    <h2><b>O calendário.</b> Marca sozinho conforme as aberturas avançam. Clique para marcar à mão.</h2>
+    <div class="card cal" id="cal"></div>
+
+    <h2><b>Proteger o número.</b> Ele é novo para essa lista.</h2>
+    <div class="card reg">
+      <p><b>Nunca em rajada.</b> Dois a cinco por vez, com pausa entre eles.</p>
+      <p><b>Link só depois do retorno</b>, ou depois de 48h em silêncio. Link na primeira mensagem é o que mais gera denúncia.</p>
+      <p><b>Espalhe os números duvidosos.</b> Abrir várias conversas seguidas com números inexistentes é sinal ruim.</p>
+      <p><b>Pare 24h</b> se aparecer bloqueio, denúncia ou mensagens travadas em um tique só. Volte com metade do volume.</p>
+    </div>
+
+    <h2><b>Quando acontecer.</b> É só copiar e ajustar o nome.</h2>
+    <div class="card" id="sits"></div>
+   </div>
+
+   <div id="viewBackup" style="display:none">
+    <button class="voltar" onclick="ir('Painel')">&larr; Voltar ao painel</button>
+    <h2><b>Backup e restauração.</b> Baixe no fim de cada dia.</h2>
+    <div class="card cfg">
+      <div class="acoes">
+        <button class="b1" onclick="exportar()">Baixar backup do andamento</button>
+        <label class="b2 arq">Restaurar de um arquivo
+          <input type="file" accept=".csv,.txt" onchange="arquivoRestaurar(this)"></label>
+      </div>
+      <div class="dica" style="margin-top:10px">O arquivo sai como andamento_nps_jbq_ano-mes-dia_hora.csv. Para restaurar um backup que está aqui na conversa em vez de em arquivo, cole no campo de respostas do painel e use o mesmo botão de lá.</div>
+      <div id="confBoxB" class="res" style="display:none"></div>
+      <div id="bkpBox" style="display:none;margin-top:14px">
+        <label style="margin-top:0">Backup gerado &middot; <b id="bkpNome"></b>
+          <button class="b2" style="padding:3px 12px;margin-left:8px" onclick="exportar()">Baixar de novo</button>
+          <button class="b2" style="padding:3px 12px" onclick="copiarBkp()">Copiar</button>
+          <button class="b3" style="padding:3px 8px" onclick="fechar('bkpBox','bkp')">Fechar</button></label>
+        <div class="dica" id="bkpAviso"></div>
+        <textarea id="bkp" readonly style="min-height:90px;margin-top:6px;font-size:12px"></textarea>
+      </div>
+    </div>
+   </div>
+
+   <div id="viewConfig" style="display:none">
+    <button class="voltar" onclick="ir('Painel')">&larr; Voltar ao painel</button>
+    <h2><b>Configurações.</b> Mexa aqui só quando algo mudar de verdade.</h2>
+    <div class="card cfg">
+      <label>Link do formulário já pré-preenchido</label>
+      <input id="cLink" placeholder="cole aqui o link e troque os valores por {EMPRESA} e {CONTATO}">
+      <div class="dica">No Google Forms, menu de três pontinhos, "Obter link pré-preenchido". Preencha os dois primeiros campos com qualquer texto, gere o link e troque esses textos por <b>{EMPRESA}</b> e <b>{CONTATO}</b>.</div>
+
+      <label>Total de respostas no formulário</label>
+      <input id="cResp" type="number" min="0" style="max-width:110px">
+      <div class="dica">É o numerador da taxa. Atualiza sozinho quando você cola a planilha de respostas, e conta também quem respondeu sem estar na lista de contatos.</div>
+
+      <label>Meta de envios por dia</label>
+      <input id="cQuota" type="number" min="1" max="60" style="max-width:110px">
+      <div class="dica">Sugestão para número novo: 10 nos dois primeiros dias, 20 depois.</div>
+
+      <label>Abertura para quem já respondeu em 2025</label>
+      <textarea id="cT1r"></textarea>
+      <label>Abertura padrão</label>
+      <textarea id="cT1"></textarea>
+      <label>Abertura para quem responde por três ou mais empresas</label>
+      <textarea id="cT1m"></textarea>
+      <label>Abertura em tom mais formal</label>
+      <textarea id="cT1f"></textarea>
+      <label>Mensagem com o link, depois que a pessoa respondeu</label>
+      <textarea id="cT2"></textarea>
+      <label>Mensagem com o link, para quem não respondeu a abertura</label>
+      <textarea id="cT2d"></textarea>
+      <label>Lembrete final</label>
+      <textarea id="cLem"></textarea>
+      <div class="dica">Use {nome} para o primeiro nome e {link} para o link da pessoa.
+        <button class="b2" style="padding:3px 12px;margin-top:8px" onclick="resetMsg(this)">Voltar às mensagens padrão</button></div>
+
+      <div class="grupo" style="border-top:1px solid var(--line);padding-top:16px;margin-top:22px">
+        <div class="rot">Zona de risco</div>
+        <div class="acoes"><button class="b3" onclick="zerar(this)">Apagar todo o andamento</button></div>
+      </div>
+    </div>
+   </div>
+
+  </div>
+</div>
+
+<script>
+const CONTATOS = [{"id": "11994864195", "nome": "TAYNÁ ARJONA", "primeiro": "Tayná", "exibe": "(11)99486-4195", "num": "5511994864195", "alerta": "", "empresas": ["ADILSON CALLIX ADMINISTRACAO DE BENS E PARTICIPACOES EMPRESARIAIS LTDA", "CALLIX ADMINISTRACAO DE BENS E PARTICIPACOES EMPRESARIAIS LTDA", "CALLIX COMÉRCIO DE EMBALAGENS LTDA.", "COMERCIO DE EMBALAGENS FRAGA LTDA", "CONTINENTAL COMÉRCIO DE EMBALAGENS LTDA", "HOPE PLAST COMERCIAL LTDA", "MASTER HOUSE TINTAS E MATERIAIS DE CONSTRUÇÃO LTDA", "PACKVILLE COMÉRCIO DE EMBALAGENS LTDA", "PRATICE BAG COMERCIO DE EMBALAGENS EM GERAL LTDA (FILIAL)", "S.CALLIX APOIO ADMINISTRATIVO", "SACHA CALLIX SOCIEDADE INDIVIDUAL DE ADVOCACIA"], "qtd": 11, "seg": "multi", "codigos": "121, 131, 132, 133, 137, 138, 139, 158, 314, 324, 422", "p25": true, "alt": [{"num": "5511944461443", "exibe": "(11) 94446-1443"}]}, {"id": "63999723887", "nome": "JAQUELINE BIAZON", "primeiro": "Jaqueline", "exibe": "(639)99723887", "num": "5563999723887", "alerta": "", "empresas": ["3G ADMINISTRAÇÃO DE ESCRITÓRIOS LTDA.", "ANTURIAS ADMINISTRAÇÃO E INCORPORAÇÃO S.A.", "BIAZON PARTICIPAÇÕES LTDA", "BZN GESTÃO DE IMÓVEIS E PATRIMONIAL LTDA", "HORIZONTAL EMPREENDIMENTOS IMOBILIÁRIOS S.A.", "LAGOA EMPREENDIMENTOS IMOBILIÁRIOS SPE LTDA.", "PORTO INCORPORAÇÕES IMOBILIÁRIAS SPE LTDA", "SILVANOPÓLIS EMPREENDIMENTOS IMOBILIÁRIOS SPE LTDA"], "qtd": 8, "seg": "multi", "codigos": "24, 35, 36, 42, 53, 127, 205, 457", "p25": true, "alt": []}, {"id": "4699197722", "nome": "LAERTON FRIZZO", "primeiro": "Laerton", "exibe": "(46)99197722", "num": "5546999197722", "alerta": "celular sem o nono digito", "empresas": ["AQUILA LOCACAO DE MAQUINAS E EQUIPAMENTOS LTDA.", "IVEL ADMINISTRADORA DE BENS LTDA", "LOS FRIZZOS APOIO ADMINISTRATIVO LTDA", "ODIN LOCACAO DE MAQUINAS E EQUIPAMENTOS LTDA.", "PRAMIZ ADMINISTRAÇÃO E PARTICIPAÇÕES LTDA", "RISTRETTO PARTICIPAÇÕES S.A.", "VENEZZA ADMINISTRAÇÃO E PARTICIPAÇÃO LTDA", "VITTA SAPIENS CONSULTORIA S.A."], "qtd": 8, "seg": "multi", "codigos": "12, 52, 104, 120, 220, 241, 455, 483", "p25": true, "alt": [{"num": "5544998224013", "exibe": "(44)98224013"}]}, {"id": "44999120216", "nome": "ANGELA", "primeiro": "Angela", "exibe": "(44)99912-0216", "num": "5544999120216", "alerta": "", "empresas": ["CARDOSO ADMINISTRADORA DE BENS LTDA", "CTC ADMINISTRAÇÃO E PARTICIPAÇÕES LTDA", "GMC ADMINISTRAÇÃO E PARTICIPAÇÕES S.A.", "INGÁ COMERCIAL ATACADISTA LTDA.", "MAC GESTÃO DE DIREITOS CREDITÓRIOS LTDA", "T V A M ADMINISTRAÇÃO E PARTICIPAÇÕES LTDA."], "qtd": 6, "seg": "multi", "codigos": "37, 38, 39, 43, 47, 93", "p25": true, "alt": []}, {"id": "66996368157", "nome": "CIRO MIOTTO", "primeiro": "Ciro", "exibe": "(66) 9 9636-8157", "num": "5566996368157", "alerta": "", "empresas": ["ELEMENT PATRIMONIAL LTDA", "FORTIS PARTICIPAÇÕES LTDA", "INTERCONTINENTAL FOODS - COMÉRCIO DE ALIMENTOS LTDA.", "SUPERFRIGO INDUSTRIA E COMÉRCIO S.A.", "VALORA CAPITAL S.A."], "qtd": 5, "seg": "multi", "codigos": "25, 28, 30, 508, 518", "p25": true, "alt": []}, {"id": "44999160303", "nome": "PAULO CARDOSO", "primeiro": "Paulo", "exibe": "(44)99916-0303", "num": "5544999160303", "alerta": "", "empresas": ["AMD ASSESSORIA EMPRESARIAL LTDA", "CN&M PRODUÇÕES LTDA", "MCAKE COMÉRCIO VAREJISTA DE BOLOS LTDA", "PSC ADMINISTRAÇÃO E PARTICIPAÇÕES LTDA"], "qtd": 4, "seg": "multi", "codigos": "100, 17, 44, 485", "p25": true, "alt": []}, {"id": "13997174646", "nome": "HELOISA", "primeiro": "Heloisa", "exibe": "(13)99717-4646 ", "num": "5513997174646", "alerta": "", "empresas": ["EH STORE MATERIAIS LTDA", "H A C MATERIAIS PARA CONSTRUCAO LTDA", "IMAGINATIVO ESCOLA DE DESENHO E PINTURA DIGITAL LTDA"], "qtd": 3, "seg": "multi", "codigos": "170, 197, 476", "p25": true, "alt": []}, {"id": "11969149889", "nome": "LUCIANO DANTE LUCIANELLI", "primeiro": "Luciano", "exibe": "(11)969149889", "num": "5511969149889", "alerta": "", "empresas": ["ALLURE REPRESENTAÇÕES LTDA", "DISTRIBUIDORA PREMIUM LTDA", "LF BROS PARTICIPAÇÕES LTDA"], "qtd": 3, "seg": "formal", "codigos": "60, 70, 74", "p25": true, "alt": [{"num": "5513997002260", "exibe": "(13)99700-2260"}]}, {"id": "11957859686", "nome": "MARCEL", "primeiro": "Marcel", "exibe": "(11)95785-9686", "num": "5511957859686", "alerta": "", "empresas": ["CAMD COMERCIO DE MATERIAIS DE CONSTRUCAO LTDA", "CORES PARTICIPAÇÕES LTDA", "TMC TINTAS LTDA"], "qtd": 3, "seg": "multi", "codigos": "413, 418, 419", "p25": true, "alt": []}, {"id": "44998782693", "nome": "ELIZABETE", "primeiro": "Elizabete", "exibe": "(44)99878-2693", "num": "5544998782693", "alerta": "", "empresas": ["APOLO SOLUÇÕES FINANCEIRAS E ADMINISTRATIVAS LTDA", "AVANTE SECURITIZADORA S.A."], "qtd": 2, "seg": "padrao", "codigos": "114, 176", "p25": true, "alt": []}, {"id": "44999890167", "nome": "IGOR SARTOR", "primeiro": "Igor", "exibe": "(44) 99989-0167", "num": "5544999890167", "alerta": "", "empresas": ["IGS HOLDING LTDA", "IGS PARTICIPAÇÕES LTDA."], "qtd": 2, "seg": "padrao", "codigos": "537, 548", "p25": true, "alt": []}, {"id": "11975860938", "nome": "LUCAS LUCIANELLI", "primeiro": "Lucas", "exibe": "(11)97586-0938", "num": "5511975860938", "alerta": "", "empresas": ["TINTAS MC FRANCHISING LTDA", "TINTAS MC LTDA"], "qtd": 2, "seg": "padrao", "codigos": "66, 68", "p25": true, "alt": []}, {"id": "48999720375", "nome": "MANFREDO", "primeiro": "Manfredo", "exibe": "(48)99972-0375", "num": "5548999720375", "alerta": "", "empresas": ["MANFREDO GOUVEA SOCIEDADE INDIVIDUAL DE ADVOCACIA", "MG CONSULTORIA E GESTÃO EMPRESARIAL LTDA."], "qtd": 2, "seg": "padrao", "codigos": "128, 237", "p25": true, "alt": []}, {"id": "11991929319", "nome": "MARCOS FARRACHE", "primeiro": "Marcos", "exibe": "(11)99192-9319", "num": "5511991929319", "alerta": "", "empresas": ["ITAPI ADMINISTRADORA DE BENS LTDA", "MEGA MARCAS FRANQUIA EMPRESARIAL LTDA"], "qtd": 2, "seg": "padrao", "codigos": "330, 331", "p25": true, "alt": []}, {"id": "18981316844", "nome": "MARINA BARETTA", "primeiro": "Marina", "exibe": "(18)98131-6844", "num": "5518981316844", "alerta": "", "empresas": ["JGS ADMINISTRADORA DE BENS E PARTICIPACOES LTDA", "MGV ADMINISTRAÇÃO E PARTICIPAÇÕES LTDA"], "qtd": 2, "seg": "padrao", "codigos": "16, 187", "p25": true, "alt": []}, {"id": "11999815397", "nome": " AMILCAR", "primeiro": "Amilcar", "exibe": "(11) 99981-5397", "num": "5511999815397", "alerta": "", "empresas": ["AJ SA PARTICIPAÇÕES LTDA"], "qtd": 1, "seg": "padrao", "codigos": "71", "p25": true, "alt": []}, {"id": "4699119533946991160406", "nome": "ADHEMAR JR", "primeiro": "Adhemar", "exibe": "(46)99119-5339/(46)99116-0406", "num": "5546991195339", "alerta": "duas numeros na mesma celula", "empresas": ["TRAYMON MODAS LTDA"], "qtd": 1, "seg": "padrao", "codigos": "327", "p25": true, "alt": []}, {"id": "11996507707", "nome": "ALEXANDRE MANZINE", "primeiro": "Alexandre", "exibe": "(11)99650-7707", "num": "5511996507707", "alerta": "", "empresas": ["CENTER MEGA COMERCIO DE MATERIAIS PARA CONSTRUCAO LTDA"], "qtd": 1, "seg": "padrao", "codigos": "328", "p25": true, "alt": []}, {"id": "44988285155", "nome": "ANA CAROLINA DIAS DE ANDRADE ", "primeiro": "Ana", "exibe": "(44)9882-85155", "num": "5544988285155", "alerta": "", "empresas": ["ACDA COMÉRCIO VAREJISTA DE PRODUTOS LTDA"], "qtd": 1, "seg": "formal", "codigos": "97", "p25": true, "alt": []}, {"id": "13991857227", "nome": "ANDREIA COUTO", "primeiro": "Andreia", "exibe": "(13)99185-7227", "num": "5513991857227", "alerta": "", "empresas": ["AFESTEJAR EVENTOS LTDA."], "qtd": 1, "seg": "padrao", "codigos": "411", "p25": true, "alt": []}, {"id": "44991435052", "nome": "CARLA DE OLIVEIRA ALVES", "primeiro": "Carla", "exibe": "(44)99143-5052", "num": "5544991435052", "alerta": "", "empresas": ["C. DE O. ALVES - SERVIÇOS MÉDICOS"], "qtd": 1, "seg": "formal", "codigos": "94", "p25": true, "alt": []}, {"id": "44999170950", "nome": "CARLOS ALBERTO TAVARES", "primeiro": "Carlos", "exibe": "(44)99917-0950", "num": "5544999170950", "alerta": "", "empresas": ["CENA ADMINISTRAÇÃO E PARTICIPAÇÕES LTDA"], "qtd": 1, "seg": "formal", "codigos": "41", "p25": true, "alt": []}, {"id": "44999603737", "nome": "DANIEL CAMILO CARDOSO", "primeiro": "Daniel", "exibe": "(4499960-3737", "num": "5544999603737", "alerta": "", "empresas": ["CARDOSO COMERCIO VAREJISTA DE BOLOS LTDA"], "qtd": 1, "seg": "formal", "codigos": "236", "p25": true, "alt": []}, {"id": "44988054440", "nome": "ELIANA ALVES", "primeiro": "Eliana", "exibe": "(44)98805-4440", "num": "5544988054440", "alerta": "", "empresas": ["OLIVEIRA ALVES - ADMINISTRADORA DE BENS LTDA"], "qtd": 1, "seg": "padrao", "codigos": "91", "p25": true, "alt": []}, {"id": "11943757117", "nome": "FANNY", "primeiro": "Fanny", "exibe": "(11)94375-7117", "num": "5511943757117", "alerta": "", "empresas": ["ML ITAPECERICA DA SERRA ALUGUEL DE EQUIPAMENTOS LTDA"], "qtd": 1, "seg": "padrao", "codigos": "442", "p25": true, "alt": []}, {"id": "11999796202", "nome": "FELIPE SÁ", "primeiro": "Felipe", "exibe": "(11)99979-6202", "num": "5511999796202", "alerta": "", "empresas": ["FELIPE SÁ ESPORTS CLUB LTDA"], "qtd": 1, "seg": "padrao", "codigos": "177", "p25": true, "alt": []}, {"id": "44999448718", "nome": "GRACIELA", "primeiro": "Graciela", "exibe": "(44)99944-8718", "num": "5544999448718", "alerta": "", "empresas": ["MAFRA ADMINISTRACAO E PARTICIPACOES LTDA"], "qtd": 1, "seg": "padrao", "codigos": "45", "p25": true, "alt": []}, {"id": "11999871537", "nome": "IVAN CARLOS", "primeiro": "Ivan", "exibe": "(11)99987-1537", "num": "5511999871537", "alerta": "", "empresas": ["FERREIRA E SÁ PARTICIPAÇÕES LTDA"], "qtd": 1, "seg": "padrao", "codigos": "73", "p25": true, "alt": []}, {"id": "65992172122", "nome": "JOENIL", "primeiro": "Joenil", "exibe": "(65)99217-2122", "num": "5565992172122", "alerta": "", "empresas": ["PRECITO ATACADO IMPORTACAO E EXPORTACAO LTDA"], "qtd": 1, "seg": "padrao", "codigos": "160", "p25": true, "alt": []}, {"id": "4499520077", "nome": "JULIANA ", "primeiro": "Juliana", "exibe": "(44)9952-0077", "num": "5544999520077", "alerta": "celular sem o nono digito", "empresas": ["SUB100 SISTEMAS LTDA"], "qtd": 1, "seg": "padrao", "codigos": "69", "p25": true, "alt": []}, {"id": "44933008405", "nome": "KELLY", "primeiro": "Kelly", "exibe": "(44)93300-8405", "num": "5544933008405", "alerta": "", "empresas": ["LINK COMERCIO E IMPORTACAO LTDA"], "qtd": 1, "seg": "padrao", "codigos": "216", "p25": true, "alt": []}, {"id": "43999530131", "nome": "LEONARDO", "primeiro": "Leonardo", "exibe": "(43)99953-0131", "num": "5543999530131", "alerta": "", "empresas": ["GARANZZIA CONSULTORIA EMPRESARIAL LTDA."], "qtd": 1, "seg": "padrao", "codigos": "101", "p25": true, "alt": []}, {"id": "43999912586", "nome": "RAFAEL AUGUSTO", "primeiro": "Rafael", "exibe": "(43)99991-2586", "num": "5543999912586", "alerta": "", "empresas": ["RZ SOLFIN INVESTIMENTOS LTDA"], "qtd": 1, "seg": "padrao", "codigos": "107", "p25": true, "alt": []}, {"id": "13439873100", "nome": "RODRIGO BIAZON ", "primeiro": "Rodrigo", "exibe": "(13)43987-3100", "num": "5513439873100", "alerta": "formato incomum, conferir", "empresas": ["NEXUS EDUCATION PARTINERS LTDA"], "qtd": 1, "seg": "padrao", "codigos": "482", "p25": true, "alt": [{"num": "551339873100", "exibe": "(13) 3987-3100"}]}, {"id": "43999160989", "nome": "RICARDO", "primeiro": "Ricardo", "exibe": "(43)99916-0989", "num": "5543999160989", "alerta": "", "empresas": ["AGRICERAMICA COMÉRCIO DE PEÇAS LTDA", "AGROCER DISTRIBUIDORA AGRÍCOLA LTDA", "BRASIL JET DISTRIBUIDORA AGRÍCOLA LTDA", "CERBITEC COMÉRCIO DE PEÇAS AGRÍCOLAS LTDA", "CERJET COMÉRCIO DE PEÇAS AGRÍCOLAS LTDA", "CERPLAS COMÉRCIO DE MÁQUINAS E PEÇAS AGRÍCOLAS LTDA", "CERTAGRI DISTRIBUIDORA AGRÍCOLA LTDA", "MAGNO JET INDUSTRIA LTDA"], "qtd": 8, "seg": "multi", "codigos": "342, 353, 354, 355, 356, 357, 358, 360", "p25": false, "alt": []}, {"id": "46999721593", "nome": "LEIDY", "primeiro": "Leidy", "exibe": "(46)99972-1593", "num": "5546999721593", "alerta": "", "empresas": ["BETEL LTDA", "CAMPAGNOLO DO BRASIL, INTELLIGENCE & SOLUTIONS LTDA", "EMT COMERCIO DE ARTIGOS ESPORTIVOS LTDA", "LOGIC INDÚSTRIA E COMÉRCIO LTDA.", "M L R CAMPAGNOLO CONSULTORIA EM GESTAO EMPRESARIAL", "TH2E ADMINISTRADORA DE BENS LTDA", "THOMAS GRECO PARTICIPAÇÕES LTDA"], "qtd": 7, "seg": "multi", "codigos": "171, 200, 201, 202, 311, 428, 434", "p25": false, "alt": []}, {"id": "13997746422", "nome": "CRISTINA", "primeiro": "Cristina", "exibe": "( 13)99774-6422", "num": "5513997746422", "alerta": "", "empresas": ["CARDOSO E SANTANA ELETRODOMÉSTICOS LTDA", "CRM ELETRODOMÉSTICOS LTDA", "J C M ELETRODOMÉSTICOS LTDA", "MARCELA SANTANA ELETRODOMÉSTICOS LTDA", "SANTANA E MARQUES ELETRODOMÉSTICOS LTDA"], "qtd": 5, "seg": "multi", "codigos": "529, 530, 532, 533, 534", "p25": false, "alt": []}, {"id": "8388540654", "nome": "DANILO", "primeiro": "Danilo", "exibe": "(83)88540654", "num": "5583988540654", "alerta": "celular sem o nono digito", "empresas": ["HIDRA MINERACAO LTDA", "NC 01 GESTAO DE DIREITOS CREDITORIOS LTDA", "NC 03 ADMINISTRADORA DE BENS, DIREITOS E PARTICIPACOES LTDA", "NC-05 ADMINISTRADORA DE BENS E PARTICIPACOES LTDA"], "qtd": 4, "seg": "multi", "codigos": "217, 222, 223, 498", "p25": false, "alt": []}, {"id": "13996090916", "nome": "ADRIANO MABILE CORREA CRUZ", "primeiro": "Adriano", "exibe": "(13)99609-0916", "num": "5513996090916", "alerta": "", "empresas": ["VOVÓ DIANA COMÉRCIO DE ALIMENTOS LTDA", "VVD FOODS COMERCIO DE ALIMENTOS LTDA", "VVD2 FOODS COMERCIO DE ALIMENTOS LTDA"], "qtd": 3, "seg": "multi", "codigos": "414, 421, 443", "p25": false, "alt": []}, {"id": "44999156199", "nome": "JOSÉ CARLOS", "primeiro": "José", "exibe": "(44)99915-6199", "num": "5544999156199", "alerta": "", "empresas": ["CGD TRANSPORTES LTDA", "DR PARTICIPAÇÕES LTDA", "JCS ADMINISTRADORA DE BENS LTDA"], "qtd": 3, "seg": "multi", "codigos": "240, 302, 303", "p25": false, "alt": []}, {"id": "19992710672", "nome": "CRISTIANE LOPES", "primeiro": "Cristiane", "exibe": "(19) 99271-0672", "num": "5519992710672", "alerta": "", "empresas": ["MARIANO PINTURA PREDIAL E FACHADAS LTDA", "MARIANO PINTURAS PREDIAIS E RESIDENCIAIS ALTO PADRAO LTDA"], "qtd": 2, "seg": "padrao", "codigos": "499, 500", "p25": false, "alt": []}, {"id": "43999859897", "nome": "MIRIAN", "primeiro": "Mirian", "exibe": "(43)99985-9897", "num": "5543999859897", "alerta": "", "empresas": ["CRM PARTICIPACOES LTDA", "RMA ADMINISTRADORA DE BENS LTDA"], "qtd": 2, "seg": "padrao", "codigos": "2, 4", "p25": false, "alt": []}, {"id": "4491223845", "nome": "PEDRO", "primeiro": "Pedro", "exibe": "(44)91223845", "num": "5544991223845", "alerta": "celular sem o nono digito", "empresas": ["INDÚSTRIA E COMÉRCIO DE ALIMENTOS SUMARÉ LTDA.", "MATARUCO COMÉRCIO ATACADISTA DE FARINHAS LTDA"], "qtd": 2, "seg": "padrao", "codigos": "542, 543", "p25": false, "alt": []}, {"id": "71984249467", "nome": "REGIANE", "primeiro": "Regiane", "exibe": "(71)98424-9467", "num": "5571984249467", "alerta": "", "empresas": ["CORES D TINTAS E ACESSORIOS LTDA", "MD CORES TINTAS E ACESSEORIOS LTDA"], "qtd": 2, "seg": "padrao", "codigos": "415, 416", "p25": false, "alt": []}, {"id": "19998025232", "nome": "RENAN ROTH", "primeiro": "Renan", "exibe": "(19)99802-5232", "num": "5519998025232", "alerta": "", "empresas": ["ROTH APOIO ADMINISTRATIVO LTDA.", "ROTH PARTICIPAÇÕES LTDA"], "qtd": 2, "seg": "padrao", "codigos": "105, 75", "p25": false, "alt": []}, {"id": "44999359620", "nome": "ROBERTO FRIZZO", "primeiro": "Roberto", "exibe": "(44)99935-9620", "num": "5544999359620", "alerta": "", "empresas": ["DPA ADMINISTRADORA DE BENS LTDA", "VITTA SECUR SECURITIZADORA S.A."], "qtd": 2, "seg": "padrao", "codigos": "140, 409", "p25": false, "alt": []}, {"id": "44991628777", "nome": "SANDRO TOZZO FONTANINI", "primeiro": "Sandro", "exibe": "(44)99162-8777", "num": "5544991628777", "alerta": "", "empresas": ["ADORE BRIGADERIA GOURMET LTDA", "TOZZO & FONTANINI ADMINISTRAÇÃO E PARTICIPAÇÕES LTDA"], "qtd": 2, "seg": "formal", "codigos": "464, 492", "p25": false, "alt": []}, {"id": "44988341428", "nome": "VINICIUS DALLA", "primeiro": "Vinicius", "exibe": "(44) 98834-1428", "num": "5544988341428", "alerta": "", "empresas": ["AMV PARTICIPACOES LTDA", "GRX PARTICIPAÇÕES LTDA"], "qtd": 2, "seg": "padrao", "codigos": "445, 494", "p25": false, "alt": []}, {"id": "12996050460", "nome": "ADRIANO FAUSTINO", "primeiro": "Adriano", "exibe": "(12) 9 9605-0460", "num": "5512996050460", "alerta": "", "empresas": ["COIMBRA MATERIAIS PARA CONSTRUCOES LTDA"], "qtd": 1, "seg": "padrao", "codigos": "509", "p25": false, "alt": []}, {"id": "4498894549", "nome": "ALINE RAMOS MEIRA", "primeiro": "Aline", "exibe": "(44)9889-4549", "num": "5544998894549", "alerta": "celular sem o nono digito", "empresas": ["ALINE RAMOS MEIRA SOCIEDADE INDIVIDUAL DE ADVOCACIA"], "qtd": 1, "seg": "formal", "codigos": "515", "p25": false, "alt": []}, {"id": "13997002574", "nome": "AMANDA", "primeiro": "Amanda", "exibe": "(13)99700-2574", "num": "5513997002574", "alerta": "", "empresas": ["ALIAR PARTICIPAÇÕES LTDA"], "qtd": 1, "seg": "padrao", "codigos": "72", "p25": false, "alt": []}, {"id": "44999263661", "nome": "ANA CÉLIA", "primeiro": "Ana", "exibe": "(44)99926-3661", "num": "5544999263661", "alerta": "", "empresas": ["MARKOELETRO - COMÉRCIO DE ELETRODOMÉSTICOS LTDA - EM RECUPERAÇÃO JUDICIAL"], "qtd": 1, "seg": "padrao", "codigos": "429", "p25": false, "alt": []}, {"id": "65981391111", "nome": "ANDREZZA BRUM", "primeiro": "Andrezza", "exibe": "(65)98139-1111", "num": "5565981391111", "alerta": "", "empresas": ["CLARA PARTICIPAÇÕES LTDA."], "qtd": 1, "seg": "padrao", "codigos": "417", "p25": false, "alt": []}, {"id": "11934406424", "nome": "CINTIA MARA DE FIGUEIREDO", "primeiro": "Cintia", "exibe": "(11) 9 3440-6424", "num": "5511934406424", "alerta": "", "empresas": ["ARCORA CONSULTORIA LTDA"], "qtd": 1, "seg": "formal", "codigos": "544", "p25": false, "alt": []}, {"id": "11996889918", "nome": "CLARISSA FERNANDES", "primeiro": "Clarissa", "exibe": "(11)996889918", "num": "5511996889918", "alerta": "", "empresas": ["ROLLOX COMERCIO DE ARTIGOS DE DECORACAO LTDA"], "qtd": 1, "seg": "padrao", "codigos": "410", "p25": false, "alt": []}, {"id": "4499640688", "nome": "CLEBER FRANCHIN", "primeiro": "Cleber", "exibe": "(44) 9964-0688", "num": "5544999640688", "alerta": "celular sem o nono digito", "empresas": ["CLEBER EDUARDO FRANCHIN DOS SANTOS E ADRIANA BELETATO DOS SANTOS BALANCIERI SERVICOS MEDICOS S/S"], "qtd": 1, "seg": "padrao", "codigos": "505", "p25": false, "alt": []}, {"id": "44999418916", "nome": "DAMARIS", "primeiro": "Damaris", "exibe": "(44)99941-8916", "num": "5544999418916", "alerta": "", "empresas": ["LX EMPREENDIMENTOS IMOBILIARIOS LTDA"], "qtd": 1, "seg": "padrao", "codigos": "118", "p25": false, "alt": []}, {"id": "4432189603", "nome": "DIANA ", "primeiro": "Diana", "exibe": "4432189603", "num": "554432189603", "alerta": "telefone comercial, confirmado no WhatsApp", "empresas": ["LEONFER - COMÉRCIO E LOGÍSTICA LTDA."], "qtd": 1, "seg": "padrao", "codigos": "427", "p25": false, "alt": []}, {"id": "45999481958", "nome": "EDUARDO PARANHOS", "primeiro": "Eduardo", "exibe": "(45) 9 9948-1958", "num": "5545999481958", "alerta": "", "empresas": ["PAMILE CAPITAL LTDA"], "qtd": 1, "seg": "padrao", "codigos": "552", "p25": false, "alt": []}, {"id": "44991821051", "nome": "FERNANDA", "primeiro": "Fernanda", "exibe": "(44) 99182-1051", "num": "5544991821051", "alerta": "", "empresas": ["PRADO E MONTANUCCI LTDA"], "qtd": 1, "seg": "padrao", "codigos": "517", "p25": false, "alt": []}, {"id": "47996896989", "nome": "FERNANDO ESPÍNDOLA", "primeiro": "Fernando", "exibe": "(47)996896989", "num": "5547996896989", "alerta": "", "empresas": ["ESPÍNDOLA ADMINISTRAÇÃO E INCORPORAÇÃO DE EMPREENDIMENTOS IMOBILIÁRIOS LTDA"], "qtd": 1, "seg": "padrao", "codigos": "125", "p25": false, "alt": []}, {"id": "44988340944", "nome": "FRANCIELE", "primeiro": "Franciele", "exibe": "(44)98834-0944", "num": "5544988340944", "alerta": "", "empresas": ["DALLA PARTICIPAÇÕES LTDA"], "qtd": 1, "seg": "padrao", "codigos": "5", "p25": false, "alt": []}, {"id": "44912340077", "nome": "GABRIEL SARTOR", "primeiro": "Gabriel", "exibe": "(44) 9 1234-0077", "num": "5544912340077", "alerta": "", "empresas": ["GB7 PARTICIPAÇÕES LTDA."], "qtd": 1, "seg": "padrao", "codigos": "536", "p25": false, "alt": []}, {"id": "4498496350", "nome": "GUILHERME BRIANEZ", "primeiro": "Guilherme", "exibe": "(44) 98496350", "num": "5544998496350", "alerta": "celular sem o nono digito", "empresas": ["G. BRIANEZ DA SILVA SOLUÇÕES ADMINISTRATIVAS"], "qtd": 1, "seg": "padrao", "codigos": "506", "p25": false, "alt": []}, {"id": "44999885411", "nome": "HIGOR FRATTA", "primeiro": "Higor", "exibe": "(44)99988-5411", "num": "5544999885411", "alerta": "", "empresas": ["CARVALHO FRATTA SOCIEDADE INDIVIDUAL DE ADVOCACIA"], "qtd": 1, "seg": "padrao", "codigos": "19", "p25": false, "alt": []}, {"id": "11952759696", "nome": "JANINE BATISTA DE SOUZA", "primeiro": "Janine", "exibe": "(11) 9 5275-9696", "num": "5511952759696", "alerta": "", "empresas": ["BSJ APOIO ADMINISTRATIVO LTDA"], "qtd": 1, "seg": "formal", "codigos": "551", "p25": false, "alt": []}, {"id": "44997599795", "nome": "JOÃO ROBERTO", "primeiro": "João", "exibe": "(44)99759-9795", "num": "5544997599795", "alerta": "", "empresas": ["ZINCROMO METAIS LTDA"], "qtd": 1, "seg": "padrao", "codigos": "214", "p25": false, "alt": []}, {"id": "71983759119", "nome": "JULIANE DUARTE", "primeiro": "Juliane", "exibe": "(71) 98375-9119", "num": "5571983759119", "alerta": "", "empresas": ["BORGES & DUARTE PARTICIPAÇÕES LTDA"], "qtd": 1, "seg": "padrao", "codigos": "527", "p25": false, "alt": []}, {"id": "42999197939", "nome": "JUNIOR SVIECK", "primeiro": "Junior", "exibe": "(42)99919-7939", "num": "5542999197939", "alerta": "", "empresas": ["CREDI MM SECURITIZADORA S.A."], "qtd": 1, "seg": "padrao", "codigos": "487", "p25": false, "alt": []}, {"id": "11992045363", "nome": "KLISMAN", "primeiro": "Klisman", "exibe": "(11)99204-5363", "num": "5511992045363", "alerta": "", "empresas": ["MC EXPORT TINTAS E MATERIAIS DE CONSTRUÇÃO LTDA"], "qtd": 1, "seg": "padrao", "codigos": "50", "p25": false, "alt": []}, {"id": "19996317700", "nome": "LARISSA", "primeiro": "Larissa", "exibe": "(19)99631-7700", "num": "5519996317700", "alerta": "", "empresas": ["MARTHI COMERCIO DE TINTAS LTDA"], "qtd": 1, "seg": "padrao", "codigos": "173", "p25": false, "alt": []}, {"id": "11995114687", "nome": "LUCAS ROTH", "primeiro": "Lucas", "exibe": "(11)99511-4687", "num": "5511995114687", "alerta": "", "empresas": ["L. ROTH APOIO ADMINISTRATIVO LTDA"], "qtd": 1, "seg": "padrao", "codigos": "150", "p25": false, "alt": []}, {"id": "44991805325", "nome": "LUCIANE", "primeiro": "Luciane", "exibe": "(44) 9 9180-5325", "num": "5544991805325", "alerta": "", "empresas": ["VIGRAN INDUSTRIA E COMERCIO DE FERTILIZANTES LTDA"], "qtd": 1, "seg": "padrao", "codigos": "516", "p25": false, "alt": []}, {"id": "11999353388", "nome": "MARLON CESAR  GENTILIN", "primeiro": "Marlon", "exibe": "(11)  99935-3388", "num": "5511999353388", "alerta": "", "empresas": ["GENTILIN EMPREENDIMENTOS E PARTICIPACOES LTDA"], "qtd": 1, "seg": "formal", "codigos": "524", "p25": false, "alt": []}, {"id": "44991581995", "nome": "MATEUS CESCO", "primeiro": "Mateus", "exibe": "(44)99158-1995", "num": "5544991581995", "alerta": "", "empresas": ["MARINGA CAPITAL S.A"], "qtd": 1, "seg": "padrao", "codigos": "13", "p25": false, "alt": []}, {"id": "44998259527", "nome": "MAYKON MARIA", "primeiro": "Maykon", "exibe": "(44)99825-9527", "num": "5544998259527", "alerta": "", "empresas": ["JB BEACH SPORTS LTDA"], "qtd": 1, "seg": "padrao", "codigos": "168", "p25": false, "alt": []}, {"id": "44999695018", "nome": "MÁRCIO FRIZZO", "primeiro": "Márcio", "exibe": "(44) 99969-5018", "num": "5544999695018", "alerta": "", "empresas": ["LEVIX CONSULTORIA, ADMINISTRADORA DE BENS E PARTICIPACOES LTDA"], "qtd": 1, "seg": "padrao", "codigos": "519", "p25": false, "alt": []}, {"id": "11962015978", "nome": "NELSON", "primeiro": "Nelson", "exibe": "(11)96201-5978", "num": "5511962015978", "alerta": "", "empresas": ["COLUMBUS AE - EMPREENDIMENTOS LTDA"], "qtd": 1, "seg": "padrao", "codigos": "10", "p25": false, "alt": []}, {"id": "44998813992", "nome": "PEDRO SCHERER", "primeiro": "Pedro", "exibe": "(44)99881-3992", "num": "5544998813992", "alerta": "", "empresas": ["NUVEO MARKETING E COMUNICACAO LTDA."], "qtd": 1, "seg": "padrao", "codigos": "493", "p25": false, "alt": []}, {"id": "11993336354", "nome": "RAYSSA CHADDAD", "primeiro": "Rayssa", "exibe": "(11) 993336354", "num": "5511993336354", "alerta": "", "empresas": ["RAILUZ PRODUÇÕES ARTISTICAS E TEATRAIS LTDA"], "qtd": 1, "seg": "padrao", "codigos": "528", "p25": false, "alt": []}, {"id": "11972999522", "nome": "RENATO SÁ", "primeiro": "Renato", "exibe": "(11)97299-9522", "num": "5511972999522", "alerta": "", "empresas": ["RSA & FILHOS PARTICIPAÇÕES LTDA."], "qtd": 1, "seg": "padrao", "codigos": "76", "p25": false, "alt": []}, {"id": "44999080713", "nome": "ROBERTO MARTINS", "primeiro": "Roberto", "exibe": "(44)99908-0713", "num": "5544999080713", "alerta": "", "empresas": ["EGECON - EMPRESA GARANTIDORA CONDOMINIAL LTDA"], "qtd": 1, "seg": "padrao", "codigos": "359", "p25": false, "alt": []}, {"id": "4497223901", "nome": "ROSANA ROSIN", "primeiro": "Rosana", "exibe": "44) 9722-3901", "num": "5544997223901", "alerta": "celular sem o nono digito", "empresas": ["HOLDING SPOT S.A."], "qtd": 1, "seg": "padrao", "codigos": "538", "p25": false, "alt": []}, {"id": "11981480369", "nome": "SAMANTHA", "primeiro": "Samantha", "exibe": "(11) 9 8148-0369", "num": "5511981480369", "alerta": "", "empresas": ["MADU COMERCIO DE TINTAS LTDA"], "qtd": 1, "seg": "padrao", "codigos": "503", "p25": false, "alt": []}, {"id": "44998585021", "nome": "SASHA ROCHA", "primeiro": "Sasha", "exibe": "(44) 99858-5021", "num": "5544998585021", "alerta": "", "empresas": ["SASHA BRUNA ROCHA CONTI ARQUITETURA LTDA"], "qtd": 1, "seg": "padrao", "codigos": "510", "p25": false, "alt": []}, {"id": "44999343939", "nome": "SOLANGE VILAS BOAS", "primeiro": "Solange", "exibe": "(44) 99934-3939", "num": "5544999343939", "alerta": "", "empresas": ["SOLANGE DA SILVA VILAS BOAS COMÉRCIO DE ALIMENTOS"], "qtd": 1, "seg": "formal", "codigos": "547", "p25": false, "alt": []}, {"id": "4498933951", "nome": "THALITA PARO PIAZZON ", "primeiro": "Thalita", "exibe": "(44)98933951", "num": "5544998933951", "alerta": "celular sem o nono digito", "empresas": ["THALITA PARO PIAZZON DE OLIVEIRA"], "qtd": 1, "seg": "formal", "codigos": "479", "p25": false, "alt": []}, {"id": "19999782812", "nome": "", "primeiro": "tudo bem", "exibe": "(19)999782812", "num": "5519999782812", "alerta": "", "empresas": ["MVR CAFETERIA LTDA"], "qtd": 1, "seg": "padrao", "codigos": "", "p25": false, "alt": []}];
+const CHAVE = 'nps_jbq_2026';
+const LOCAL = 'nps_jbq_2026_local';
+const FIM = new Date('2026-09-25T23:59:59');
+const PADRAO = {
+  quota: 15,
+  link: 'https://docs.google.com/forms/d/e/1FAIpQLSeY1AmuQcVgzptGWK9Cp2lZu6KSZk0Cj30eCg0_hPT_ax743Q/viewform?usp=pp_url&entry.1626468122={EMPRESA}&entry.1218304902={CONTATO}',
+  respostas: 0,
+  t1: 'Oi, {nome}, tudo bem?\n\nAqui é o Jeferson, da IntalenTI. Estou fazendo uma pesquisa pra medir a qualidade da experiência dos clientes da JB Quality. Eles pedem pra gente conduzir essa pesquisa todo ano, desde 2023.\n\nPosso te mandar o link? Não passa de 2 minutos pra responder.',
+  t1r: 'Oi, {nome}, tudo bem?\n\nAqui é o Jeferson, da IntalenTI. Estou rodando de novo a pesquisa que mede a qualidade da experiência dos clientes da JB Quality, aquela que você respondeu no ano passado.\n\nPosso te mandar o link? Não passa de 2 minutos.',
+  t1m: 'Oi, {nome}, tudo bem?\n\nAqui é o Jeferson, da IntalenTI. Estou fazendo uma pesquisa pra medir a qualidade da experiência dos clientes da JB Quality, que a gente conduz pra eles desde 2023.\n\nComo você acompanha mais de uma empresa com eles, sua visão é uma das mais completas que a gente consegue. Posso te mandar o link? Não passa de 2 minutos.',
+  t1f: 'Bom dia, {nome}, tudo bem?\n\nAqui é o Jeferson, da IntalenTI. Estou conduzindo a pesquisa que mede a qualidade da experiência dos clientes da JB Quality, que a gente faz pra eles desde 2023.\n\nPosso te encaminhar o link? A pesquisa leva cerca de 2 minutos.',
+  t2: 'Show, {nome}, obrigado!\n\nSegue o link: {link}\n\nJá vai com o nome da empresa preenchido. Se quiser comentar alguma coisa por aqui também, fique à vontade.',
+  t2d: 'Oi, {nome}, passando aqui de novo.\n\nSegue o link da pesquisa da JB Quality, caso consiga responder: {link}\n\nSão 2 minutinhos e ajuda bastante o time deles.',
+  lem: 'Oi, {nome}, tudo bem?\n\nSó um lembrete rápido: a pesquisa da JB Quality fica aberta até sexta. Se puder responder, ajuda muito: {link}'
+};
+const ETAPAS = {
+  pendente:'Não chamado', t1:'Abertura enviada', respondeuT1:'Respondeu, falta o link',
+  link:'Link enviado', lembrete:'Lembrete enviado', respondeu:'Respondeu a pesquisa',
+  invalido:'Número inválido', recusou:'Não quer responder'
+};
+let S = {reg:{}, cfg:{...PADRAO}};
+let filtro='todos', busca='';
+
+/* ---------- persistência ---------- */
+function leLocal(){
+  try{ const v = localStorage.getItem(LOCAL); return v ? JSON.parse(v) : null; }catch(e){ return null; }
+}
+function gravaLocal(){
+  try{ localStorage.setItem(LOCAL, JSON.stringify(S)); }catch(e){}
+}
+async function carregar(){
+  let remoto = null, local = leLocal();
+  try{
+    const r = await window.storage.get(CHAVE);
+    if(r && r.value) remoto = JSON.parse(r.value);
+  }catch(e){ /* primeira abertura ou servidor fora */ }
+
+  const qd = x => (x && x.salvoEm) || '';
+  let usar = remoto, veioDoLocal = false;
+  if(local && (!remoto || qd(local) > qd(remoto))){ usar = local; veioDoLocal = !!remoto; }
+
+  if(usar){ S.reg = usar.reg||{}; S.cfg = {...PADRAO, ...(usar.cfg||{})}; if(!S.cfg.link) S.cfg.link = PADRAO.link; }
+  try{ aplicarCfg(); }catch(e){ console.error('configuração', e); }
+  render();
+  if(veioDoLocal){
+    toast('Recuperei alterações que não tinham sido gravadas no servidor. Reenviando.');
+    gravar(0);
+  }
+}
+
+let tSalvar=null, falhou=false;
+function salvar(){
+  S.salvoEm = new Date().toISOString();
+  gravaLocal();
+  clearTimeout(tSalvar);
+  tSalvar = setTimeout(()=>gravar(0), 400);
+}
+async function gravar(n){
+  try{
+    await window.storage.set(CHAVE, JSON.stringify(S));
+    if(falhou){ falhou=false; marcaSalvo(); toast('Salvo. As alterações estão gravadas.'); }
+    else marcaSalvo();
+  }catch(e){
+    console.error('salvar', e);
+    falhou = true; marcaSalvo();
+    if(n < 3) setTimeout(()=>gravar(n+1), 900*(n+1));
+    else toast('Não consegui salvar. Clique no aviso vermelho no topo para tentar de novo, ou baixe o backup.');
+  }
+}
+function marcaSalvo(){
+  const el = document.getElementById('salvoTag');
+  if(!el) return;
+  el.style.display = falhou ? 'inline-block' : 'none';
+}
+
+/* ---------- helpers ---------- */
+function toast(m){
+  let t = document.getElementById('toast');
+  if(!t){ t=document.createElement('div'); t.id='toast';
+    t.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#12203F;color:#fff;padding:11px 18px;border-radius:3px;font-size:14px;z-index:99;box-shadow:0 4px 14px rgba(0,0,0,.2)';
+    document.body.appendChild(t); }
+  t.textContent=m; t.style.display='block';
+  clearTimeout(t._t); t._t=setTimeout(()=>t.style.display='none', 2600);
+}
+const reg = id => S.reg[id] || (S.reg[id] = {et:'pendente', nota:''});
+const adiado = id => { const a = reg(id).adiadoAte; return a && a > hoje(); };
+const brDia = d => d ? d.slice(8,10)+'/'+d.slice(5,7) : '';
+function adiarAte(id, data){
+  const r = reg(id);
+  if(data) r.adiadoAte = data; else delete r.adiadoAte;
+  salvar(); render();
+  toast(data ? 'Contato volta a aparecer em '+brDia(data)+'.' : 'Adiamento removido.');
+}
+const hoje = () => new Date().toISOString().slice(0,10);
+const horas = ts => ts ? (Date.now()-new Date(ts).getTime())/36e5 : 0;
+const venceu = (ts, h) => !ts || horas(ts) >= h;
+const faz = ts => ts ? 'há '+dias(ts)+'d' : 'sem data registrada';
+const dias = ts => Math.floor(horas(ts)/24);
+const semSufixo = e => e.replace(/[\s.,-]*(LTDA|EIRELI|EPP|S\/?A|S\.A)\.?\s*$/i,'').trim();
+const numDe = c => reg(c.id).numAtivo || c.num;
+const exibeDe = c => reg(c.id).altExibe || c.exibe;
+function numeros(c){ return [{num:c.num, exibe:c.exibe}].concat(c.alt||[]).filter(x=>x.num); }
+function altsDe(c){
+  const r = reg(c.id), fora = (r.descartados||[]).concat([exibeDe(c)]);
+  return numeros(c).filter(x=>!fora.includes(x.exibe));
+}
+function usarNumero(id, num, exibe, descartar){
+  const c = CONTATOS.find(x=>x.id===id), r = reg(id);
+  const atual = exibeDe(c);
+  if(atual===exibe && !descartar) return;
+  r.hist = r.hist || {};
+  r.hist[atual] = {et:r.et, t1_em:r.t1_em, respondeuT1_em:r.respondeuT1_em, link_em:r.link_em, lembrete_em:r.lembrete_em, dia:r.dia};
+  if(descartar) r.descartados = (r.descartados||[]).concat([atual]);
+  r.numAtivo = num; r.altExibe = exibe;
+  const v = r.hist[exibe] || {et:'pendente'};
+  ['et','t1_em','respondeuT1_em','link_em','lembrete_em','dia'].forEach(k => v[k]!==undefined ? r[k]=v[k] : delete r[k]);
+  delete r.pulado;
+  salvar(); render();
+}
+function trocarNumero(id, num, exibe){
+  usarNumero(id, num, exibe, false);
+  toast('Agora usando '+exibe+'. O contato voltou para a fila.');
+}
+function descartarNumero(id){
+  const c = CONTATOS.find(x=>x.id===id), r = reg(id);
+  const atual = exibeDe(c);
+  const resto = altsDe(c);
+  if(!resto.length){
+    r.hist = r.hist||{}; r.hist[atual] = {et:r.et};
+    r.descartados = (r.descartados||[]).concat([atual]);
+    r.et = 'invalido'; salvar(); render();
+    return toast('Sem outro número na planilha. Marcado como inválido para levar à JB Quality.');
+  }
+  usarNumero(id, resto[0].num, resto[0].exibe, true);
+  toast(atual+' descartado. Voltou para '+resto[0].exibe+', no estado em que estava.');
+}
+function linkDe(c){
+  if(!S.cfg.link) return '';
+  return S.cfg.link.replace(/\{EMPRESA\}/g, encodeURIComponent(semSufixo(c.empresas[0])))
+                   .replace(/\{CONTATO\}/g, encodeURIComponent(c.nome||''));
+}
+function texto(c, tpl){
+  if(tpl==='t1') tpl = c.p25 ? 't1r' : c.seg==='multi' ? 't1m' : c.seg==='formal' ? 't1f' : 't1';
+  return (S.cfg[tpl]||'').replace(/\{nome\}/g, c.primeiro).replace(/\{link\}/g, linkDe(c)||'[configure o link]');
+}
+function abrir(c, tpl, etapa){
+  if(!numDe(c)){ toast('Contato sem número válido. Marque como inválido para levar à JB Quality depois.'); return; }
+  window.open('https://wa.me/'+numDe(c)+'?text='+encodeURIComponent(texto(c,tpl)), '_blank');
+  marcar(c.id, etapa);
+}
+function marcar(id, et){
+  const r = reg(id); r.et = et; r[et+'_em'] = new Date().toISOString();
+  if(et==='t1') r.dia = hoje();
+  salvar(); render();
+}
+
+/* ---------- o que fazer ---------- */
+function proximo(){
+  return CONTATOS.filter(c => reg(c.id).et==='pendente' && numDe(c) && !reg(c.id).pulado && !adiado(c.id))[0];
+}
+function pendencias(){
+  const out=[];
+  for(const c of CONTATOS){
+    const r = reg(c.id);
+    if(adiado(c.id)) continue;
+    if(r.adiadoAte && r.adiadoAte <= hoje() && ['respondeuT1','t1','link','lembrete'].includes(r.et)){
+      out.push({c, acao: r.et==='respondeuT1'?'t2':r.et==='link'?'lem':'t2d', porque:'retorno programado para '+brDia(r.adiadoAte)});
+      continue;
+    }
+    if(r.et==='respondeuT1') out.push({c, acao:'t2', porque:'pediu o link'});
+    else if(r.et==='t1' && venceu(r.t1_em,48)) out.push({c, acao:'t2d', porque:'abertura '+faz(r.t1_em)+' sem resposta'});
+    else if(r.et==='link' && venceu(r.link_em,120)) out.push({c, acao:'lem', porque:'link '+faz(r.link_em)+' sem resposta'});
+    else if(r.et==='invalido' && altsDe(c).length) out.push({c, acao:'alt', porque:'número não existe, mas há outro na planilha'});
+  }
+  return out.sort((a,b)=> a.acao==='t2' ? -1 : 1);
+}
+
+function passa(c, f, q){
+  const r = reg(c.id);
+  if(f==='pendente' && r.et!=='pendente') return false;
+  if(f==='respondeu' && r.et!=='respondeu') return false;
+  if(f==='alerta' && !c.alerta) return false;
+  if(f==='p25' && !c.p25) return false;
+  if(f==='invalido' && r.et!=='invalido') return false;
+  if(f==='adiado' && !adiado(c.id)) return false;
+  if(f==='andamento' && !['t1','respondeuT1','link','lembrete'].includes(r.et)) return false;
+  if(q && !((c.nome||'').toLowerCase().includes(q) || c.empresas.join(' ').toLowerCase().includes(q))) return false;
+  return true;
+}
+
+/* ---------- render ---------- */
+function render(){
+  const R = CONTATOS.map(c=>reg(c.id));
+  const env = R.filter(r=>['t1','respondeuT1','link','lembrete','respondeu'].includes(r.et)).length;
+  const naBase = R.filter(r=>r.et==='respondeu').length;
+  const resp = Math.max(naBase, S.cfg.respostas||0);
+  const hj = R.filter(r=>r.dia===hoje()).length;
+  const taxa = env ? Math.round(resp/env*100) : 0;
+  kHoje.textContent = hj+' / '+S.cfg.quota;
+  kEnv.textContent = env; kResp.textContent = resp;
+  kTaxa.textContent = taxa+'%';
+  boxTaxa.className = 'stat'+(taxa>=35 && env>=20 ? ' hit':'');
+  const d = Math.ceil((FIM-Date.now())/864e5);
+  sub.textContent = CONTATOS.length+' contatos · '+(d>0 ? d+(d===1?' dia restante':' dias restantes') : 'coleta encerrada')
+    + (resp>naBase ? ' · '+(resp-naBase)+' fora da lista' : '');
+
+  /* fila */
+  const c = proximo();
+  fila.innerHTML = !c ? '<div class="vazio">Fila zerada. Todo mundo com número válido já recebeu a abertura.</div>'
+  : `<div class="quem">${c.nome||'sem nome no cadastro'}<em>${c.qtd>1? c.qtd+' empresas':'1 empresa'}${c.p25?' · respondeu em 2025':''}</em></div>
+     <div class="emp">${c.empresas.slice(0,3).join(' · ')}${c.empresas.length>3?' e mais '+(c.empresas.length-3):''}${c.alerta?' — <span style="color:var(--warn)">número ajustado, confira antes: '+exibeDe(c)+'</span>':''}${reg(c.id).numAtivo?' — <span style="color:var(--gold)">usando o número alternativo '+exibeDe(c)+'</span>':''}</div>
+     <div class="msg">${texto(c,'t1').replace(/</g,'&lt;')}</div>
+     <div class="acoes">
+       <button class="b1" onclick="abrir(CONTATOS.find(x=>x.id==='${c.id}'),'t1','t1')">Abrir no WhatsApp</button>
+       <button class="b2" onclick="marcar('${c.id}','t1')">Já mandei, marcar</button>
+       <button class="b3" onclick="reg('${c.id}').pulado=1;salvar();render()">Pular por agora</button>
+       <button class="b3" onclick="marcar('${c.id}','invalido')">Número inválido</button>
+     </div>
+     <div class="depois">Depois: ${CONTATOS.filter(x=>reg(x.id).et==='pendente'&&numDe(x)&&!reg(x.id).pulado&&!adiado(x.id)).slice(1,4).map(x=>x.nome).join(', ')||'ninguém'}</div>`;
+
+  /* pendências */
+  if(viewRoteiro && viewRoteiro.style.display!=='none') desenhaCal();
+  const p = pendencias();
+  hPend.textContent = 'Precisam de outro toque' + (p.length?' ('+p.length+')':'');
+  pend.innerHTML = !p.length ? '<div class="vazio">Nada vencido por enquanto.</div>'
+  : '<ul>'+p.map(x=>`<li>
+      <span class="nm">${x.c.nome}</span>
+      ${x.acao!=='alt'?`<button class="mini" onclick="abrir(CONTATOS.find(y=>y.id==='${x.c.id}'),'${x.acao}','${x.acao==='lem'?'lembrete':'link'}')">${x.acao==='lem'?'Mandar lembrete':'Mandar o link'}</button>`:''}
+      ${altsDe(x.c).map(a=>`<button class="mini" style="border-color:var(--gold);color:var(--gold)" onclick="trocarNumero('${x.c.id}','${a.num}','${a.exibe}')">tentar ${a.exibe}</button>`).join(' ')}
+      <input type="date" class="st" style="margin-left:6px" title="adiar até" value="${reg(x.c.id).adiadoAte||''}"
+        onchange="adiarAte('${x.c.id}', this.value)">
+      <span class="porque">${x.porque}</span></li>`).join('')+'</ul>';
+
+  /* filtros */
+  const q = busca.toLowerCase();
+  const grupos = [['todos','Todos'],['pendente','Não chamados'],['andamento','Em andamento'],['respondeu','Responderam'],['p25','Responderam 2025'],['alerta','Nº a conferir'],['adiado','Adiados'],['invalido','Nº inválidos']];
+  filtros.innerHTML = grupos.map(([k,l])=>{
+    const n = CONTATOS.filter(c=>passa(c,k,q)).length;
+    return `<button class="chip ${filtro===k?'on':''}" onclick="filtro='${k}';render()">${l} <b style="font-weight:600">${n}</b></button>`;
+  }).join('');
+
+  boxInv.style.display = (filtro==='invalido') ? 'flex' : 'none';
+
+  /* tabela */
+  const lista = CONTATOS.filter(c=>passa(c,filtro,q));
+  tb.innerHTML = lista.map(c=>{
+    const r = reg(c.id);
+    const prox = r.et==='pendente' ? ['t1','t1','Abertura'] : r.et==='respondeuT1' ? ['t2','link','Link']
+      : r.et==='t1' ? ['t2d','link','Link'] : r.et==='link' ? ['lem','lembrete','Lembrete'] : null;
+    return `<tr>
+      <td><div class="nm">${c.nome||'—'}</div><div class="sub">${numeros(c).length>1
+        ? `<select class="st" style="font-size:11.5px;padding:1px 3px;max-width:150px" onchange="const v=this.value.split('|');usarNumero('${c.id}',v[0],v[1])">
+             ${numeros(c).map(x=>`<option value="${x.num}|${x.exibe}" ${exibeDe(c)===x.exibe?'selected':''} ${(r.descartados||[]).includes(x.exibe)?'disabled':''}>${x.exibe}${(r.descartados||[]).includes(x.exibe)?' (de outra pessoa)':''}</option>`).join('')}
+           </select> <button class="mini" style="padding:1px 7px;font-size:11.5px" onclick="descartarNumero('${c.id}')">não é dele</button>`
+        : exibeDe(c)} ${c.alerta?'<span class="tag al">conferir</span>':''}${c.p25?' <span class="tag ok">2025</span>':''}${altsDe(c).length?' <span class="tag">+'+altsDe(c).length+' nº</span>':''}${adiado(c.id)?' <span class="tag" style="border-color:var(--gold);color:var(--gold)">volta '+brDia(r.adiadoAte)+'</span>':''}</div></td>
+      <td class="empcol"><div class="sub">${c.empresas[0]}${c.qtd>1?' <span class="tag">+'+(c.qtd-1)+'</span>':''}</div></td>
+      <td><select class="st" onchange="marcar('${c.id}',this.value)">
+        ${Object.entries(ETAPAS).map(([k,v])=>`<option value="${k}" ${r.et===k?'selected':''}>${v}</option>`).join('')}
+      </select></td>
+      <td>${adiado(c.id)?`<button class="mini" onclick="adiarAte('${c.id}','')">reativar</button> `:''}${r.et==='t1'?`<button class="mini" style="border-color:var(--ok);color:var(--ok)" onclick="marcar('${c.id}','respondeuT1')">Respondeu</button> `:''}${prox?`<button class="mini" onclick="abrir(CONTATOS.find(x=>x.id==='${c.id}'),'${prox[0]}','${prox[1]}')">${prox[2]}</button>`:'<span class="tag ok">ok</span>'}</td>
+      <td><input class="st" style="width:100%" value="${(r.nota||'').replace(/"/g,'&quot;')}" placeholder="o que a pessoa falou"
+           onchange="reg('${c.id}').nota=this.value;salvar()"></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="5" class="vazio">Nada com esse filtro.</td></tr>';
+}
+
+/* ---------- config ---------- */
+function aplicarValores(){
+  cLink.value=S.cfg.link; cQuota.value=S.cfg.quota; cResp.value=S.cfg.respostas||0;
+  cT1.value=S.cfg.t1; cT1r.value=S.cfg.t1r; cT1m.value=S.cfg.t1m; cT1f.value=S.cfg.t1f;
+  cT2.value=S.cfg.t2; cT2d.value=S.cfg.t2d; cLem.value=S.cfg.lem;
+}
+function aplicarCfg(){
+  aplicarValores();
+  [['cLink','link'],['cQuota','quota'],['cResp','respostas'],['cT1','t1'],['cT1r','t1r'],
+   ['cT1m','t1m'],['cT1f','t1f'],['cT2','t2'],['cT2d','t2d'],['cLem','lem']]
+    .forEach(([el,k])=>document.getElementById(el).addEventListener('change', e=>{
+      S.cfg[k] = k==='quota' ? (+e.target.value||15) : k==='respostas' ? (+e.target.value||0) : e.target.value;
+      salvar(); render();
+    }));
+}
+function bigr(s){ s=limpa(s); const o=[]; for(let i=0;i<s.length-1;i++) o.push(s.slice(i,i+2)); return o; }
+function sim(a,b){
+  const A=bigr(a), B=bigr(b); if(!A.length||!B.length) return 0;
+  const m={}; A.forEach(g=>m[g]=(m[g]||0)+1);
+  let h=0; B.forEach(g=>{ if(m[g]>0){ m[g]--; h++; } });
+  return 2*h/(A.length+B.length);
+}
+let SUG=[];
+function candidatos(emp, quem, usados){
+  return CONTATOS.filter(c=>!usados.has(c.id)).map(c=>({
+    c, s: (quem?0.65:0)*sim(quem, c.nome||'') + (emp?(quem?0.35:1):0)*Math.max(0,...c.empresas.map(e=>sim(emp,e)))
+  })).sort((a,b)=>b.s-a.s).filter(x=>x.s>=0.34).slice(0,2);
+}
+function confirmarSug(i, j){
+  const g = SUG[i]; if(!g || g.feito) return;
+  const alvo = g.cands[j];
+  marcar(alvo.c.id,'respondeu'); g.feito = alvo.c.nome;
+  desenhaSug();
+}
+function desenhaSug(){
+  const box = document.getElementById('sugBox'); if(!box) return;
+  box.innerHTML = SUG.map((g,i)=> g.feito
+    ? `<div style="padding:5px 0;color:var(--ok)">${g.rot} &rarr; marcado como ${g.feito}</div>`
+    : `<div style="padding:5px 0">${g.rot} <span class="sub">(${g.aviso||'parecido'})</span> &rarr;
+        ${g.cands.map((x,j)=>`<b>${x.c.nome||'sem nome'}</b> <span class="sub">(${x.c.empresas[0]})</span>
+          <button class="mini" onclick="confirmarSug(${i},${j})">é essa pessoa</button>`).join(' ou ')}</div>`
+  ).join('');
+}
+const limpa = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+function importar(){
+  const linhas = imp.value.split('\n').map(l=>l.trim()).filter(Boolean)
+    .filter(l=>{
+      const c0 = l.split('\t')[0].replace(/^\s*\d+\s*[.)-]\s*/,'').trim().toLowerCase();
+      return !(c0.startsWith('nome da empresa') || c0.startsWith('carimbo') || c0.startsWith('a pesquisa est'));
+    });
+  if(linhas.length && !linhas.some(l=>l.includes('\t'))){
+    impRes.style.display='block';
+    impRes.innerHTML = 'Esse texto não veio em colunas. Copie da <b>planilha de respostas</b> (aba Respostas, botão Ver no app Planilhas), selecionando as colunas Nome da Empresa e respondida por. O resumo do formulário não serve.';
+    return;
+  }
+  const usados = new Set(CONTATOS.filter(c=>reg(c.id).et==='respondeu').map(c=>c.id));
+  let ok=0; const perdidos=[];
+  const nomeBate = (a,b)=>{ a=limpa(a).split(' ').filter(Boolean); b=limpa(b).split(' ').filter(Boolean);
+    if(!a.length||!b.length) return false;
+    if(a[0]!==b[0] || a[0].length<3) return false;
+    if(a.length>1 && b.length>1) return a[a.length-1]===b[b.length-1] || a.length===1 || b.length===1;
+    return true; };
+  const empBate = (e,c)=> e.length>=4 && c.empresas.some(x=>{const y=limpa(x); return y.includes(e)||e.includes(y);});
+
+  let ja=0; SUG=[];
+  for(const l of linhas){
+    const p = l.split('\t');
+    const emp = (p[0]||'').trim(), quem = (p[1]||'').trim();
+    const e = limpa(emp);
+    const rot = (emp||'sem empresa') + (quem? ' / '+quem : '');
+
+    // a empresa manda: sem ela batendo, nada é marcado sozinho
+    let alvo = CONTATOS.find(c => empBate(e,c) && quem && nomeBate(quem, c.nome))
+            || CONTATOS.find(c => empBate(e,c));
+    if(alvo){
+      if(usados.has(alvo.id)){ ja++; continue; }
+      usados.add(alvo.id); marcar(alvo.id,'respondeu'); ok++; continue;
+    }
+
+    // nome bate mas empresa não: vira sugestão, nunca marcação automática
+    const soNome = CONTATOS.filter(c => !usados.has(c.id) && quem && nomeBate(quem, c.nome)).slice(0,2);
+    const cands = soNome.length ? soNome.map(c=>({c})) : candidatos(e, quem, usados);
+    if(cands.length) SUG.push({rot, cands, aviso: soNome.length ? 'o nome bate, mas a empresa não' : 'parecido'});
+    else perdidos.push(rot);
+  }
+  impRes.style.display='block';
+  impRes.innerHTML = `<b>${ok}</b> ${ok===1?'novo respondente marcado':'novos respondentes marcados'}.`
+    + (ja ? ` ${ja} já estavam registrados de antes.` : '')
+    + (SUG.length ? `<div style="margin-top:8px"><b>Confira estes antes de marcar. A empresa não bateu com a base:</b><div id="sugBox"></div></div>` : '')
+    + (perdidos.length ? `<div style="margin-top:8px">Sem nenhuma semelhança com a base, provavelmente respondeu alguém de fora: ${perdidos.join(', ')}.</div>` : '');
+  desenhaSug();
+  S.cfg.respostas = linhas.length;
+  cResp.value = S.cfg.respostas;
+  imp.value='';
+  salvar(); render();
+}
+function restaurar(){
+  const txt = imp.value.trim();
+  if(!/registro_json/.test(txt)){ impRes.style.display='block'; impRes.textContent='Cole o CSV completo exportado pelo painel, com a coluna registro_json.'; return; }
+  const todas = txt.split('\n');
+  const ini = todas.findIndex(l=>/^"?contato"?,/.test(l.trim()));
+  const linhas = todas.slice(ini>=0 ? ini+1 : 1); let n=0;
+  for(const l of linhas){
+    const cols = l.match(/("([^"]|"")*"|[^,]*)/g).filter((_,i)=>i%2===0);
+    const id = (cols[cols.length-2]||'').replace(/^"|"$/g,'').replace(/""/g,'"');
+    const js = (cols[cols.length-1]||'').replace(/^"|"$/g,'').replace(/""/g,'"');
+    if(!id || !js) continue;
+    try{ S.reg[id] = JSON.parse(js); n++; }catch(e){}
+  }
+  impRes.style.display='block';
+  impRes.innerHTML = `Andamento restaurado para <b>${n}</b> contatos.`;
+  imp.value=''; salvar(); render();
+}
+function versao(){
+  const d=new Date(), z=n=>String(n).padStart(2,'0');
+  return `andamento_nps_jbq_${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}_${z(d.getHours())}${z(d.getMinutes())}`;
+}
+function exportar(){
+  const l = [['contato','numero','empresas','etapa','enviado_em','respondeu_em','anotacao','id','registro_json']];
+  CONTATOS.forEach(c=>{const r=reg(c.id);
+    l.push([c.nome, c.exibe, c.empresas.join(' | '), ETAPAS[r.et], r.t1_em||'', r.respondeu_em||'', r.nota||'', c.id, JSON.stringify(r)]);});
+  const nome = versao();
+  const csv = '# '+nome+'\n' + l.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  bkpBox.style.display='block';
+  bkpNome.textContent = nome + '.csv';
+  bkp.value = csv;
+  const baixou = baixar(nome+'.csv', csv);
+  bkp.focus(); bkp.select();
+  let ok=false;
+  try{ ok = document.execCommand('copy'); }catch(e){}
+  if(!ok && navigator.clipboard){ navigator.clipboard.writeText(csv).then(()=>{ok=true;}).catch(()=>{}); }
+  bkpAviso.textContent = ok ? (baixou?'Baixado e copiado.':'Copiado, mas o download falhou. Use o texto abaixo. Cole num arquivo de texto para guardar, ou aqui na conversa para eu ler o ritmo.')
+                            : 'Selecione o conteúdo abaixo e copie com Ctrl+C.';
+}
+let armado=false, tArmado=null;
+function zerar(b){
+  if(!armado){
+    armado=true; b.textContent='Clique de novo para confirmar'; b.style.color='var(--warn)';
+    tArmado=setTimeout(()=>{armado=false; b.textContent='Apagar todo o andamento'; b.style.color='';}, 5000);
+    return;
+  }
+  clearTimeout(tArmado); armado=false; b.textContent='Apagar todo o andamento'; b.style.color='';
+  S.reg={}; S.cfg.respostas=0; cResp.value=0; try{ localStorage.removeItem(LOCAL); }catch(e){}
+  salvar(); render(); toast('Andamento zerado. Tudo voltou para não chamado.');
+}
+function listaInvalidos(){
+  const maus = CONTATOS.filter(c=>reg(c.id).et==='invalido' || (reg(c.id).descartados||[]).length);
+  if(!maus.length) return toast('Nenhum número com problema registrado ainda.');
+  const d=new Date(), z=n=>String(n).padStart(2,'0');
+  const emp = maus.reduce((a,c)=>a+c.qtd,0);
+  let t = `Números de WhatsApp com problema na Pesquisa NPS 2026\n`
+        + `Levantado pela IntalenTI em ${z(d.getDate())}/${z(d.getMonth()+1)}/${d.getFullYear()}\n\n`;
+  maus.forEach((c,i)=>{
+    const r = reg(c.id);
+    t += `${i+1}. ${c.nome||'contato sem nome no cadastro'} — ${(r.tentados||[]).concat([exibeDe(c)]).join(' e ')}\n`;
+    t += `   ${c.qtd} ${c.qtd>1?'empresas':'empresa'}: ${c.empresas.join('; ')}\n`;
+    if(c.codigos) t += `   Códigos: ${c.codigos}\n`;
+    (r.descartados||[]).forEach(x => t += `   ${x}: atende outra pessoa, não é o contato do cadastro.\n`);
+    if(r.et==='invalido') t += `   ${exibeDe(c)}: ${r.nota || 'o WhatsApp informa que o número não está na plataforma.'}\n`;
+    else if(r.nota) t += `   ${r.nota}\n`;
+    t += '\n';
+  });
+  t += `Total: ${maus.length} ${maus.length>1?'contatos':'contato'}, cobrindo ${emp} ${emp>1?'empresas':'empresa'} que ficam sem representação na pesquisa.\n`;
+  t += `Se houver número alternativo para qualquer um deles, dá tempo de incluir na coleta.`;
+  invBox.style.display='block'; inv.value=t;
+  invRes.textContent = `${maus.length} contatos, ${emp} empresas afetadas.`;
+  copiarCaixa(inv);
+}
+function fechar(caixa, campo){
+  document.getElementById(caixa).style.display='none';
+  document.getElementById(campo).value='';
+}
+function baixar(nome, txt){
+  const conteudo = '\ufeff' + txt;
+  const clicar = url => {
+    const a = document.createElement('a');
+    a.href = url; a.download = nome; a.style.display = 'none';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ a.remove(); if(url.startsWith('blob:')) URL.revokeObjectURL(url); }, 1500);
+  };
+  try{
+    clicar(URL.createObjectURL(new Blob([conteudo], {type:'text/csv;charset=utf-8'})));
+    return true;
+  }catch(e){ console.error('blob', e); }
+  try{
+    const b64 = btoa(String.fromCharCode(...new TextEncoder().encode(conteudo)));
+    clicar('data:text/csv;charset=utf-8;base64,' + b64);
+    return true;
+  }catch(e){ console.error('base64', e); }
+  return false;
+}
+let pendenteCSV = null;
+const confEl = () => (viewBackup.style.display!=='none') ? confBoxB : confBoxP;
+function limpaConf(){ [confBoxP,confBoxB].forEach(e=>{ e.style.display='none'; e.innerHTML=''; }); }
+function prepararRestauro(txt, origem){
+  const alvo = confEl();
+  if(!/registro_json/.test(txt)){
+    alvo.style.display='block';
+    alvo.innerHTML = 'Isso não parece um backup do painel. Use o CSV baixado aqui.';
+    return;
+  }
+  const cab = (txt.split('\n')[0].match(/^#\s*(.+)$/)||[])[1] || 'sem identificação';
+  const linhas = txt.split('\n').filter(l=>/registro_json|","\{/.test(l)).length - 1;
+  const marcados = (txt.match(/""et"":""(?!pendente)/g)||[]).length;
+  pendenteCSV = txt;
+  alvo.style.display='block';
+  alvo.innerHTML = `Restaurar a partir de <b>${origem}</b><br>Gerado como <b>${cab}</b>, com ${Math.max(linhas,0)} contatos e <b>${marcados}</b> já fora de "não chamado".
+    <div class="acoes" style="margin-top:9px">
+      <button class="b1" onclick="confirmarCSV()">Restaurar</button>
+      <button class="b3" onclick="cancelarCSV()">Cancelar</button>
+    </div>`;
+}
+function arquivoRestaurar(inp){
+  const f = inp.files && inp.files[0];
+  if(!f) return;
+  const fr = new FileReader();
+  fr.onload = () => { inp.value=''; prepararRestauro(String(fr.result).replace(/^\ufeff/,''), f.name); };
+  fr.onerror = () => { inp.value=''; toast('Não consegui ler o arquivo.'); };
+  fr.readAsText(f, 'utf-8');
+}
+function processarColado(){
+  const txt = imp.value.trim();
+  limpaConf(); impRes.style.display='none';
+  if(!txt) return toast('Cole primeiro o conteúdo no campo acima.');
+  if(/registro_json/.test(txt)) return prepararRestauro(txt, 'texto colado');
+  importar();
+}
+function confirmarCSV(){
+  if(!pendenteCSV) return;
+  imp.value = pendenteCSV; pendenteCSV = null;
+  limpaConf(); restaurar();
+}
+function cancelarCSV(){
+  pendenteCSV = null; limpaConf();
+  toast('Restauração cancelada. Nada foi alterado.');
+}
+function copiarCaixa(el){
+  el.focus(); el.select();
+  let ok=false; try{ ok=document.execCommand('copy'); }catch(e){}
+  if(ok) return toast('Copiado.');
+  if(navigator.clipboard) navigator.clipboard.writeText(el.value).then(()=>toast('Copiado.')).catch(()=>toast('Selecione o texto e use Ctrl+C.'));
+  else toast('Selecione o texto e use Ctrl+C.');
+}
+let armadoMsg=false, tMsg=null;
+function resetMsg(b){
+  if(!armadoMsg){
+    armadoMsg=true; b.textContent='Clique de novo para confirmar'; b.style.color='var(--warn)';
+    tMsg=setTimeout(()=>{armadoMsg=false; b.textContent='Voltar às mensagens padrão'; b.style.color='';}, 5000);
+    return;
+  }
+  clearTimeout(tMsg); armadoMsg=false; b.textContent='Voltar às mensagens padrão'; b.style.color='';
+  ['t1','t1r','t1m','t1f','t2','t2d','lem'].forEach(k=>S.cfg[k]=PADRAO[k]);
+  aplicarValores(); salvar(); render(); toast('Mensagens restauradas para a versão mais recente.');
+}
+function copiarBkp(){ copiarCaixa(bkp); }
+const CAL = [
+  {q:'sexta',  d:'11',    t:'Aquecimento',    alvo:10, txt:'10 aberturas'},
+  {q:'segunda',d:'14',    t:'',               alvo:25, txt:'mais 15, acumula 25'},
+  {q:'terça',  d:'15',    t:'',               alvo:45, txt:'mais 20, acumula 45'},
+  {q:'quarta', d:'16',    t:'',               alvo:65, txt:'mais 20, acumula 65'},
+  {q:'quinta', d:'17',    t:'',               alvo:85, txt:'mais 20, acumula 85'},
+  {q:'sexta',  d:'18',    t:'Fecha aberturas',fila:true,txt:'o que sobrou da fila'},
+  {q:'seg a qui',d:'21-24',t:'',              man:true, txt:'só lembretes, nenhum contato novo'},
+  {q:'sexta',  d:'25',    t:'Coleta fecha',   man:true, txt:'export final'},
+  {q:'seg e ter',d:'28-29',t:'',              man:true, txt:'análise e deck'},
+  {q:'quarta', d:'30',    t:'Apresentação',   man:true, txt:''}
+];
+const SITS = [
+  ['A pessoa responde que pode mandar', null, 'Clique no botão verde "Respondeu" na lista. Ela cai em Precisam de outro toque com o texto certo.'],
+  ['O WhatsApp diz que o número não está na plataforma', null, 'Marque Número inválido. Sai do denominador e entra na lista que volta para a JB Quality.'],
+  ['A pessoa desconfia se é golpe', 'Entendo a dúvida, {nome}. A pesquisa é da JB Quality mesmo, eles pedem pra IntalenTI conduzir todo ano desde 2023. Se preferir confirmar, pode falar com a sua carteira lá que eles validam. O link é o formulário oficial deles.', 'Não insista se continuar desconfortável. Marque Não quer responder e siga.'],
+  ['A pessoa reclama ou traz um assunto sério', 'Oi, {nome}, aqui é o Thiago. Trabalho com o Jeferson na IntalenTI e estou conduzindo a pesquisa desse ano. Anotei aqui e vou levar isso pra JB Quality.', 'Hora de assumir a conversa. Registre na anotação do contato: é o melhor material qualitativo da apresentação.'],
+  ['A pessoa pede para não receber', 'Sem problema, {nome}. Obrigado pelo retorno e desculpa o incômodo.', 'Marque Não quer responder. Continua no denominador, porque a mensagem foi entregue.'],
+  ['A pessoa diz que já respondeu', null, 'Confira na planilha antes de marcar. Se não estiver lá, provavelmente respondeu outra pessoa da mesma empresa.']
+];
+const TELAS = ['Painel','Roteiro','Backup','Config'];
+function ir(t){
+  const atual = TELAS.find(x=>window['view'+x] && window['view'+x].style.display!=='none') || 'Painel';
+  const destino = (atual===t) ? 'Painel' : t;
+  TELAS.forEach(x=>{ window['view'+x].style.display = (x===destino)?'block':'none'; });
+  ['Roteiro','Backup','Config'].forEach(x=>window['nv'+x].classList.toggle('on', x===destino));
+  if(destino==='Roteiro') desenhaCal();
+  window.scrollTo(0,0);
+}
+function desenhaCal(){
+  const env = CONTATOS.filter(c=>['t1','respondeuT1','link','lembrete','respondeu'].includes(reg(c.id).et)).length;
+  const restam = CONTATOS.filter(c=>reg(c.id).et==='pendente' && numDe(c)).length;
+  const man = S.cfg.cal||{};
+  let anterior = true;
+  cal.innerHTML = CAL.map((x,i)=>{
+    let ok = !!man[i], nota = '';
+    if(!ok && x.alvo){ ok = env>=x.alvo; nota = ok?'Concluído':env+' de '+x.alvo; }
+    else if(!ok && x.fila){ ok = env>0 && restam===0; nota = ok?'Concluído':restam+' na fila'; }
+    else if(ok) nota = 'Concluído';
+    else nota = 'clique quando fechar';
+    const agora = !ok && anterior; if(!ok) anterior=false;
+    return `<div class="et ${ok?'ok2':agora?'agora':''}" onclick="marcaCal(${i})">
+      <div class="d1">${x.q}</div><div class="d2">${x.d}</div>
+      <div class="d3">${x.t?'<b>'+x.t+'</b><br>':''}${x.txt}</div>
+      <div class="st2">${nota}</div></div>`;
+  }).join('');
+}
+function marcaCal(i){
+  S.cfg.cal = S.cfg.cal||{};
+  S.cfg.cal[i] = !S.cfg.cal[i];
+  salvar(); desenhaCal();
+}
+sits.innerHTML = SITS.map((x,i)=>`<div class="sit">
+  <div class="q">${x[0]}</div>
+  ${x[1]?`<div class="a" id="sm${i}">${x[1]}</div><button class="cp mini" style="margin-top:7px" onclick="copiarTexto('sm${i}',this)">Copiar</button>`:''}
+  ${x[2]?`<div class="acao">${x[2]}</div>`:''}</div>`).join('');
+function copiarTexto(id, b){
+  const t = document.getElementById(id).textContent;
+  const ta = document.createElement('textarea');
+  ta.value = t; document.body.appendChild(ta); ta.select();
+  let ok=false; try{ ok=document.execCommand('copy'); }catch(e){}
+  ta.remove();
+  if(!ok && navigator.clipboard) navigator.clipboard.writeText(t).catch(()=>{});
+  b.textContent='Copiado'; setTimeout(()=>b.textContent='Copiar',1400);
+}
+carregar();
+</script>

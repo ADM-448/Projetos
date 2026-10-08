@@ -1,0 +1,26 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+@source '../**/*.vue';
+
+@theme {
+  --color-deep-ink: #130e30;
+  --color-hi-yellow: #ffe228;
+  --color-slate: #5f5c6e;
+  --color-canvas: #f9fbf2;
+  --color-soft-meadow: #eff2e5;
+  --color-card-white: #ffffff;
+  --color-border-subtle: rgba(19, 14, 48, 0.08);
+
+  --font-hedvig-letters-serif: 'Hedvig Letters Serif', Georgia, serif;
+  --font-serif-brand: 'Hedvig Letters Serif', Georgia, serif;
+  --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --radius-pill: 1440px;
+  --radius-card: 14px;
+  --radius-column: 16px;
+}
