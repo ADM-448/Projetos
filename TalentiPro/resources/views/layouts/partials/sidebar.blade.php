@@ -4,7 +4,16 @@
         <span style="font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; color: white;">
             <i class="fa-solid fa-brain" style="color: #f39c12; margin-right: 8px;"></i>TalentiPro
         </span>
-        @if(auth()->user()->empresa)
+        @if(auth()->user()->isConsultor())
+            <div style="font-size: 0.8rem; color: #60a5fa; margin-top: 5px; font-weight: 700; text-transform: uppercase;">
+                <i class="fa-solid fa-user-tie"></i> Consultor
+            </div>
+            @if(auth()->user()->empresa)
+                <div style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.85); margin-top: 3px; font-weight: 500;">
+                    <i class="fa-solid fa-building" style="font-size: 0.7rem; color: #f39c12;"></i> {{ auth()->user()->empresa->nome }}
+                </div>
+            @endif
+        @elseif(auth()->user()->empresa)
             <div style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.7); margin-top: 5px; font-weight: 500;">
                 {{ auth()->user()->empresa->nome }}
             </div>
@@ -28,7 +37,8 @@
             </li>
 
             <li>
-                <a class="menu-link">
+                <a href="{{ route('admin.empresas.index') }}"
+                    class="menu-link {{ request()->routeIs('admin.empresas.*') ? 'active' : '' }}">
                     <div><i class="fa-solid fa-building"></i> Empresas (Tenants)</div>
                     <span class="badge"
                         style="background-color: #f39c12; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold;">SaaS</span>
@@ -36,20 +46,11 @@
             </li>
 
             <li>
-                <a class="menu-link">
-                    <div><i class="fa-solid fa-users-gear"></i> Usuários Globais</div>
-                </a>
-            </li>
-
-            <li>
-                <a class="menu-link">
-                    <div><i class="fa-solid fa-receipt"></i> Planos & Cobrança</div>
-                </a>
-            </li>
-
-            <li>
-                <a class="menu-link">
-                    <div><i class="fa-solid fa-sliders"></i> Configurações</div>
+                <a href="{{ route('admin.consultores.index') }}"
+                    class="menu-link {{ request()->routeIs('admin.consultores.*') ? 'active' : '' }}">
+                    <div><i class="fa-solid fa-user-tie"></i> Consultores</div>
+                    <span class="badge"
+                        style="background-color: #3b82f6; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold;">Multi</span>
                 </a>
             </li>
 
@@ -57,6 +58,99 @@
                 <a href="{{ route('whatsapp.config') }}"
                     class="menu-link {{ request()->routeIs('whatsapp.*') ? 'active' : '' }}">
                     <div><i class="fa-brands fa-whatsapp" style="color: #25d366;"></i> WhatsApp API</div>
+                </a>
+            </li>
+        @elseif(auth()->user()->isConsultor())
+            {{-- MENU DO CONSULTOR: VISÃO ANALÍTICA MASTER --}}
+            <div style="margin: 0 10px 15px 10px; padding: 12px; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 10px; text-align: left;">
+                <div style="font-size: 0.68rem; color: #93c5fd; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+                    <i class="fa-solid fa-briefcase"></i> Empresa em Análise
+                </div>
+                <div style="font-size: 0.92rem; font-weight: 700; color: #ffffff; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ auth()->user()->empresa->nome ?? 'Nenhuma Selecionada' }}">
+                    {{ auth()->user()->empresa->nome ?? 'Selecione uma Empresa' }}
+                </div>
+                <a href="{{ route('consultor.empresas.hub') }}" style="display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.78rem; margin-top: 10px; color: #ffffff; text-decoration: none; font-weight: 700; padding: 6px 12px; background: #3b82f6; border-radius: 6px; box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4); transition: 0.2s;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">
+                    <i class="fa-solid fa-arrows-rotate"></i> Trocar Empresa
+                </a>
+            </div>
+
+            <li class="menu-header">PAINEL EXECUTIVO</li>
+
+            <li>
+                <a href="{{ route('dashboard') }}" class="menu-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                    <div><i class="fa-solid fa-chart-pie"></i> Dashboard Corporativo</div>
+                </a>
+            </li>
+
+            <li class="menu-header" style="margin-top: 20px;">CADASTROS & ESTRUTURA</li>
+
+            <li style="margin-bottom: 5px;">
+                <a class="menu-link" style="justify-content: space-between; cursor: pointer;" onclick="toggleSubmenu('submenuConsultorCadastros')">
+                    <div><i class="fa-solid fa-users-viewfinder"></i> Cadastros (Consulta)</div>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
+                </a>
+                <ul class="submenu" id="submenuConsultorCadastros"
+                    style="display: {{ request()->routeIs('departamentos.*') || request()->routeIs('cargos.*') || request()->routeIs('colaboradores.*') || request()->routeIs('competencias.*') ? 'block' : 'none' }}; padding-left: 25px; list-style: none; margin-top: 5px;">
+                    <li><a href="{{ route('departamentos.index') }}" class="menu-link {{ request()->routeIs('departamentos.*') ? 'active' : '' }}" style="padding: 8px 15px; font-size: 0.9rem;">Departamentos</a></li>
+                    <li><a href="{{ route('cargos.index') }}" class="menu-link {{ request()->routeIs('cargos.*') ? 'active' : '' }}" style="padding: 8px 15px; font-size: 0.9rem;">Cargos</a></li>
+                    <li><a href="{{ route('colaboradores.index') }}" class="menu-link {{ request()->routeIs('colaboradores.*') ? 'active' : '' }}" style="padding: 8px 15px; font-size: 0.9rem;">Colaboradores</a></li>
+                    <li><a href="{{ route('competencias.index') }}" class="menu-link {{ request()->routeIs('competencias.*') ? 'active' : '' }}" style="padding: 8px 15px; font-size: 0.9rem;">Competências</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a href="{{ route('solicitacoes.index') }}" class="menu-link {{ request()->routeIs('solicitacoes.*') ? 'active' : '' }}">
+                    <div><i class="fa-solid fa-inbox"></i> Solicitações</div>
+                </a>
+            </li>
+
+            <li class="menu-header" style="margin-top: 20px;">RH ORGANIZACIONAL (ANÁLISE)</li>
+
+            <li>
+                <a href="{{ route('reunioes.index') }}" class="menu-link {{ request()->routeIs('reunioes.*') ? 'active' : '' }}">
+                    <div><i class="fa-solid fa-headset"></i> Reuniões Feedback (IA)</div>
+                </a>
+            </li>
+
+            <li style="margin-bottom: 5px;">
+                <a class="menu-link" style="justify-content: space-between; cursor: pointer;" onclick="toggleSubmenu('submenuConsultorAvaliacoes')">
+                    <div><i class="fa-solid fa-star"></i> Avaliações da Equipe</div>
+                    <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
+                </a>
+                <ul class="submenu" id="submenuConsultorAvaliacoes"
+                    style="display: {{ request()->routeIs('avaliacoes.*') ? 'block' : 'none' }}; padding-left: 25px; list-style: none; margin-top: 5px;">
+                    <li><a href="{{ route('avaliacoes.index') }}"
+                            class="menu-link {{ request()->routeIs('avaliacoes.index') || request()->routeIs('avaliacoes.templates.*') ? 'active' : '' }}"
+                            style="padding: 8px 15px; font-size: 0.9rem;">Gestão de Avaliações</a></li>
+                    <li><a href="{{ route('avaliacoes.relatorios') }}"
+                            class="menu-link {{ request()->routeIs('avaliacoes.relatorios') ? 'active' : '' }}"
+                            style="padding: 8px 15px; font-size: 0.9rem;">Relatórios da Equipe</a></li>
+                </ul>
+            </li>
+
+            <li>
+                <a href="{{ route('pdis.index', ['tab' => 'equipe']) }}" class="menu-link {{ request()->routeIs('pdis.*') ? 'active' : '' }}">
+                    <div><i class="fa-solid fa-route"></i> PDIs da Equipe</div>
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('disc.equipe') }}" class="menu-link {{ request()->routeIs('disc.equipe') ? 'active' : '' }}">
+                    <div><i class="fa-solid fa-puzzle-piece"></i> Teste DISC da Equipe</div>
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('gestao.clima.index') }}" class="menu-link {{ request()->routeIs('gestao.clima.*') ? 'active' : '' }}">
+                    <div><i class="fa-solid fa-heart-pulse" style="color: #ec4899;"></i> Pesquisa de Clima (RH)</div>
+                </a>
+            </li>
+
+            <li class="menu-header" style="margin-top: 20px;">CONTA</li>
+
+            <li>
+                <a href="{{ route('profile.edit') }}" class="menu-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}">
+                    <div><i class="fa-solid fa-user"></i> Meus Dados</div>
                 </a>
             </li>
         @else
@@ -151,6 +245,14 @@
                     </li>
 
                     <li>
+                        <a href="{{ route('reunioes.index') }}"
+                            class="menu-link {{ request()->routeIs('reunioes.*') ? 'active' : '' }}"
+                            style="{{ $itemStyle }}">
+                            <div><i class="fa-solid fa-headset"></i> Minhas Reuniões 1:1</div>
+                        </a>
+                    </li>
+
+                    <li>
                         <a href="{{ route('profile.edit') }}"
                             class="menu-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}"
                             style="{{ $itemStyle }}">
@@ -194,7 +296,13 @@
                     <a href="{{ route('solicitacoes.index') }}"
                         class="menu-link {{ request()->routeIs('solicitacoes.*') ? 'active' : '' }}">
                         <div><i class="fa-solid fa-inbox"></i> Solicitações</div>
-                        @php $solPendentes = \App\Models\Solicitacao::contarPendentes(gestorId: auth()->id()); @endphp
+                        @php 
+                            $isMaster = auth()->user()->perfil_acesso->value === 'master';
+                            $solPendentes = \App\Models\Solicitacao::contarPendentes(
+                                userId: null, 
+                                gestorId: $isMaster ? null : auth()->id()
+                            ); 
+                        @endphp
                         @if($solPendentes > 0)
                             <span
                                 style="background:#ef4444; color:white; padding:2px 7px; border-radius:10px; font-size:0.72rem; font-weight:700;">{{ $solPendentes }}</span>
@@ -221,8 +329,8 @@
                     <ul class="submenu" id="submenuGestaoAvaliacoes"
                         style="display: {{ request()->routeIs('avaliacoes.*') && !request()->routeIs('avaliacoes.relatorios.meus') ? 'block' : 'none' }}; padding-left: 25px; list-style: none; margin-top: 5px;">
                         <li><a href="{{ route('avaliacoes.index') }}"
-                                class="menu-link {{ request()->routeIs('avaliacoes.index') ? 'active' : '' }}"
-                                style="padding: 8px 15px; font-size: 0.9rem;">Criar Avaliações</a></li>
+                                class="menu-link {{ request()->routeIs('avaliacoes.index') || request()->routeIs('avaliacoes.templates.*') || request()->routeIs('avaliacoes.create') || request()->routeIs('avaliacoes.edit') ? 'active' : '' }}"
+                                style="padding: 8px 15px; font-size: 0.9rem;">Gestão de Avaliações</a></li>
                         <li><a href="{{ route('avaliacoes.minhas', ['tab' => 'avaliador']) }}"
                                 class="menu-link {{ request()->routeIs('avaliacoes.minhas') && request('tab') == 'avaliador' ? 'active' : '' }}"
                                 style="padding: 8px 15px; font-size: 0.9rem;">Avaliar Equipe</a></li>
@@ -302,6 +410,23 @@
                     el.style.display = 'none';
                 }
             }
+
+            document.addEventListener("DOMContentLoaded", function() {
+                const sidebarMenu = document.querySelector('.menu-list');
+                
+                if (sidebarMenu) {
+                    // Restaurar a posição do scroll se existir na sessionStorage
+                    const scrollPos = sessionStorage.getItem('sidebarScrollPos');
+                    if (scrollPos) {
+                        sidebarMenu.scrollTop = parseInt(scrollPos, 10);
+                    }
+
+                    // Salvar a posição do scroll toda vez que a barra rolar
+                    sidebarMenu.addEventListener('scroll', function() {
+                        sessionStorage.setItem('sidebarScrollPos', sidebarMenu.scrollTop);
+                    });
+                }
+            });
         </script>
     </div>
 </aside>

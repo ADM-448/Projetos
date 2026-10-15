@@ -25,12 +25,12 @@ class DashboardController extends Controller
             ->where('status', 'pendente')
             ->get();
 
-        // Avaliações Ativas — conta quantos avaliados distintos têm participações pendentes dentro do prazo.
-        // Usa distinct para não inflar o número quando há múltiplos avaliadores/mediadores por avaliado.
+        // Avaliações Ativas — conta avaliações com status 'andamento' na empresa.
+        // Usa count distinct de avaliado_id para representar quantos avaliados estão no processo.
         $avaliacoesAtivas = \App\Models\AvaliacaoParticipante::where('status', 'pendente')
             ->whereHas('avaliacao', function($q) use ($empresaId) {
                 $q->where('empresa_id', $empresaId)
-                  ->where('data_fim', '>=', now()->startOfDay());
+                  ->where('status', \App\Enums\StatusAvaliacao::ANDAMENTO);
             })->distinct('avaliado_id')->count('avaliado_id');
         
         $perfil = auth()->user()->perfil_acesso->value ?? auth()->user()->perfil_acesso;
@@ -60,9 +60,10 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Avaliações Ativas (para o card de Acompanhamento)
+        // Avaliações em Andamento (para o card de Acompanhamento)
         $avaliacoesAtivasList = \App\Models\Avaliacao::where('empresa_id', $empresaId)
-            ->where('data_fim', '>=', now()->startOfDay())
+            ->where('status', \App\Enums\StatusAvaliacao::ANDAMENTO)
+            ->where('is_template', false)
             ->with(['participantes' => function($q) {
                 $q->select('id', 'avaliacao_id', 'avaliado_id', 'status');
             }])
@@ -104,13 +105,19 @@ class DashboardController extends Controller
     {
         $empresaId = auth()->user()->empresa_id;
 
-        // Busca avaliações ativas (dentro do prazo e que tenham participantes pendentes)
+        // Mesma lógica do contador: busca avaliações com status 'andamento'
+        // que ainda possuem participantes pendentes e não estão expiradas
         $avaliacoes = \App\Models\Avaliacao::where('empresa_id', $empresaId)
-            ->where('data_fim', '>=', now()->startOfDay())
-            ->whereHas('participantes', function($q) {
+            ->where('status', \App\Enums\StatusAvaliacao::ANDAMENTO)
+            ->where('is_template', false)
+            ->where(function ($q) {
+                $q->whereNull('data_fim')
+                  ->orWhere('data_fim', '>=', now()->startOfDay());
+            })
+            ->whereHas('participantes', function ($q) {
                 $q->where('status', 'pendente');
             })
-            ->with(['participantes.avaliado'])
+            ->with(['participantes.avaliado', 'participantes.avaliador'])
             ->get();
 
         return view('dashboard.partials.modal_avaliacoes', compact('avaliacoes'));
@@ -140,11 +147,13 @@ class DashboardController extends Controller
     {
         $totalEmpresas = Empresa::count();
         $totalUsuarios = User::count();
+        $totalConsultores = User::where('perfil_acesso', \App\Enums\UserRole::CONSULTOR->value)->count();
         $empresas = Empresa::orderBy('created_at', 'desc')->take(10)->get();
 
         return view('admin.dashboard', compact(
             'totalEmpresas',
             'totalUsuarios',
+            'totalConsultores',
             'empresas'
         ));
     }

@@ -36,11 +36,18 @@ class PdiPolicy
 
         // Verifica se o usuário é gestor direto do colaborador deste PDI
         $eGestorDireto = $pdi->colaborador?->gestor_id === $user->id;
+        
+        // Verifica se o usuário é gestor e o colaborador está no mesmo departamento ou sem departamento
+        $eEquipeDoGestor = false;
+        if ($perfil === 'gestor' && !is_null($user->departamento_id)) {
+            $eEquipeDoGestor = ($pdi->colaborador?->departamento_id === $user->departamento_id);
+        }
 
         return $pdi->colaborador_id === $user->id
             || $pdi->gestor_id === $user->id
             || $eGestorDireto
-            || in_array($perfil, ['admin', 'master']);
+            || $eEquipeDoGestor
+            || in_array($perfil, ['admin', 'master', 'consultor']);
     }
 
     /**
@@ -122,10 +129,16 @@ class PdiPolicy
         }
 
         $eGestorDireto = $pdi->colaborador?->gestor_id === $user->id;
+        
+        $eEquipeDoGestor = false;
+        if ($perfil === 'gestor' && !is_null($user->departamento_id)) {
+            $eEquipeDoGestor = ($pdi->colaborador?->departamento_id === $user->departamento_id);
+        }
 
         return $pdi->colaborador_id === $user->id
             || $pdi->gestor_id === $user->id
             || $eGestorDireto
+            || $eEquipeDoGestor
             || in_array($perfil, ['admin', 'master']);
     }
 

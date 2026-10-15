@@ -34,8 +34,7 @@ class AtividadeService
         // Se a atividade for gerada pelo próprio usuário para ele mesmo, já marca como lida
         $isSelf = (auth()->check() && auth()->id() == $userId);
 
-        // Cria a atividade
-        Atividade::create([
+        $atividade = Atividade::create([
             'empresa_id' => $empresaId,
             'user_id'    => $userId,
             'icone'      => $icone,
@@ -48,17 +47,40 @@ class AtividadeService
         ]);
 
         // Otimização de Banco: Capping de 10 atividades por usuário
-        // Usa orderBy('id', 'desc') para garantir ordem correta mesmo quando
-        // multiple inserts acontecem com o mesmo timestamp (ex: ambiente de teste)
         $atividadesUser = Atividade::where('user_id', $userId)->orderBy('id', 'desc')->get();
         if ($atividadesUser->count() > 10) {
-            // slice(10) = pega do índice 10 em diante = as mais antigas (maior ID = mais recente)
             $idsParaExcluir = $atividadesUser->slice(10)->pluck('id');
             Atividade::whereIn('id', $idsParaExcluir)->delete();
         }
 
-        // O envio de WhatsApp imediato foi desativado.
-        // As notificações agora são agrupadas e enviadas uma vez por dia
-        // através do comando SendDailyNotifications (Cron Job).
+        // Disparo Imediato via Fila
+        if (!$isSelf) {
+            $user = User::find($userId);
+            if ($user) {
+                // Formata URL de destino direta e limpa para WhatsApp e E-mail
+                $urlDestino = $url ?: route('dashboard');
+
+                // 1. WhatsApp
+                $msgWhatsApp = "Olá {$user->name}! 👋\n\n"
+                    . "Uma nova atividade foi atribuída a você no TalentiPro:\n"
+                    . "📋 *{$titulo}*\n\n"
+                    . "Acesse pelo link abaixo para resolver:\n"
+                    . "🔗 {$urlDestino}";
+                
+                \App\Jobs\EnviarNotificacaoWhatsappJob::dispatch($user, $msgWhatsApp);
+
+                // 2. E-mail
+                if (!empty($user->email)) {
+                    \App\Jobs\SendEmailNotificationJob::dispatch(
+                        $user->email,
+                        $user->name,
+                        "Nova Atividade: {$titulo}",
+                        $descricao,
+                        $urlDestino,
+                        "Acessar Atividade"
+                    );
+                }
+            }
+        }
     }
 }

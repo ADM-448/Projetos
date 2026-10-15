@@ -2,213 +2,162 @@
 
 namespace Database\Seeders;
 
-use App\Models\DiscOption;
-use App\Models\DiscQuestion;
 use Illuminate\Database\Seeder;
+use App\Models\DiscQuestion;
+use App\Models\DiscOption;
+use Illuminate\Support\Facades\DB;
+use App\Enums\DiscProfileEnum;
 
 class DiscSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     * 16 Blocos de Palavras Neutras (Sem viés óbvio) para avaliação DISC Profissional.
+     */
     public function run(): void
     {
-        // Limpa os dados antigos para evitar duplicação
-        DiscOption::query()->delete();
-        DiscQuestion::query()->delete();
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DiscOption::truncate();
+        DiscQuestion::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        // Os 25 blocos extraídos diretamente da planilha do sistema
         $blocos = [
-            1 => [
-                'title' => 'Tende a agir de forma...',
-                'DOMINANCE' => 'Assertiva',
-                'INFLUENCE' => 'Persuasiva',
-                'STEADINESS' => 'Paciente',
-                'COMPLIANCE' => 'Contemplativa',
+            // Bloco 1
+            [
+                ['text' => 'Focado em Resultados', 'profile' => 'D'],
+                ['text' => 'Comunicativo e Expressivo', 'profile' => 'I'],
+                ['text' => 'Paciente e Ouvinte', 'profile' => 'S'],
+                ['text' => 'Atento aos Detalhes', 'profile' => 'C'],
             ],
-            2 => [
-                'title' => 'Confortável com...',
-                'DOMINANCE' => 'Ser decisivo',
-                'INFLUENCE' => 'Amizade social',
-                'STEADINESS' => 'Ser parte de um time',
-                'COMPLIANCE' => 'Planejamento e ordem',
+            // Bloco 2
+            [
+                ['text' => 'Toma Iniciativa Rápida', 'profile' => 'D'],
+                ['text' => 'Gosta de Trabalhar em Equipe', 'profile' => 'I'],
+                ['text' => 'Busca Harmonia no Ambiente', 'profile' => 'S'],
+                ['text' => 'Segue Regras Estritamente', 'profile' => 'C'],
             ],
-            3 => [
-                'title' => 'Desejo de...',
-                'DOMINANCE' => 'Variedade',
-                'INFLUENCE' => 'Menos estrutura',
-                'STEADINESS' => 'Harmonia',
-                'COMPLIANCE' => 'Lógica',
+            // Bloco 3
+            [
+                ['text' => 'Competitivo por Natureza', 'profile' => 'D'],
+                ['text' => 'Otimista e Entusiasta', 'profile' => 'I'],
+                ['text' => 'Estável e Previsível', 'profile' => 'S'],
+                ['text' => 'Analítico e Lógico', 'profile' => 'C'],
             ],
-            4 => [
-                'title' => 'Sob estresse pode se tornar...',
-                'DOMINANCE' => 'Ditatorial',
-                'INFLUENCE' => 'Sarcástico',
-                'STEADINESS' => 'Submisso',
-                'COMPLIANCE' => 'Arredio',
+            // Bloco 4
+            [
+                ['text' => 'Direto ao Ponto', 'profile' => 'D'],
+                ['text' => 'Persuasivo e Influente', 'profile' => 'I'],
+                ['text' => 'Leal e Confiável', 'profile' => 'S'],
+                ['text' => 'Exigente com a Qualidade', 'profile' => 'C'],
             ],
-            5 => [
-                'title' => 'Característica principal...',
-                'DOMINANCE' => 'Franco',
-                'INFLUENCE' => 'Otimista',
-                'STEADINESS' => 'Serviçal',
-                'COMPLIANCE' => 'Ordeiro',
+            // Bloco 5
+            [
+                ['text' => 'Assume Riscos Calculados', 'profile' => 'D'],
+                ['text' => 'Gosta de Estar no Centro das Atenções', 'profile' => 'I'],
+                ['text' => 'Prefere Rotinas Claras', 'profile' => 'S'],
+                ['text' => 'Cauteloso Antes de Agir', 'profile' => 'C'],
             ],
-            6 => [
-                'title' => 'Quando em conflito, esse estilo…',
-                'DOMINANCE' => 'Demanda ação',
-                'INFLUENCE' => 'Ataca',
-                'STEADINESS' => 'Reclama',
-                'COMPLIANCE' => 'Evita',
+            // Bloco 6
+            [
+                ['text' => 'Decidido Sob Pressão', 'profile' => 'D'],
+                ['text' => 'Anima os Outros Facilmente', 'profile' => 'I'],
+                ['text' => 'Acalma Situações Tensas', 'profile' => 'S'],
+                ['text' => 'Foca em Fatos e Dados', 'profile' => 'C'],
             ],
-            7 => [
-                'title' => 'Força aparente...',
-                'DOMINANCE' => 'Solucionador de problemas',
-                'INFLUENCE' => 'Encorajador',
-                'STEADINESS' => 'Supporter',
-                'COMPLIANCE' => 'Organizador',
+            // Bloco 7
+            [
+                ['text' => 'Desafiador do Status Quo', 'profile' => 'D'],
+                ['text' => 'Criativo em Soluções', 'profile' => 'I'],
+                ['text' => 'Apoia os Colegas Constantemente', 'profile' => 'S'],
+                ['text' => 'Metódico em Processos', 'profile' => 'C'],
             ],
-            8 => [
-                'title' => 'Com erros...',
-                'DOMINANCE' => 'Informa o erro diretamente',
-                'INFLUENCE' => 'Chama a pessoa e explica o erro',
-                'STEADINESS' => 'Fica calado e aceita o erro',
-                'COMPLIANCE' => 'Se incomoda e questiona',
+            // Bloco 8
+            [
+                ['text' => 'Independente nas Ações', 'profile' => 'D'],
+                ['text' => 'Sociável e Extrovertido', 'profile' => 'I'],
+                ['text' => 'Tolerante e Compreensivo', 'profile' => 'S'],
+                ['text' => 'Sistemático na Organização', 'profile' => 'C'],
             ],
-            9 => [
-                'title' => 'Sob estresse pode se tornar...',
-                'DOMINANCE' => 'Crítico',
-                'INFLUENCE' => 'Superficial',
-                'STEADINESS' => 'Indeciso',
-                'COMPLIANCE' => 'Cabeça dura',
+            // Bloco 9
+            [
+                ['text' => 'Energético e Apressado', 'profile' => 'D'],
+                ['text' => 'Articulado na Fala', 'profile' => 'I'],
+                ['text' => 'Moderador de Conflitos', 'profile' => 'S'],
+                ['text' => 'Preciso nas Informações', 'profile' => 'C'],
             ],
-            10 => [
-                'title' => 'Pode ser considerado...',
-                'DOMINANCE' => 'Impaciente',
-                'INFLUENCE' => 'Inoportuno',
-                'STEADINESS' => 'Indeciso',
-                'COMPLIANCE' => 'Inseguro',
+            // Bloco 10
+            [
+                ['text' => 'Firme em Suas Posições', 'profile' => 'D'],
+                ['text' => 'Inspirador para o Grupo', 'profile' => 'I'],
+                ['text' => 'Prestativo e Gentil', 'profile' => 'S'],
+                ['text' => 'Rigoroso com Prazos', 'profile' => 'C'],
             ],
-            11 => [
-                'title' => 'Necessita de....',
-                'DOMINANCE' => 'Controle',
-                'INFLUENCE' => 'Aprovação',
-                'STEADINESS' => 'Rotina',
-                'COMPLIANCE' => 'Padrão',
+            // Bloco 11
+            [
+                ['text' => 'Audacioso e Ousado', 'profile' => 'D'],
+                ['text' => 'Charmoso e Envolvente', 'profile' => 'I'],
+                ['text' => 'Conciliador e Pacífico', 'profile' => 'S'],
+                ['text' => 'Perfeccionista e Cuidadoso', 'profile' => 'C'],
             ],
-            12 => [
-                'title' => 'Limitação desse perfil...',
-                'DOMINANCE' => 'Direto',
-                'INFLUENCE' => 'Desorganizado',
-                'STEADINESS' => 'Indireto',
-                'COMPLIANCE' => 'Detalhista',
+            // Bloco 12
+            [
+                ['text' => 'Líder Natural', 'profile' => 'D'],
+                ['text' => 'Espontâneo e Divertido', 'profile' => 'I'],
+                ['text' => 'Cooperativo e Empático', 'profile' => 'S'],
+                ['text' => 'Diplomático e Discreto', 'profile' => 'C'],
             ],
-            13 => [
-                'title' => 'Possui medo de...',
-                'DOMINANCE' => 'Perder',
-                'INFLUENCE' => 'Rejeição',
-                'STEADINESS' => 'Mudanças bruscas',
-                'COMPLIANCE' => 'Estar errado',
+            // Bloco 13
+            [
+                ['text' => 'Impaciente com Lentidão', 'profile' => 'D'],
+                ['text' => 'Faz Amigos Rapidamente', 'profile' => 'I'],
+                ['text' => 'Procura Segurança Estável', 'profile' => 'S'],
+                ['text' => 'Questiona a Lógica', 'profile' => 'C'],
             ],
-            14 => [
-                'title' => 'Mensura desempenho com...',
-                'DOMINANCE' => 'Resultados',
-                'INFLUENCE' => 'Reconhecimento',
-                'STEADINESS' => 'Compatibilidade',
-                'COMPLIANCE' => 'Precisão',
+            // Bloco 14
+            [
+                ['text' => 'Orientado para a Ação', 'profile' => 'D'],
+                ['text' => 'Gosta de Reconhecimento Público', 'profile' => 'I'],
+                ['text' => 'Evita Mudanças Bruscas', 'profile' => 'S'],
+                ['text' => 'Planeja Antes de Executar', 'profile' => 'C'],
             ],
-            15 => [
-                'title' => 'Com subalternos, costuma ser...',
-                'DOMINANCE' => 'Orgulhoso',
-                'INFLUENCE' => 'Permissivo',
-                'STEADINESS' => 'Humilde',
-                'COMPLIANCE' => 'Cauteloso',
+            // Bloco 15
+            [
+                ['text' => 'Determinado a Vencer', 'profile' => 'D'],
+                ['text' => 'Convence pela Emoção', 'profile' => 'I'],
+                ['text' => 'Sabe Ouvir Atentamente', 'profile' => 'S'],
+                ['text' => 'Convence pelos Fatos', 'profile' => 'C'],
             ],
-            16 => [
-                'title' => 'Abordagem primária...',
-                'DOMINANCE' => 'Independente',
-                'INFLUENCE' => 'Interativo',
-                'STEADINESS' => 'Estável',
-                'COMPLIANCE' => 'Corretivo',
-            ],
-            17 => [
-                'title' => 'Outra limitação desse perfil...',
-                'DOMINANCE' => 'Intenso',
-                'INFLUENCE' => 'Não tradicional',
-                'STEADINESS' => 'Indeciso',
-                'COMPLIANCE' => 'Impessoal',
-            ],
-            18 => [
-                'title' => 'Ponto cego...',
-                'DOMINANCE' => 'Ser responsabilizado',
-                'INFLUENCE' => 'Realizar compromissos',
-                'STEADINESS' => 'Necessidade de mudança',
-                'COMPLIANCE' => 'Tomada de decisão',
-            ],
-            19 => [
-                'title' => 'Mensura desempenho com...',
-                'DOMINANCE' => 'Histórico',
-                'INFLUENCE' => 'Elogios',
-                'STEADINESS' => 'Contribuição',
-                'COMPLIANCE' => 'Qualidade dos resultados',
-            ],
-            20 => [
-                'title' => 'Prefere tarefas....',
-                'DOMINANCE' => 'Desafiadoras',
-                'INFLUENCE' => 'Relacionada a pessoas',
-                'STEADINESS' => 'Agendadas',
-                'COMPLIANCE' => 'Estruturadas',
-            ],
-            21 => [
-                'title' => 'Com atrasos...',
-                'DOMINANCE' => 'Se irrita e confronta',
-                'INFLUENCE' => 'Nem liga, está distraído',
-                'STEADINESS' => 'Sabe do atraso, mas aceita',
-                'COMPLIANCE' => 'Reclama e analisa a situação',
-            ],
-            22 => [
-                'title' => 'Em situações extremas...',
-                'DOMINANCE' => 'Se preocupa demais com metas',
-                'INFLUENCE' => 'Fala sem pensar',
-                'STEADINESS' => 'Procrastina ao invés de fazer',
-                'COMPLIANCE' => 'Analisa demais',
-            ],
-            23 => [
-                'title' => 'Precisa melhorar...',
-                'DOMINANCE' => 'Empatia e Paciência',
-                'INFLUENCE' => 'Contole emocional',
-                'STEADINESS' => 'Ser assertivo sob pressão',
-                'COMPLIANCE' => 'Se preocupar menos sobre tudo',
-            ],
-            24 => [
-                'title' => 'Em uma discussão...',
-                'DOMINANCE' => 'Busca ter a razão',
-                'INFLUENCE' => 'Busca diminuir o conflito',
-                'STEADINESS' => 'Busca concordância',
-                'COMPLIANCE' => 'Busca comprovar sua opinião',
-            ],
-            25 => [
-                'title' => 'Quando vai às compras...',
-                'DOMINANCE' => 'Sabe o que quer',
-                'INFLUENCE' => 'Se diverte',
-                'STEADINESS' => 'Fica indeciso',
-                'COMPLIANCE' => 'Busca ofertas',
-            ],
+            // Bloco 16
+            [
+                ['text' => 'Assertivo e Direto', 'profile' => 'D'],
+                ['text' => 'Descontraído e Leve', 'profile' => 'I'],
+                ['text' => 'Calmo e Tranquilo', 'profile' => 'S'],
+                ['text' => 'Reflexivo e Ponderado', 'profile' => 'C'],
+            ]
         ];
 
-        foreach ($blocos as $numeroBloco => $dados) {
+        foreach ($blocos as $index => $opcoes) {
             $question = DiscQuestion::create([
-                'block_number' => $numeroBloco,
-                'title' => $dados['title'],
+                'title' => 'Bloco ' . str_pad($index + 1, 2, '0', STR_PAD_LEFT),
+                'block_number' => $index + 1,
             ]);
 
-            // Grava as 4 opções mantendo a relação de perfil (D, I, S, C)
-            foreach ($dados as $perfil => $frase) {
-                if ($perfil === 'title') {
-                    continue;
-                }
+            // Baralhar as opções para não estarem sempre na ordem D, I, S, C
+            shuffle($opcoes);
+
+            foreach ($opcoes as $opt) {
+                // Converter string para o valor do Enum
+                $profileValue = match($opt['profile']) {
+                    'D' => DiscProfileEnum::DOMINANCE->value,
+                    'I' => DiscProfileEnum::INFLUENCE->value,
+                    'S' => DiscProfileEnum::STEADINESS->value,
+                    'C' => DiscProfileEnum::COMPLIANCE->value,
+                };
 
                 DiscOption::create([
                     'disc_question_id' => $question->id,
-                    'text' => $frase,
-                    'profile' => $perfil,
+                    'text' => $opt['text'],
+                    'profile' => $profileValue,
                 ]);
             }
         }

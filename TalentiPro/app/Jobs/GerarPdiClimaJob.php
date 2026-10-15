@@ -8,7 +8,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-use App\Services\GeminiTextService;
+use App\Services\AI\AiManager;
 use App\Models\Pdi;
 use App\Models\PdiAcao;
 use App\Models\Atividade;
@@ -40,7 +40,7 @@ class GerarPdiClimaJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(GeminiTextService $iaService): void
+    public function handle(AiManager $iaService): void
     {
         // 1. Chamar a IA para gerar o PDI
         $resultado = $iaService->gerarPdiClima($this->dadosCompilados);

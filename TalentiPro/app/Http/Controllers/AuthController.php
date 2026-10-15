@@ -16,8 +16,11 @@ class AuthController extends Controller
     /**
      * Exibe o formulário de login.
      */
-    public function showLoginForm(): View
+    public function showLoginForm(Request $request): View
     {
+        if ($request->has('redirect_to')) {
+            session()->put('url.intended', $request->query('redirect_to'));
+        }
         return view('auth.login');
     }
 
@@ -74,9 +77,25 @@ class AuthController extends Controller
                     ->with('success', 'Bem-vindo ao Painel de Administração Global!');
             }
 
+            // Verifica se é Consultor e direciona para a seleção de empresa
+            if ($user->isConsultor()) {
+                return redirect()->route('consultor.empresas.hub')
+                    ->with('success', 'Bem-vindo, Consultor! Selecione a empresa que deseja acessar.');
+            }
+
+            // Se existir parâmetro redirect_to ou redirect (ex: vindo de notificação de e-mail/whatsapp)
+            $redirectTo = $request->input('redirect_to') ?? $request->input('redirect');
+            if ($redirectTo) {
+                $redirectTo = '/' . ltrim(urldecode($redirectTo), '/');
+                if (!str_starts_with($redirectTo, '//') && $redirectTo !== '/' && $redirectTo !== '/login') {
+                    return redirect()->to($redirectTo)
+                        ->with('success', 'Login realizado com sucesso!');
+                }
+            }
+
             // Para os outros (Master, Gestor, Colaborador), manda pro dashboard padrão
             // O middleware 'empresa.ativa' garante que a empresa existe antes de chegar aqui.
-            return redirect()->to('/dashboard')
+            return redirect()->intended('/dashboard')
                 ->with('success', 'Login realizado com sucesso!');
 
         }

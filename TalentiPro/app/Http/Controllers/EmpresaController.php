@@ -78,10 +78,24 @@ class EmpresaController extends Controller
     {
         Gate::authorize('update', $empresa);
 
-        $this->empresaService->atualizar($empresa, $request->validated());
+        $dados = $request->validated();
+
+        if ($request->hasFile('logo')) {
+            if ($empresa->logo && \Illuminate\Support\Facades\Storage::disk('public')->exists($empresa->logo)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($empresa->logo);
+            }
+            $dados['logo'] = $request->file('logo')->store('empresas/logos', 'public');
+        } elseif ($request->boolean('remover_logo')) {
+            if ($empresa->logo && \Illuminate\Support\Facades\Storage::disk('public')->exists($empresa->logo)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($empresa->logo);
+            }
+            $dados['logo'] = null;
+        }
+
+        $this->empresaService->atualizar($empresa, $dados);
 
         return redirect()->route('admin.empresas.index')
-                         ->with('success', 'Dados da empresa atualizados.');
+                         ->with('success', 'Dados da empresa e logotipo atualizados com sucesso.');
     }
 
     /**

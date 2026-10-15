@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Pdi;
 use App\Models\PdiAcao;
-use App\Services\GeminiTextService;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -29,15 +28,16 @@ class AvaliacaoRelatorioController extends Controller
         // Mediador vê onde ele é o mediador.
         // A lógica do sistema antigo trazia TODAS as avaliações para o dropdown, vamos manter.
         if (in_array($user->perfil_acesso->value, ['admin', 'master'])) {
-            $avaliacoes = Avaliacao::orderBy('created_at', 'desc')->get();
+            $avaliacoes = Avaliacao::where('is_template', false)->orderBy('created_at', 'desc')->get();
         } else {
             // Se for gestor, filtra as que importam para ele
-            $avaliacoes = Avaliacao::where(function($query) use ($user) {
-                $query->where('created_by', $user->id)
-                      ->orWhereHas('participantes', function($q) use ($user) {
-                          $q->where('avaliador_id', $user->id)->whereIn('tipo', ['gestor', 'mediador']);
-                      });
-            })->orderBy('created_at', 'desc')->get();
+            $avaliacoes = Avaliacao::where('is_template', false)
+                ->where(function($query) use ($user) {
+                    $query->where('created_by', $user->id)
+                          ->orWhereHas('participantes', function($q) use ($user) {
+                              $q->where('avaliador_id', $user->id)->whereIn('tipo', ['gestor', 'mediador']);
+                          });
+                })->orderBy('created_at', 'desc')->get();
         }
 
         return view('avaliacoes.relatorios.index', compact('avaliacoes'));
@@ -51,28 +51,39 @@ class AvaliacaoRelatorioController extends Controller
     {
         $userId = auth()->id();
         
-        // Buscamos todas as avaliações onde o usuário foi o ALVO (avaliado)
-        $avaliacoes = Avaliacao::whereHas('participantes', function($q) use ($userId) {
-            $q->where('avaliado_id', $userId);
-        })->orderBy('created_at', 'desc')->get();
+        // Colaborador tem acesso apenas à ÚLTIMA versão da avaliação em que foi avaliado
+        $avaliacoes = Avaliacao::where('is_template', false)
+            ->whereHas('participantes', function($q) use ($userId) {
+                $q->where('avaliado_id', $userId);
+            })->orderBy('created_at', 'desc')->take(1)->get();
 
         return view('avaliacoes.relatorios.meus_relatorios', compact('avaliacoes'));
     }
 
-    // Retorna a lista de usuários alvos para popular o dropdown de "Colaborador" após selecionar a Campanha.
     public function getAlvosDaAvaliacao($avaliacaoId) 
     {
         $currentUser = auth()->user();
+        $avaliacao = Avaliacao::findOrFail($avaliacaoId);
         $ids = AvaliacaoParticipante::where('avaliacao_id', $avaliacaoId)->pluck('avaliado_id')->unique();
         
         $query = User::whereIn('id', $ids);
 
         if ($currentUser->perfil_acesso->value === 'gestor') {
-            $query->where(function($q) use ($currentUser) {
-                $q->where('departamento_id', $currentUser->departamento_id)
-                  ->orWhere('gestor_id', $currentUser->id);
-            });
-            // Oculta o próprio gestor da lista se ele estiver avaliando subordinados
+            // Se o gestor foi quem criou a campanha, ele pode ver o relatório de todos os alvos dela
+            if ($avaliacao->created_by !== $currentUser->id) {
+                // Se não criou, ele vê seu departamento, seus subordinados ou pessoas que ele avaliou diretamente
+                $idsAvaliadosPeloGestor = AvaliacaoParticipante::where('avaliacao_id', $avaliacaoId)
+                    ->where('avaliador_id', $currentUser->id)
+                    ->pluck('avaliado_id')->toArray();
+
+                $query->where(function($q) use ($currentUser, $idsAvaliadosPeloGestor) {
+                    $q->where('departamento_id', $currentUser->departamento_id)
+                      ->orWhere('gestor_id', $currentUser->id)
+                      ->orWhereIn('id', $idsAvaliadosPeloGestor);
+                });
+            }
+            
+            // Oculta o próprio gestor da lista (pois ele vê sua autoavaliação em "Meus Relatórios")
             $query->where('id', '!=', $currentUser->id);
         }
 
@@ -108,32 +119,111 @@ class AvaliacaoRelatorioController extends Controller
 
         // === CÁLCULOS ===
 
-        // A. Média Individual (Geral recebida por todos)
+        // A. Média Individual (Geral recebida por todos nesta avaliação)
         $todasRespostas = $participacoes->pluck('respostas')->flatten();
         $mediaIndividual = $todasRespostas->avg('nota') ?? 0;
 
         // B. Médias de Comparação (Cargo, Setor, Empresa)
-        $calcularMediaDeUsers = function($userIds) use ($avaliacaoId) {
-             return DB::table('avaliacao_respostas')
+        $empresaId = $avaliacao->empresa_id ?? $colaborador->empresa_id;
+
+        // Localiza todas as avaliações da mesma empresa baseadas no mesmo modelo/template
+        $campanhasQuery = Avaliacao::where('empresa_id', $empresaId);
+
+        if ($avaliacao->template_id) {
+            $campanhasQuery->where(function($q) use ($avaliacao) {
+                $q->where('template_id', $avaliacao->template_id)
+                  ->orWhere('id', $avaliacao->template_id)
+                  ->orWhere('id', $avaliacao->id);
+            });
+        } elseif ($avaliacao->is_template) {
+            $campanhasQuery->where(function($q) use ($avaliacao) {
+                $q->where('template_id', $avaliacao->id)
+                  ->orWhere('id', $avaliacao->id);
+            });
+        } else {
+            $campanhasQuery->where(function($q) use ($avaliacao) {
+                $q->where('id', $avaliacao->id)
+                  ->orWhere('titulo', $avaliacao->titulo);
+            });
+        }
+
+        $campanhasMesmoModelo = $campanhasQuery->pluck('id')->toArray();
+        if (empty($campanhasMesmoModelo)) {
+            $campanhasMesmoModelo = [$avaliacaoId];
+        }
+
+        $calcularMediaDeUsers = function($userIds) use ($campanhasMesmoModelo) {
+            if (empty($userIds) || (is_countable($userIds) && count($userIds) === 0)) {
+                return 0;
+            }
+            return DB::table('avaliacao_respostas')
                 ->join('avaliacao_participantes', 'avaliacao_respostas.avaliacao_participante_id', '=', 'avaliacao_participantes.id')
-                ->where('avaliacao_participantes.avaliacao_id', $avaliacaoId)
+                ->whereIn('avaliacao_participantes.avaliacao_id', $campanhasMesmoModelo)
                 ->whereIn('avaliacao_participantes.avaliado_id', $userIds)
                 ->avg('avaliacao_respostas.nota') ?? 0;
         };
 
         // Média Cargo
-        $usersSameCargo = User::where('cargo_id', $colaborador->cargo_id)->pluck('id');
-        $mediaCargo = $calcularMediaDeUsers($usersSameCargo);
+        $mediaCargo = 0;
+        if ($colaborador->cargo_id) {
+            $usersSameCargo = User::where('empresa_id', $empresaId)
+                ->where('cargo_id', $colaborador->cargo_id)
+                ->pluck('id');
+            $mediaCargo = $calcularMediaDeUsers($usersSameCargo);
+        }
 
         // Média Setor
-        $usersSameDept = User::where('departamento_id', $colaborador->departamento_id)->pluck('id');
-        $mediaSetor = $calcularMediaDeUsers($usersSameDept);
+        $mediaSetor = 0;
+        if ($colaborador->departamento_id) {
+            $usersSameDept = User::where('empresa_id', $empresaId)
+                ->where('departamento_id', $colaborador->departamento_id)
+                ->pluck('id');
+            $mediaSetor = $calcularMediaDeUsers($usersSameDept);
+        }
 
-        // Média Empresa
+        // Média Empresa (Todas as notas das avaliações do mesmo modelo nesta empresa)
         $mediaEmpresa = DB::table('avaliacao_respostas')
             ->join('avaliacao_participantes', 'avaliacao_respostas.avaliacao_participante_id', '=', 'avaliacao_participantes.id')
-            ->where('avaliacao_participantes.avaliacao_id', $avaliacaoId)
+            ->whereIn('avaliacao_participantes.avaliacao_id', $campanhasMesmoModelo)
             ->avg('avaliacao_respostas.nota') ?? 0;
+
+        // Dados da Empresa Cliente para exibição no Relatório e Conformidade LGPD
+        $empresa = \App\Models\Empresa::find($empresaId);
+        $cnpjFormatado = null;
+        if ($empresa && $empresa->cnpj) {
+            $digits = preg_replace('/\D/', '', $empresa->cnpj);
+            $cnpjFormatado = (strlen($digits) === 14)
+                ? preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $digits)
+                : $empresa->cnpj;
+        }
+
+        $logoUrl = null;
+        $logoPath = null;
+        if ($empresa && $empresa->logo) {
+            if (filter_var($empresa->logo, FILTER_VALIDATE_URL)) {
+                $logoUrl = $empresa->logo;
+            } else {
+                $logoUrl = asset('storage/' . ltrim($empresa->logo, '/'));
+                $physicalPath = public_path('storage/' . ltrim($empresa->logo, '/'));
+                if (file_exists($physicalPath)) {
+                    $logoPath = $physicalPath;
+                } else {
+                    $storagePublic = storage_path('app/public/' . ltrim($empresa->logo, '/'));
+                    if (file_exists($storagePublic)) {
+                        $logoPath = $storagePublic;
+                    }
+                }
+            }
+        }
+
+        $dadosEmpresa = [
+            'id' => $empresa?->id,
+            'nome' => $empresa?->nome ?? 'Empresa Cliente',
+            'razao_social' => $empresa?->razao_social,
+            'cnpj' => $cnpjFormatado,
+            'logo_url' => $logoUrl,
+            'logo_path' => $logoPath,
+        ];
 
         // C. Detalhamento
         
@@ -214,9 +304,56 @@ class AvaliacaoRelatorioController extends Controller
         $minhaPart = $participacoes->where('avaliador_id', auth()->id())->where('tipo', \App\Enums\TipoAvaliacao::MEDIADOR)->first();
         $minhaNotaMediacao = $minhaPart ? ($minhaPart->respostas->avg('nota') ?? 0) : null;
 
+        // 4. Histórico de Avaliações deste Colaborador (Exclusivo para Gestores, Masters e Admins)
+        $historico = [];
+        if (!$isOwnReport && in_array(auth()->user()->perfil_acesso->value, ['admin', 'master', 'gestor'])) {
+            $outrasAvaliacoes = Avaliacao::where('is_template', false)
+                ->whereHas('participantes', function($q) use ($colaboradorId) {
+                    $q->where('avaliado_id', $colaboradorId);
+                })
+                ->orderBy('data_inicio', 'asc')
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            foreach ($outrasAvaliacoes as $outraAv) {
+                $partsOutra = AvaliacaoParticipante::where('avaliacao_id', $outraAv->id)
+                    ->where('avaliado_id', $colaboradorId)
+                    ->with('respostas')
+                    ->get();
+                
+                $respsOutra = $partsOutra->pluck('respostas')->flatten();
+                $mediaGeralOutra = $respsOutra->count() > 0 ? round($respsOutra->avg('nota'), 2) : 0;
+                
+                $autoOutra = $partsOutra->where('tipo', \App\Enums\TipoAvaliacao::AUTOAVALIACAO)->first();
+                $mediaAutoOutra = ($autoOutra && $autoOutra->respostas->count() > 0) ? round($autoOutra->respostas->avg('nota'), 2) : null;
+                
+                $avalOutra = $partsOutra->whereIn('tipo', [\App\Enums\TipoAvaliacao::GESTOR, \App\Enums\TipoAvaliacao::PARES, \App\Enums\TipoAvaliacao::SUBORDINADO]);
+                $respsAvalOutra = $avalOutra->pluck('respostas')->flatten();
+                $mediaAvalOutra = $respsAvalOutra->count() > 0 ? round($respsAvalOutra->avg('nota'), 2) : null;
+
+                $historico[] = [
+                    'avaliacao_id' => $outraAv->id,
+                    'titulo' => $outraAv->titulo,
+                    'data_inicio' => $outraAv->data_inicio ? $outraAv->data_inicio->format('d/m/Y') : $outraAv->created_at->format('d/m/Y'),
+                    'media_geral' => $mediaGeralOutra,
+                    'media_auto' => $mediaAutoOutra,
+                    'media_avaliadores' => $mediaAvalOutra,
+                    'status' => ucfirst($outraAv->status?->value) ?? 'Em Andamento',
+                    'is_atual' => ($outraAv->id == $avaliacaoId)
+                ];
+            }
+        }
+
+        // 5. PDI Recente do Colaborador (Para imprimir junto no relatório)
+        $pdiRecente = \App\Models\Pdi::where('colaborador_id', $colaboradorId)
+            ->with('acoes')
+            ->orderBy('id', 'desc')
+            ->first();
+
         return response()->json([
             'colaborador' => $colaborador,
             'avaliacao' => $avaliacao,
+            'empresa' => $dadosEmpresa,
             'charts' => [
                 'individual' => round($mediaIndividual, 2),
                 'cargo' => round($mediaCargo, 2),
@@ -225,13 +362,21 @@ class AvaliacaoRelatorioController extends Controller
             ],
             'is_own_report' => $isOwnReport,
             'avaliadores_breakdown' => $avaliadoresBreakdown,
+            'historico' => $historico,
             'scores' => [
                 'colab' => [ 'media' => number_format($mediaColab, 2), 'detalhes' => $detalhesColab ],
                 'aval'  => [ 'media' => number_format($mediaAval, 2), 'detalhes' => $detalhesAval ],
                 'med'   => [ 'media' => $mediaMediacao !== null ? number_format((float)$mediaMediacao, 2) : null, 'id_fechamento' => $fechamento?->id, 'comentarios' => $fechamento?->comentarios ],
                 'minha_mediacao' => $minhaNotaMediacao !== null ? number_format($minhaNotaMediacao, 2) : null,
-                'observacao_avaliado' => $partAuto?->observacao_avaliado,
-            ]
+                'observacao_avaliado' => $partAuto?->observacao,
+                'observacoes_avaliadores' => $partsAval->whereNotNull('observacao')->filter(fn($p) => trim($p->observacao) !== '')->map(function($p) {
+                    return [
+                        'nome' => $p->avaliador->name ?? 'Avaliador',
+                        'texto' => $p->observacao
+                    ];
+                })->values(),
+            ],
+            'pdi_recente' => $pdiRecente
         ]);
     }
 
@@ -282,48 +427,86 @@ class AvaliacaoRelatorioController extends Controller
         // Para simplificar e permitir que o gestor possa gerar mais de um (caso tenha excluído), 
         // prosseguiremos com a criação e o Master gerencia isso.
 
-        // 2. Compilar o prompt focado APENAS nas notas <= 3.0
+        // 2. Compilar o prompt: se houver gaps (notas <= 3.0 ou menores), foca neles; caso contrário, foca no aprimoramento contínuo
         $dadosCompilados = "";
         $hasLowScores = false;
+        $todasCompetenciasTexto = "";
 
         foreach ($request->competencias as $compName => $dados) {
             foreach ($dados['skills'] as $skillName => $skillData) {
-                $nota = isset($skillData['aval']['nota']) ? floatval($skillData['aval']['nota']) : null;
+                $nota = isset($skillData['aval']['nota']) && $skillData['aval']['nota'] !== null ? floatval($skillData['aval']['nota']) : null;
                 
+                $infoLinha = "Competência Geral: {$compName}\n- Critério: {$skillName}\n";
+                if ($nota !== null) {
+                    $infoLinha .= "- Nota dos Avaliadores: {$nota}\n";
+                }
+                
+                if (isset($skillData['aval']['comentarios']) && is_array($skillData['aval']['comentarios']) && count($skillData['aval']['comentarios']) > 0) {
+                    $infoLinha .= "- Comentários/Feedbacks recebidos:\n";
+                    foreach ($skillData['aval']['comentarios'] as $c) {
+                        $infoLinha .= "  > \"{$c}\"\n";
+                    }
+                }
+                $infoLinha .= "\n";
+
+                $todasCompetenciasTexto .= $infoLinha;
+
                 if ($nota !== null && $nota <= 3.0) {
                     $hasLowScores = true;
-                    $dadosCompilados .= "Competência Geral: {$compName}\n";
-                    $dadosCompilados .= "- Pergunta/Critério: {$skillName}\n";
-                    $dadosCompilados .= "- Nota dos Avaliadores: {$nota}\n";
-                    
-                    if (isset($skillData['aval']['comentarios']) && is_array($skillData['aval']['comentarios']) && count($skillData['aval']['comentarios']) > 0) {
-                        $dadosCompilados .= "- Comentários/Feedbacks recebidos:\n";
-                        foreach ($skillData['aval']['comentarios'] as $c) {
-                            $dadosCompilados .= "  > \"{$c}\"\n";
-                        }
-                    }
-                    $dadosCompilados .= "\n";
+                    $dadosCompilados .= $infoLinha;
                 }
             }
         }
 
-        if (!$hasLowScores) {
-            return response()->json(['success' => false, 'error' => 'Nenhuma competência com nota 3.0 ou inferior foi encontrada para gerar o PDI.']);
+        // Se o colaborador não teve notas baixas (<= 3.0), usamos todas as competências para focar em evolução contínua
+        if (!$hasLowScores || empty(trim($dadosCompilados))) {
+            $dadosCompilados = "O colaborador obteve bom desempenho geral. Analise as competências abaixo e sugira um plano de aprimoramento contínuo e liderança/alta performance:\n\n" . $todasCompetenciasTexto;
         }
 
-        // 3. Despachar para a fila (Job)
-        \App\Jobs\GerarPdiAvaliacaoJob::dispatch(
-            $dadosCompilados, 
-            $request->colaborador_nome, 
-            $colabId, 
-            $user->id, 
-            $user->empresa_id
-        );
+        // 3. Execução Direta com a IA (Rápida e sem depender de worker de fila do servidor)
+        try {
+            /** @var \App\Services\AI\AiManager $iaService */
+            $iaService = app(\App\Services\AI\AiManager::class);
+            $resultado = $iaService->gerarPdiAvaliacao($dadosCompilados, $request->colaborador_nome);
 
-        return response()->json([
-            'success' => true,
-            'queued' => true,
-            'message' => 'O PDI está sendo gerado em segundo plano. Você será notificado quando estiver pronto!'
-        ]);
+            if ($resultado['success'] && !empty($resultado['dados'])) {
+                // Incrementa contador de IA na empresa
+                if ($user->empresa_id) {
+                    \App\Models\Empresa::where('id', $user->empresa_id)->increment('ia_transcricoes_utilizadas');
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'dados' => $resultado['dados'],
+                    'message' => 'PDI gerado com sucesso pela Inteligência Artificial!'
+                ]);
+            }
+
+            // Se o resultado não tiver sucesso, loga o erro retornado
+            \Illuminate\Support\Facades\Log::warning("[AvaliacaoRelatorioController] Falha na IA direta: " . ($resultado['error'] ?? 'Erro desconhecido'));
+            
+            // Fallback: Tenta despachar na fila se a chamada direta tiver falhado
+            \App\Jobs\GerarPdiAvaliacaoJob::dispatch(
+                $dadosCompilados, 
+                $request->colaborador_nome, 
+                $colabId, 
+                $user->id, 
+                $user->empresa_id ?? 1
+            );
+
+            return response()->json([
+                'success' => true,
+                'queued' => true,
+                'message' => 'A IA está finalizando a geração do PDI em segundo plano. Você será notificado!'
+            ]);
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("[AvaliacaoRelatorioController] Exceção ao gerar PDI com IA: " . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Não foi possível gerar o PDI com IA no momento: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

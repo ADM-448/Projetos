@@ -34,6 +34,8 @@ class UpdateEmpresaRequest extends FormRequest
             'telefone' => ['nullable', 'string', 'max:20'],
             'max_usuarios' => ['required', 'integer', 'min:1'],
             'status' => ['required', 'string', Rule::in(['ativa', 'suspensa'])],
+            'logo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,svg', 'max:3072'],
+            'remover_logo' => ['nullable', 'boolean'],
             'ia_ativa' => ['nullable', 'boolean'],
             'ia_limite_transcricoes_mes' => ['nullable', 'integer', 'min:0'],
             'whatsapp_ativo' => ['nullable', 'boolean'],

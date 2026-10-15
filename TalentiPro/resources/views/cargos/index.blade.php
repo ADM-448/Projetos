@@ -36,7 +36,7 @@
             </div>
         @else
             <div class="table-responsive">
-                <table class="custom-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+                <table class="custom-table table-cards-mobile" style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead>
                         <tr style="background-color: #f8fafc; border-bottom: 2px solid #6a4c7c;">
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">Nome do Cargo</th>

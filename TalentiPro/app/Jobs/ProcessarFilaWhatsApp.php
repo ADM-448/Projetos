@@ -33,13 +33,8 @@ class ProcessarFilaWhatsApp implements ShouldQueue
         // Processa a fila
         [$enviadas, $falhadas] = $wpp->processarFila();
 
-        // Se houver mensagens que esgotaram todas as tentativas → alerta o admin
-        if ($falhadas > 0) {
-            $this->alertarAdmins(
-                "WhatsApp: {$falhadas} mensagem(ns) falharam",
-                "{$falhadas} mensagem(ns) na fila do WhatsApp falharam após 3 tentativas."
-            );
-        }
+        // (Removido o alerta aos admins de mensagens falhadas a pedido do utilizador)
+
 
         if ($enviadas > 0) {
             \Illuminate\Support\Facades\Log::info("WhatsApp Job: {$enviadas} mensagem(ns) reenviadas com sucesso.");

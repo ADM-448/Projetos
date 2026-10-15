@@ -63,8 +63,9 @@
         }
 
         .custom-select {
+            box-sizing: border-box;
             width: 100%;
-            padding: 14px 18px;
+            padding: 12px 14px;
             border-radius: 12px;
             border: 1px solid #cbd5e1;
             background-color: #ffffff;
@@ -72,12 +73,8 @@
             font-size: 1rem;
             font-weight: 500;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 1.2rem center;
-            background-size: 1.2em;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            cursor: pointer;
         }
 
         .custom-select:focus {
@@ -93,6 +90,7 @@
             border-color: #e2e8f0;
             cursor: not-allowed;
             box-shadow: none;
+            opacity: 0.8;
         }
 
         .btn-generate {
@@ -136,11 +134,6 @@
 
             .filter-panel {
                 padding: 20px;
-            }
-
-            .custom-select {
-                text-overflow: ellipsis;
-                max-width: 100%;
             }
         }
     </style>
@@ -281,5 +274,33 @@
                 document.getElementById('loading').style.display = 'none';
             }
         }
+
+        // Script para autoload vindo do botão "Ver Relatório" da show.blade.php
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const avaliacaoId = urlParams.get('avaliacao_id');
+            const colaboradorId = urlParams.get('colaborador_id');
+            const autoload = urlParams.get('autoload');
+
+            if (avaliacaoId && colaboradorId) {
+                // Setar a campanha
+                document.getElementById('avaliacao_id').value = avaliacaoId;
+                
+                // Carregar alvos dessa campanha
+                await carregarAlvos(avaliacaoId);
+                
+                // Setar o colaborador
+                const selectColaborador = document.getElementById('colaborador_id');
+                // Esperar um pouco para garantir q o dom populou os options
+                setTimeout(() => {
+                    selectColaborador.value = colaboradorId;
+                    
+                    // Se mandou carregar automático
+                    if (autoload === '1') {
+                        buscarRelatorio();
+                    }
+                }, 100);
+            }
+        });
     </script>
 @endpush

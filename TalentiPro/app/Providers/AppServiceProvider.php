@@ -59,6 +59,15 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CompetenciaServiceContract::class, CompetenciaService::class);
         $this->app->bind(AvaliacaoServiceContract::class, AvaliacaoService::class);
         $this->app->bind(PdiServiceContract::class, PdiService::class);
+
+        // Bind do Gerenciador de IA (Strategy Fallback)
+        $this->app->singleton(\App\Services\AI\AiManager::class, function ($app) {
+            return new \App\Services\AI\AiManager([
+                new \App\Services\AI\Providers\GeminiProvider(),
+                new \App\Services\AI\Providers\DeepSeekProvider(),
+                new \App\Services\AI\Providers\OpenAiProvider(),
+            ]);
+        });
     }
 
     /**
@@ -66,6 +75,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        User::observe(\App\Observers\UserObserver::class);
     }
 }

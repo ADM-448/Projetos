@@ -57,6 +57,8 @@ class ReuniaoAgendamentoModelTest extends TestCase
         $expected = [
             'gestor_id', 'colaborador_id', 'titulo', 'data_hora',
             'google_event_id', 'google_meet_link', 'transcricao_temporaria', 'status',
+            'gravacao_status', 'gravacao_iniciada_em', 'gravacao_heartbeat_em',
+            'audio_path', 'transcricao_rascunho', 'analise_rascunho',
         ];
 
         $this->assertEqualsCanonicalizing($expected, $model->getFillable());

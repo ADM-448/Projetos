@@ -14,32 +14,36 @@
         <p style="color: #666; font-size: 0.95rem;">Suas reuniões agendadas com inteligência artificial.</p>
     </div>
     
-    @if(auth()->user()->empresa->configuracaoGoogle)
-        <div class="reunioes-btn-group" style="display: flex; gap: 10px; align-items: center;">
-            <form action="{{ route('google.disconnect') }}" method="POST" style="margin: 0; display: inline-block;">
-                @csrf
-                <button type="submit" class="btn-danger" style="text-decoration: none; width: 100%; justify-content: center;">Desconectar Google</button>
-            </form>
-            <a href="{{ route('reunioes.create') }}" class="btn-primary" style="text-decoration: none; display: inline-flex; justify-content: center; align-items: center; gap: 6px;"><i class="fa-solid fa-plus"></i> Agendar Reunião</a>
-        </div>
-    @else
-        <div>
-            <a href="{{ route('google.login') }}" class="btn-primary" style="text-decoration: none; background-color: #4285F4;">
-                <i class="fa-brands fa-google"></i> Conectar Google Calendar
-            </a>
-        </div>
+    @if(auth()->user()->perfil_acesso->value !== 'colaborador')
+        @if(auth()->user()->empresa->configuracaoGoogle)
+            <div class="reunioes-btn-group" style="display: flex; gap: 10px; align-items: center;">
+                <form action="{{ route('google.disconnect') }}" method="POST" style="margin: 0; display: inline-block;">
+                    @csrf
+                    <button type="submit" class="btn-danger" style="text-decoration: none; width: 100%; justify-content: center;">Desconectar Google</button>
+                </form>
+                <a href="{{ route('reunioes.create') }}" class="btn-primary" style="text-decoration: none; display: inline-flex; justify-content: center; align-items: center; gap: 6px;"><i class="fa-solid fa-plus"></i> Agendar Reunião</a>
+            </div>
+        @else
+            <div>
+                <a href="{{ route('google.login') }}" class="btn-primary" style="text-decoration: none; background-color: #4285F4;">
+                    <i class="fa-brands fa-google"></i> Conectar Google Calendar
+                </a>
+            </div>
+        @endif
     @endif
 </div>
 
 <div class="card" style="padding: 20px;">
-    @if(auth()->user()->empresa->configuracaoGoogle)
-        <div style="background-color: #f0fdf4; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #22c55e;">
-            <i class="fa-solid fa-check-circle"></i> Sua conta Google está conectada. Você pode agendar reuniões com geração automática de links do Google Meet!
-        </div>
-    @else
-        <div style="background-color: #fffbeb; color: #92400e; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #f59e0b;">
-            <i class="fa-solid fa-triangle-exclamation"></i> Conecte sua conta do Google para permitir o agendamento automático de links do Meet e transcrições com a IA.
-        </div>
+    @if(auth()->user()->perfil_acesso->value !== 'colaborador')
+        @if(auth()->user()->empresa->configuracaoGoogle)
+            <div style="background-color: #f0fdf4; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #22c55e;">
+                <i class="fa-solid fa-check-circle"></i> Sua conta Google está conectada. Você pode agendar reuniões com geração automática de links do Google Meet!
+            </div>
+        @else
+            <div style="background-color: #fffbeb; color: #92400e; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #f59e0b;">
+                <i class="fa-solid fa-triangle-exclamation"></i> Conecte sua conta do Google para permitir o agendamento automático de links do Meet e transcrições com a IA.
+            </div>
+        @endif
     @endif
 
     <style>
@@ -47,7 +51,7 @@
         .table-reunioes th, .table-reunioes td { padding: 12px; text-align: left; }
         .table-reunioes th { color: #666; font-weight: 600; border-bottom: 2px solid #eee; }
         .table-reunioes tr { border-bottom: 1px solid #eee; }
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .table-reunioes, .table-reunioes tbody, .table-reunioes tr, .table-reunioes td { display: block; width: 100%; }
             .table-reunioes thead { display: none; }
             .table-reunioes tr { margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
@@ -105,7 +109,7 @@
                                        @endif
                                        class="btn-primary" style="padding: 6px 12px; font-size: 0.85rem;"><i class="fa-solid fa-microphone"></i> Entrar na Sala</a>
                                 @endif
-                            @elseif($reuniao->status === 'concluido')
+                            @elseif($reuniao->status === 'concluido' && auth()->user()->perfil_acesso->value !== 'colaborador')
                                 <a href="{{ route('reunioes.show', $reuniao) }}" class="btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;"><i class="fa-solid fa-file-lines"></i> Ver Resumo da IA</a>
                             @endif
 

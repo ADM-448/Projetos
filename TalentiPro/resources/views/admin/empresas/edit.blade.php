@@ -30,9 +30,34 @@
         </div>
     @endif
 
-    <form action="{{ route('admin.empresas.update', $empresa) }}" method="POST">
+    <form action="{{ route('admin.empresas.update', $empresa) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
+
+        {{-- Logotipo da Empresa --}}
+        <div class="form-group" style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+            <label class="form-label" style="font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-image" style="color: #4f46e5;"></i> Logotipo da Empresa
+            </label>
+            <p style="font-size: 0.85rem; color: #64748b; margin-top: 2px; margin-bottom: 12px;">
+                Esta imagem será exibida nos relatórios de avaliação impressos e em PDF. (Formatos: PNG, JPG, WEBP, SVG • Máx: 3MB)
+            </p>
+
+            <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                @if($empresa->logo)
+                    <div id="currentLogoContainer" style="display: flex; align-items: center; gap: 15px; background: white; padding: 10px 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                        <img src="{{ asset('storage/' . $empresa->logo) }}" alt="Logo {{ $empresa->nome }}" style="max-height: 50px; max-width: 140px; object-fit: contain;">
+                        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #dc2626; cursor: pointer; font-weight: 600;">
+                            <input type="checkbox" name="remover_logo" value="1"> Remover logo atual
+                        </label>
+                    </div>
+                @endif
+
+                <div style="flex: 1; min-width: 240px;">
+                    <input type="file" id="logo" name="logo" class="form-control" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="padding: 9px 12px;">
+                </div>
+            </div>
+        </div>
         
         <div class="form-group">
             <label class="form-label" for="nome">Nome Fantasia <span style="color: red;">*</span></label>

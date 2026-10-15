@@ -1,6 +1,6 @@
-<div style="display: flex; align-items: center; gap: 10px; width: 100%;">
-    <div style="background-color: #edf2f7; border-radius: 9999px; height: 10px; flex-grow: 1; overflow: hidden; position: relative;">
-        <div class="progress-bar-fill" style="background-color: #6a4c7c; height: 100%; border-radius: 9999px; width: {{ $progresso }}%; transition: width 0.4s ease-in-out;"></div>
+<div style="display: flex; align-items: center; gap: 10px; width: 100%; min-width: 0;">
+    <div style="background-color: #e9eaf0; border-radius: 9999px; height: 10px; flex: 1; overflow: hidden; min-width: 0;">
+        <div style="background: linear-gradient(90deg, #4f46e5, #6d28d9); height: 100%; border-radius: 9999px; width: {{ $progresso }}%; transition: width 0.5s ease-in-out;"></div>
     </div>
-    <span class="progress-bar-text" style="font-size: 0.85rem; font-weight: bold; color: #4a5568; min-width: 35px; text-align: right;">{{ $progresso }}%</span>
+    <span style="font-size: 0.82rem; font-weight: 700; color: #4a5568; min-width: 36px; text-align: right; flex-shrink: 0;">{{ $progresso }}%</span>
 </div>

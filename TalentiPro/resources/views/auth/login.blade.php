@@ -19,6 +19,9 @@
 
         <form action="{{ route('login') }}" method="POST" class="login-form">
             @csrf
+            @if(request()->has('redirect_to'))
+                <input type="hidden" name="redirect_to" value="{{ request('redirect_to') }}">
+            @endif
 
             <div class="form-group">
                 <label for="login">E-mail ou CPF</label>

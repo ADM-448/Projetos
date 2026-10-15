@@ -24,11 +24,13 @@ class GeminiAudioService
      */
     protected const MODELOS_FALLBACK = [
         'gemini-2.5-flash',
-        'gemini-2.0-flash',
-        'gemini-2.0-flash-lite',
+        'gemini-2.5-flash-lite',
+        'gemini-3.5-flash',
+        'gemini-3.5-flash-lite',
+        'gemini-flash-latest',
     ];
 
-    protected const MAX_RETRIES_POR_MODELO = 2;
+    protected const MAX_RETRIES_POR_MODELO = 1;
 
     protected const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
@@ -36,7 +38,7 @@ class GeminiAudioService
 
     public function __construct()
     {
-        $this->apiKey = config('services.gemini.api_key', '');
+        $this->apiKey = config('services.gemini.api_key') ?: env('GEMINI_API_KEY', '');
     }
 
     // =========================================================================
@@ -203,7 +205,7 @@ class GeminiAudioService
      * @param  int    $timeout  Timeout em segundos
      * @return array  ['success' => true, 'text' => '...'] ou ['success' => false, 'error' => '...']
      */
-    protected function chamarGemini(array $payload, int $timeout = 60): array
+    protected function chamarGemini(array $payload, int $timeout = 150): array
     {
         $ultimoErro = '';
 
@@ -213,9 +215,20 @@ class GeminiAudioService
 
                 $url = self::BASE_URL . "/{$modelo}:generateContent?key={$this->apiKey}";
 
-                $response = Http::timeout($timeout)
-                    ->withHeaders(['Content-Type' => 'application/json'])
-                    ->post($url, $payload);
+                try {
+                    $response = Http::timeout($timeout)
+                        ->withOptions(['curl' => [CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4]])
+                        ->withHeaders(['Content-Type' => 'application/json'])
+                        ->post($url, $payload);
+                } catch (\Illuminate\Http\Client\ConnectionException $e) {
+                    $ultimoErro = "Timeout/Conexão (" . $e->getMessage() . ")";
+                    Log::warning("[GeminiAudioService] Timeout/Conexão no modelo {$modelo} (tentativa {$tentativa}): {$ultimoErro}. Tentando próximo modelo.");
+                    break;
+                } catch (\Exception $e) {
+                    $ultimoErro = $e->getMessage();
+                    Log::warning("[GeminiAudioService] Exceção no modelo {$modelo}: {$ultimoErro}. Tentando próximo.");
+                    break;
+                }
 
                 if ($response->successful()) {
                     $text = $response->json('candidates.0.content.parts.0.text', '');

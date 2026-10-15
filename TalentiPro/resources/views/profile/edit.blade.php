@@ -180,7 +180,7 @@
 <div class="profile-grid">
     <!-- Coluna Esquerda: Formulário de Edição -->
     <div class="card-profile">
-        <form action="{{ route('profile.update') }}" method="POST">
+        <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -239,6 +239,33 @@
                                     <i class="fa-solid fa-eye" id="password-conf-icon"></i>
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            @if($user->perfil_acesso->value === 'master' && $user->empresa)
+                <div style="margin-top: 30px; border-top: 1px solid #edf2f7; padding-top: 25px;">
+                    <h3 style="font-size: 1.15rem; font-weight: 800; color: #2d3748; margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-building" style="color: #6a4c7c;"></i> Logotipo da Empresa
+                    </h3>
+                    <p style="color: #718096; font-size: 0.85rem; margin-top: 0; margin-bottom: 16px;">
+                        O logotipo da sua empresa (<strong>{{ $user->empresa->nome }}</strong>) será exibido no topo dos relatórios de avaliação impressos e em PDF.
+                    </p>
+
+                    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 18px;">
+                        @if($user->empresa->logo)
+                            <div style="display: flex; align-items: center; gap: 12px; background: white; padding: 8px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <img src="{{ asset('storage/' . $user->empresa->logo) }}" alt="Logo {{ $user->empresa->nome }}" style="max-height: 45px; max-width: 140px; object-fit: contain;">
+                                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: #dc2626; cursor: pointer; font-weight: 600;">
+                                    <input type="checkbox" name="remover_logo" value="1"> Remover
+                                </label>
+                            </div>
+                        @endif
+
+                        <div style="flex: 1; min-width: 220px;">
+                            <input type="file" id="empresa_logo" name="empresa_logo" class="form-control" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="padding: 8px 12px;">
+                            <small style="color: #718096; font-size: 0.78rem; display: block; margin-top: 4px;">PNG, JPG, WEBP ou SVG (Máx: 3MB)</small>
                         </div>
                     </div>
                 </div>

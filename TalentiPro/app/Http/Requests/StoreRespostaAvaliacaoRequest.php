@@ -26,6 +26,7 @@ class StoreRespostaAvaliacaoRequest extends FormRequest
         return [
             'respostas' => ['required', 'array'],
             'respostas.*' => ['required', 'integer', 'min:1', 'max:5'], // Chave = skill_id, Valor = nota
+            'observacao' => ['nullable', 'string', 'max:2000'],
         ];
     }
 }

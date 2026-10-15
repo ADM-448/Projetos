@@ -86,22 +86,26 @@
                                     <i class="fa-solid fa-user"></i> Autoavaliação
                                 </span>
                             @elseif($tipoValue === 'mediador')
-                                <span style="display: inline-flex; align-items: center; gap: 6px; background-color: #fffaf0; color: #dd6b20; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;">
-                                    <i class="fa-solid fa-people-arrows"></i> Mediação
-                                </span>
-                                <span style="font-size: 0.9rem; color: #4a5568; font-weight: 600; margin-left: 6px;">
-                                    {{ $participacao->avaliado->name }}
-                                </span>
+                                <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px;">
+                                    <span style="display: inline-flex; align-items: center; gap: 6px; background-color: #fffaf0; color: #dd6b20; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; white-space: nowrap;">
+                                        <i class="fa-solid fa-people-arrows"></i> Mediação
+                                    </span>
+                                    <span style="font-size: 0.9rem; color: #4a5568; font-weight: 600; word-break: break-word; overflow-wrap: anywhere;">
+                                        {{ $participacao->avaliado->name }}
+                                    </span>
+                                </div>
                             @else
-                                <span style="display: inline-flex; align-items: center; gap: 6px; background-color: #ebf8ff; color: #2b6cb0; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;">
-                                    <i class="fa-solid fa-users"></i> Avaliar Colaborador
-                                </span>
-                                <span style="font-size: 0.9rem; color: #4a5568; font-weight: 600; margin-left: 6px;">
-                                    {{ $participacao->avaliado->name }}
-                                </span>
+                                <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px;">
+                                    <span style="display: inline-flex; align-items: center; gap: 6px; background-color: #ebf8ff; color: #2b6cb0; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; white-space: nowrap;">
+                                        <i class="fa-solid fa-users"></i> Avaliar Colaborador
+                                    </span>
+                                    <span style="font-size: 0.9rem; color: #4a5568; font-weight: 600; word-break: break-word; overflow-wrap: anywhere;">
+                                        {{ $participacao->avaliado->name }}
+                                    </span>
+                                </div>
                             @endif
                         </div>
-                        <div style="font-size: 0.85rem; color: #718096; font-weight: normal;">
+                        <div style="font-size: 0.85rem; color: #718096; font-weight: normal; word-break: break-word; overflow-wrap: anywhere;">
                             Campanha: <strong style="color: #4a5568;">{{ $participacao->avaliacao->titulo }}</strong>
                         </div>
                     </td>

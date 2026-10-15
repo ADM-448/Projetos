@@ -21,8 +21,8 @@ Schedule::job(new \App\Jobs\ProcessarFilaWhatsApp)->everyTenMinutes();
 // Agenda o robô de envio diário de E-mail e WhatsApp (Resumo de Pendências)
 Schedule::command('notify:daily')->dailyAt('08:00');
 
-// Limpeza de notificações lidas antigas
-Schedule::command('notificacoes:limpar')->daily();
+// Limpeza automática de notificações com mais de 3 dias (Diariamente às 03:00)
+Schedule::command('notificacoes:limpar --dias=3')->dailyAt('03:00');
 
 // Processa agendamentos de avaliações e pesquisas de clima (Diariamente às 00:05)
 Schedule::command('avaliacoes:processar-agendamentos')->dailyAt('00:05');

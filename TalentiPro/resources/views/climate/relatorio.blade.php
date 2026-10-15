@@ -189,6 +189,76 @@
     </div>
 </div>
 
+{{-- MÉDIAS POR PERGUNTA --}}
+@if(count($perguntasStats ?? []) > 0)
+<div class="dimensao-card">
+    <h3 style="font-size: 1.1rem; font-weight: 800; color: #1e293b; margin-bottom: 25px; border-bottom: 1px solid #edf2f7; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+        <div><i class="fa-solid fa-list-check" style="color: #3b82f6; margin-right: 8px;"></i> Resultados por Pergunta</div>
+        <span style="font-size: 0.8rem; font-weight: 600; color: #94a3b8; background: #f1f5f9; padding: 4px 10px; border-radius: 8px;">Nota máxima: 10</span>
+    </h3>
+
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+        @foreach($perguntasStats as $pStat)
+            @php
+                $pctFillP = ($pStat['media'] / 10) * 100;
+                
+                $corBarraP = '#38a169'; // verde (>= 7)
+                if ($pStat['media'] < 5.0) { $corBarraP = '#e53e3e'; } // vermelho
+                elseif ($pStat['media'] < 7.0) { $corBarraP = '#d69e2e'; } // amarelo
+            @endphp
+            <div style="background: #fafbfc; border-radius: 12px; padding: 16px 20px; border: 1px solid #edf2f7; border-left: 4px solid #3b82f6;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                    <div style="font-weight: 700; color: #1e293b; font-size: 0.95rem; flex: 1; padding-right: 15px;">
+                        <i class="fa-solid fa-circle-question" style="color: #3b82f6; margin-right: 6px;"></i> {{ $pStat['pergunta'] }}
+                        @if($pStat['dimensao'])
+                            <span style="font-size: 0.75rem; color: #64748b; background: #e2e8f0; padding: 2px 8px; border-radius: 12px; margin-left: 8px; white-space: nowrap;">{{ $pStat['dimensao'] }}</span>
+                        @endif
+                    </div>
+                    <div style="display: flex; gap: 15px; font-weight: 800; font-size: 0.95rem;">
+                        <span style="color: {{ $corBarraP }};">Média: {{ number_format($pStat['media'], 2, ',', '.') }}</span>
+                        <span style="color: #64748b; font-weight: 600;">Fav: {{ $pStat['favorabilidade'] }}%</span>
+                    </div>
+                </div>
+                
+                <div class="progress-bar-bg" style="height: 6px; margin-bottom: 15px;">
+                    <div class="progress-bar-fill" style="width: {{ $pctFillP }}%; background: {{ $corBarraP }};"></div>
+                </div>
+
+                {{-- NOTAS INDIVIDUAIS --}}
+                @if(count($pStat['respostas']) > 0)
+                    <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px;">
+                        <div style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em;"><i class="fa-solid fa-users" style="margin-right: 4px;"></i> Respostas Anônimas Individuais</div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            @foreach($pStat['respostas'] as $resp)
+                                @php
+                                    $corNota = '#38a169'; // verde (>= 7)
+                                    if ($resp['nota'] < 5.0) { $corNota = '#e53e3e'; } // vermelho
+                                    elseif ($resp['nota'] < 7.0) { $corNota = '#d69e2e'; } // amarelo
+                                @endphp
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px dashed #edf2f7;">
+                                    <div style="font-size: 0.8rem; color: #475569; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                        <span><i class="fa-solid fa-user-ninja" style="color: #cbd5e1; margin-right: 4px;"></i> Colaborador Anônimo</span>
+                                        @if($resp['departamento'])
+                                            <span><i class="fa-solid fa-building" style="color: #cbd5e1; margin-right: 4px;"></i> {{ $resp['departamento'] }}</span>
+                                        @endif
+                                        <span style="color: #94a3b8;"><i class="fa-solid fa-clock" style="margin-right: 4px;"></i> {{ $resp['data'] }}</span>
+                                    </div>
+                                    <div style="font-weight: 800; font-size: 0.9rem; color: {{ $corNota }}; background: rgba(0,0,0,0.03); padding: 2px 10px; border-radius: 6px;">
+                                        Nota: {{ $resp['nota'] }}
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <div style="font-size: 0.85rem; color: #94a3b8; font-style: italic;">Nenhuma resposta registrada para esta pergunta.</div>
+                @endif
+            </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
 {{-- MÉDIAS POR DEPARTAMENTO --}}
 @if(count($statsDepartamentos) > 0)
 <div class="dimensao-card">
@@ -239,6 +309,11 @@
     <div style="display: flex; flex-direction: column; gap: 12px;">
         @forelse($comentarios as $c)
             <div style="background: #fafbfc; border-radius: 12px; padding: 16px 20px; border: 1px solid #edf2f7; border-left: 4px solid #ec4899;">
+                @if($c->pergunta)
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #db2777; margin-bottom: 6px;">
+                        <i class="fa-solid fa-circle-question" style="margin-right: 4px;"></i> {{ $c->pergunta->texto_pergunta }}
+                    </div>
+                @endif
                 <p style="color: #334155; font-size: 0.92rem; margin: 0 0 8px 0; line-height: 1.5; font-style: italic;">
                     "{{ $c->comentario }}"
                 </p>

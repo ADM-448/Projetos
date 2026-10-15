@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Atividade;
 use App\Models\Pdi;
 use App\Models\ReuniaoAgendamento;
 use App\Models\ReuniaoFeedback;
 use App\Models\User;
-use App\Services\GeminiAudioService;
+use App\Services\AI\AiManager;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ use Illuminate\View\View;
 
 class ReuniaoFeedbackController extends Controller
 {
-    public function __construct(protected GeminiAudioService $geminiService)
+    public function __construct(protected AiManager $aiManager)
     {
     }
 
@@ -28,7 +29,7 @@ class ReuniaoFeedbackController extends Controller
     public function index(): View
     {
         $user = auth()->user();
-        $isAcessoAdmin = isset($user->perfil_acesso) && in_array($user->perfil_acesso->value, ['master', 'admin']);
+        $isAcessoAdmin = isset($user->perfil_acesso) && in_array($user->perfil_acesso->value, ['master', 'admin', 'consultor']);
 
         $agendamentos = ReuniaoAgendamento::with(['gestor', 'participantes', 'feedback'])
             ->where(function ($q) use ($user, $isAcessoAdmin) {
@@ -50,10 +51,15 @@ class ReuniaoFeedbackController extends Controller
         return view('reunioes.index', compact('agendamentos'));
     }
 
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
-        $colaboradores = User::where('empresa_id', auth()->user()->empresa_id)
-                             ->where('id', '!=', auth()->id())
+        $user = auth()->user();
+        if (in_array($user->perfil_acesso->value, ['colaborador', 'consultor'])) {
+            return redirect()->route('reunioes.index')->with('error', 'Apenas gestores e administradores podem agendar reuniões.');
+        }
+
+        $colaboradores = User::where('empresa_id', $user->empresa_id)
+                             ->where('id', '!=', $user->id)
                              ->get();
 
         return view('reunioes.create', compact('colaboradores'));
@@ -70,6 +76,10 @@ class ReuniaoFeedbackController extends Controller
         ]);
 
         $user = auth()->user();
+        if ($user->perfil_acesso->value === 'colaborador') {
+            return redirect()->route('reunioes.index')->with('error', 'Acesso negado.');
+        }
+
         $empresaId = $user->empresa_id;
         $googleEventId = null;
         $googleMeetLink = null;
@@ -122,15 +132,6 @@ class ReuniaoFeedbackController extends Controller
                 'Reunião 1:1',
                 'participar'
             );
-
-            // Dispara E-mail
-            app(\App\Services\EmailService::class)->notificar(
-                $colaboradorId,
-                "Convite para Reunião: {$agendamento->titulo}",
-                "Você foi convidado para uma nova reunião agendada para " . \Carbon\Carbon::parse($agendamento->data_hora)->format('d/m/Y \à\s H:i') . ".\n\nAcesse a plataforma para visualizar os detalhes" . ($googleMeetLink ? ' e o link do Google Meet.' : '.'),
-                route('reunioes.sala', $agendamento->id),
-                'Acessar Reunião'
-            );
         }
 
         if ($googleMeetLink) {
@@ -147,6 +148,21 @@ class ReuniaoFeedbackController extends Controller
     public function sala(ReuniaoAgendamento $reuniao): View|RedirectResponse
     {
         $this->autorizarParticipante($reuniao);
+
+        if ($reuniao->status === 'concluido') {
+            Atividade::where('url', 'like', "%/reunioes/{$reuniao->id}%")
+                ->where('lida', false)
+                ->update(['lida' => true, 'read_at' => now()]);
+
+            return redirect()->route('reunioes.show', $reuniao->id)
+                ->with('info', 'Esta reunião já foi realizada e concluída.');
+        }
+
+        // Marca como lida para o usuário que entrou na sala
+        Atividade::where('user_id', auth()->id())
+            ->where('url', 'like', "%/reunioes/{$reuniao->id}%")
+            ->where('lida', false)
+            ->update(['lida' => true, 'read_at' => now()]);
 
         $empresa    = auth()->user()->empresa;
         $podeUsarIa = $empresa->ia_ativa
@@ -165,6 +181,159 @@ class ReuniaoFeedbackController extends Controller
     }
 
     // =========================================================================
+    // Gravação em segundo plano (popup + widget global)
+    // =========================================================================
+
+    /**
+     * Tela do popup gravador (janela dedicada que sobrevive à navegação da janela principal).
+     */
+    public function gravador(ReuniaoAgendamento $reuniao): View|RedirectResponse
+    {
+        if (auth()->id() !== $reuniao->gestor_id) {
+            abort(403, 'Apenas o organizador pode gravar a reunião.');
+        }
+
+        $empresa = auth()->user()->empresa;
+        $podeUsarIa = $empresa->ia_ativa
+                   && ($empresa->ia_transcricoes_utilizadas < $empresa->ia_limite_transcricoes_mes);
+
+        if (! $podeUsarIa) {
+            return redirect()->route('reunioes.sala', $reuniao->id)
+                ->with('error', 'Gravação com IA indisponível para sua conta.');
+        }
+
+        return view('reunioes.gravador', compact('reuniao'));
+    }
+
+    /**
+     * Marca a reunião como "gravando" (chamado pelo popup ao iniciar o MediaRecorder).
+     */
+    public function iniciarGravacao(ReuniaoAgendamento $reuniao): JsonResponse
+    {
+        if (auth()->id() !== $reuniao->gestor_id) {
+            return response()->json(['success' => false, 'error' => 'Apenas o organizador pode gravar.'], 403);
+        }
+
+        $reuniao->update([
+            'gravacao_status'       => 'gravando',
+            'gravacao_iniciada_em'  => now(),
+            'gravacao_heartbeat_em' => now(),
+            'transcricao_rascunho'  => null,
+            'analise_rascunho'      => null,
+            'status'                => 'em_andamento',
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Mantém a gravação "viva". Se o popup parar de enviar, o widget acusa interrupção.
+     */
+    public function heartbeatGravacao(ReuniaoAgendamento $reuniao): JsonResponse
+    {
+        if (auth()->id() !== $reuniao->gestor_id) {
+            return response()->json(['success' => false], 403);
+        }
+
+        if ($reuniao->gravacao_status === 'gravando') {
+            $reuniao->update(['gravacao_heartbeat_em' => now()]);
+        }
+
+        return response()->json(['success' => true, 'status' => $reuniao->gravacao_status]);
+    }
+
+    /**
+     * Estado atual da gravação de uma reunião.
+     */
+    public function statusGravacao(ReuniaoAgendamento $reuniao): JsonResponse
+    {
+        if (auth()->id() !== $reuniao->gestor_id) {
+            return response()->json(['success' => false], 403);
+        }
+
+        return response()->json($this->payloadGravacao($reuniao));
+    }
+
+    /**
+     * Gravação ativa/pendente de revisão do usuário logado (consumido pelo widget global).
+     */
+    public function gravacaoAtiva(): JsonResponse
+    {
+        $reuniao = ReuniaoAgendamento::where('gestor_id', auth()->id())
+            ->whereIn('gravacao_status', ['gravando', 'enviando', 'transcrita'])
+            ->latest('gravacao_iniciada_em')
+            ->first();
+
+        if (! $reuniao) {
+            return response()->json(['ativa' => false]);
+        }
+
+        return response()->json(['ativa' => true] + $this->payloadGravacao($reuniao));
+    }
+
+    /**
+     * Descarta a gravação em andamento / rascunho (ex.: gravação interrompida sem áudio recuperável).
+     */
+    public function cancelarGravacao(ReuniaoAgendamento $reuniao): JsonResponse
+    {
+        if (auth()->id() !== $reuniao->gestor_id) {
+            return response()->json(['success' => false], 403);
+        }
+
+        if ($reuniao->audio_path) {
+            Storage::delete($reuniao->audio_path);
+        }
+
+        $reuniao->limparRascunho();
+        $reuniao->update(['status' => 'agendado']);
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Salva edições da transcrição/análise (auto-save da sala) para não perder histórico.
+     */
+    public function salvarRascunho(Request $request, ReuniaoAgendamento $reuniao): JsonResponse
+    {
+        if (auth()->id() !== $reuniao->gestor_id) {
+            return response()->json(['success' => false, 'error' => 'Apenas o organizador pode salvar o rascunho.'], 403);
+        }
+
+        $dados = $request->validate([
+            'transcricao' => 'nullable|string',
+            'analise'     => 'nullable|array',
+        ]);
+
+        $update = [];
+        if (array_key_exists('transcricao', $dados)) {
+            $update['transcricao_rascunho'] = $dados['transcricao'];
+        }
+        if (array_key_exists('analise', $dados)) {
+            $update['analise_rascunho'] = $dados['analise'];
+        }
+
+        if ($update) {
+            $reuniao->update($update);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    protected function payloadGravacao(ReuniaoAgendamento $reuniao): array
+    {
+        return [
+            'reuniao_id'    => $reuniao->id,
+            'titulo'        => $reuniao->titulo,
+            'status'        => $reuniao->gravacao_status,
+            'interrompida'  => $reuniao->gravacaoInterrompida(),
+            'iniciada_em'   => $reuniao->gravacao_iniciada_em?->toIso8601String(),
+            'segundos'      => $reuniao->gravacao_iniciada_em ? (int) $reuniao->gravacao_iniciada_em->diffInSeconds(now()) : 0,
+            'url_sala'      => route('reunioes.sala', $reuniao->id) . '?etapa=transcricao',
+            'url_gravador'  => route('reunioes.gravador', $reuniao->id),
+        ];
+    }
+
+    // =========================================================================
     // ETAPA 1 DA IA: Upload e Transcrição do Áudio
     // =========================================================================
 
@@ -174,6 +343,9 @@ class ReuniaoFeedbackController extends Controller
      */
     public function uploadAudio(Request $request, ReuniaoAgendamento $reuniao): JsonResponse
     {
+        @set_time_limit(600); // 10 minutos para uploads e transcrições de reuniões longas
+        @ini_set('memory_limit', '512M');
+
         if (auth()->id() !== $reuniao->gestor_id) {
             return response()->json(['success' => false, 'error' => 'Apenas o organizador pode enviar o áudio.']);
         }
@@ -184,7 +356,7 @@ class ReuniaoFeedbackController extends Controller
         }
 
         $request->validate([
-            'audio' => 'required|file|mimetypes:audio/webm,audio/mp4,audio/wav,audio/ogg,video/webm|max:51200',
+            'audio' => 'required|file|mimetypes:audio/webm,audio/mp4,audio/wav,audio/ogg,video/webm|max:256000',
         ]);
 
         $file      = $request->file('audio');
@@ -195,21 +367,28 @@ class ReuniaoFeedbackController extends Controller
         // Salva no disco local (pasta storage/app/reunioes/audios)
         $audioPath = $file->storeAs('reunioes/audios', $filename);
 
-        $reuniao->update(['status' => 'em_andamento']);
+        $reuniao->update(['status' => 'em_andamento', 'gravacao_status' => 'enviando']);
 
         // Lê o conteúdo do arquivo para enviar ao Gemini
         $audioContent = file_get_contents($file->getRealPath());
 
-        $resultado = $this->geminiService->transcreverAudio($audioContent, $mimeType);
+        $resultado = $this->aiManager->transcreverAudio($audioContent, $mimeType);
 
         if (! $resultado['success']) {
             // Se a IA falhou, remove o arquivo salvo para não deixar lixo
             Storage::delete($audioPath);
+            $reuniao->update(['gravacao_status' => 'nenhuma']);
             Log::error('[ReuniaoFeedbackController] Transcrição falhou.', ['reuniao_id' => $reuniao->id]);
             return response()->json(['error' => $resultado['error']], 500);
         }
 
-        // Armazena o path do áudio temporariamente na sessão para recuperar no salvarComIa
+        // Persiste o rascunho no banco (e na sessão por compatibilidade)
+        $reuniao->update([
+            'gravacao_status'      => 'transcrita',
+            'audio_path'           => $audioPath,
+            'transcricao_rascunho' => $resultado['transcricao'],
+            'analise_rascunho'     => null,
+        ]);
         session(["audio_path_reuniao_{$reuniao->id}" => $audioPath]);
 
         return response()->json([
@@ -228,6 +407,8 @@ class ReuniaoFeedbackController extends Controller
      */
     public function processarTranscricao(Request $request, ReuniaoAgendamento $reuniao): JsonResponse
     {
+        set_time_limit(120); // Aumenta o tempo limite para evitar timeout com a IA
+
         if (auth()->id() !== $reuniao->gestor_id) {
             return response()->json(['success' => false, 'error' => 'Apenas o organizador pode processar a reunião.']);
         }
@@ -242,11 +423,21 @@ class ReuniaoFeedbackController extends Controller
                              ->pluck('name', 'id')
                              ->toArray();
 
-        $resultado = $this->geminiService->analisarTranscricao($request->transcricao, $participantes);
+        $resultado = $this->aiManager->analisarTranscricao($request->transcricao, $participantes);
 
         if (! $resultado['success']) {
             return response()->json(['error' => $resultado['error']], 500);
         }
+
+        $reuniao->update([
+            'gravacao_status'      => 'analisada',
+            'transcricao_rascunho' => $request->transcricao,
+            'analise_rascunho'     => [
+                'resumo'     => $resultado['resumo'],
+                'sentimento' => $resultado['sentimento'],
+                'pdis'       => $resultado['pdis'],
+            ],
+        ]);
 
         return response()->json([
             'success'    => true,
@@ -266,6 +457,8 @@ class ReuniaoFeedbackController extends Controller
      */
     public function salvarComIa(Request $request, ReuniaoAgendamento $reuniao): JsonResponse
     {
+        set_time_limit(120); // Aumenta o tempo limite para evitar timeout com a IA
+
         if (auth()->id() !== $reuniao->gestor_id) {
             return response()->json(['success' => false, 'error' => 'Apenas o organizador pode salvar.']);
         }
@@ -288,8 +481,8 @@ class ReuniaoFeedbackController extends Controller
             'pdis.*.acoes.*.descricao'    => 'nullable|string',
         ]);
 
-        // Recupera o path do áudio da sessão
-        $audioPath = session("audio_path_reuniao_{$reuniao->id}");
+        // Recupera o path do áudio (banco primeiro, sessão como fallback)
+        $audioPath = $reuniao->audio_path ?: session("audio_path_reuniao_{$reuniao->id}");
 
         // Cria o registro de Feedback
         $feedback = ReuniaoFeedback::create([
@@ -336,6 +529,12 @@ class ReuniaoFeedbackController extends Controller
         auth()->user()->empresa->increment('ia_transcricoes_utilizadas');
 
         $reuniao->update(['status' => 'concluido']);
+        $reuniao->limparRascunho();
+
+        // Marca como lidas todas as atividades pendentes vinculadas a esta reunião
+        Atividade::where('url', 'like', "%/reunioes/{$reuniao->id}%")
+            ->where('lida', false)
+            ->update(['lida' => true, 'read_at' => now()]);
 
         // Limpa sessão
         session()->forget("audio_path_reuniao_{$reuniao->id}");
@@ -380,6 +579,11 @@ class ReuniaoFeedbackController extends Controller
 
         $reuniao->update(['status' => 'concluido']);
 
+        // Marca como lidas todas as atividades pendentes vinculadas a esta reunião
+        Atividade::where('url', 'like', "%/reunioes/{$reuniao->id}%")
+            ->where('lida', false)
+            ->update(['lida' => true, 'read_at' => now()]);
+
         return redirect()
             ->route('reunioes.show', $reuniao->id)
             ->with('success', 'Relatório da reunião salvo com sucesso!');
@@ -391,6 +595,11 @@ class ReuniaoFeedbackController extends Controller
 
     public function show(ReuniaoAgendamento $reuniao): View|RedirectResponse
     {
+        $user = auth()->user();
+        if ($user->perfil_acesso->value === 'colaborador') {
+            abort(403, 'Acesso negado. Apenas gestores podem visualizar o resumo da IA.');
+        }
+
         $this->autorizarParticipante($reuniao);
 
         $reuniao->load(['feedback.pdis.colaborador', 'gestor', 'participantes']);
@@ -414,7 +623,7 @@ class ReuniaoFeedbackController extends Controller
     protected function autorizarParticipante(ReuniaoAgendamento $reuniao): void
     {
         $user = auth()->user();
-        $isAcessoAdmin = isset($user->perfil_acesso) && in_array($user->perfil_acesso->value, ['master', 'admin']);
+        $isAcessoAdmin = isset($user->perfil_acesso) && in_array($user->perfil_acesso->value, ['master', 'admin', 'consultor']);
 
         $reuniao->loadMissing('participantes');
 
@@ -443,6 +652,9 @@ class ReuniaoFeedbackController extends Controller
             
             $reuniao->feedback->delete();
         }
+
+        // Remove atividades pendentes associadas à reunião excluída
+        Atividade::where('url', 'like', "%/reunioes/{$reuniao->id}%")->delete();
 
         $reuniao->delete();
 

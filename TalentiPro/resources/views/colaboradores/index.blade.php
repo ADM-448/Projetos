@@ -73,18 +73,26 @@
             </div>
         @else
             <div class="table-responsive">
+                <!-- Barra de Pesquisa -->
+                <div style="margin-bottom: 15px; display: flex; justify-content: flex-end;">
+                    <div style="position: relative; width: 100%; max-width: 350px;">
+                        <input type="text" id="searchInput" onkeyup="filterColabs()" placeholder="Buscar por nome ou e-mail..." style="width: 100%; padding: 10px 15px 10px 40px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #334155; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='#6a4c7c'" onblur="this.style.borderColor='#cbd5e1'">
+                        <i class="fa-solid fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                    </div>
+                </div>
+
                 <form id="bulkDeleteForm" action="{{ route('colaboradores.destroyLote') }}" method="POST">
                     @csrf
                     @method('DELETE')
-                <table class="custom-table" style="width: 100%; border-collapse: collapse; text-align: left;">
+                <table class="custom-table table-cards-mobile" id="colaboradoresTable" style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead>
                         <tr style="background-color: #f8fafc; border-bottom: 2px solid #6a4c7c;">
                             <th style="padding: 12px 15px; width: 40px; text-align: center;">
                                 <input type="checkbox" id="selectAllColabs" onclick="toggleAllColabs(this)" style="cursor: pointer; width: 16px; height: 16px;">
                             </th>
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">Nome</th>
-                            <th class="hide-mobile" style="padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">E-mail</th>
-                            <th class="hide-mobile" style="padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">Estrutura (Setor/Cargo)</th>
+                            <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">E-mail</th>
+                            <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">Estrutura (Setor/Cargo)</th>
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: center;">Perfil</th>
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: center;">Status</th>
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: right;">Ações</th>
@@ -117,10 +125,10 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="hide-mobile" style="padding: 15px; color: #64748b; font-size: 0.9rem; text-align: left;" data-label="E-mail">
+                                <td style="padding: 15px; color: #64748b; font-size: 0.9rem; text-align: left;" data-label="E-mail">
                                     {{ $colab->email }}
                                 </td>
-                                <td class="hide-mobile" style="padding: 15px; color: #4a5568; text-align: left;" data-label="Estrutura (Setor/Cargo)">
+                                <td style="padding: 15px; color: #4a5568; text-align: left;" data-label="Estrutura (Setor/Cargo)">
                                     <div style="display: flex; flex-direction: column; gap: 4px;">
                                         @if($colab->departamento)
                                             <span style="align-self: flex-start; background-color: #e8f8f5; color: #1abc9c; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700;">
@@ -783,6 +791,31 @@
             if(createTelefone) aplicarMascaraTelefone(createTelefone);
             const editTelefone = document.getElementById('edit_telefone');
             if(editTelefone) aplicarMascaraTelefone(editTelefone);
+
+            // Filtro de Pesquisa (Nome e E-mail)
+            function filterColabs() {
+                const input = document.getElementById('searchInput');
+                const filter = input.value.toLowerCase();
+                const table = document.getElementById('colaboradoresTable');
+                const tr = table.getElementsByTagName('tr');
+
+                // Percorre todas as linhas (escondendo as do thead que é 0)
+                for (let i = 1; i < tr.length; i++) {
+                    const tdNome = tr[i].getElementsByTagName('td')[1]; // Coluna 2 (Nome)
+                    const tdEmail = tr[i].getElementsByTagName('td')[2]; // Coluna 3 (E-mail)
+                    
+                    if (tdNome || tdEmail) {
+                        const txtNome = tdNome.textContent || tdNome.innerText;
+                        const txtEmail = tdEmail.textContent || tdEmail.innerText;
+                        
+                        if (txtNome.toLowerCase().indexOf(filter) > -1 || txtEmail.toLowerCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                        } else {
+                            tr[i].style.display = "none";
+                        }
+                    }       
+                }
+            }
         </script>
     @endpush
 @endsection

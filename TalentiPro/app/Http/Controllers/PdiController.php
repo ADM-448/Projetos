@@ -38,8 +38,8 @@ class PdiController extends Controller
         $pdisEquipe = collect();
         $pdiGrupos = collect();
 
-        // 2. Se for Gestor ou Master, carregar PDIs gerenciados
-        if ($perfil === 'master' || $perfil === 'admin') {
+        // 2. Se for Gestor, Master ou Consultor, carregar PDIs gerenciados/equipe
+        if ($perfil === 'master' || $perfil === 'admin' || $perfil === 'consultor') {
             $pdisEquipe = Pdi::where('colaborador_id', '!=', $user->id)
                 ->with(['colaborador', 'gestor'])
                 ->orderBy('created_at', 'desc')

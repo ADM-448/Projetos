@@ -216,16 +216,32 @@
             emptyMsg.style.display = 'none';
             tempSkills.forEach((skillName, index) => {
                 const li = document.createElement('li');
-                li.style.cssText = 'display: flex; justify-content: space-between; align-items: center; background: white; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem;';
+                li.style.cssText = 'display: flex; justify-content: space-between; align-items: flex-start; background: white; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; gap: 10px;';
                 
                 li.innerHTML = `
-                    <span><i class="fa-solid fa-check" style="color: var(--primary-color); margin-right: 8px;"></i> ${skillName}</span>
-                    <input type="hidden" name="skills[]" value="${skillName}">
-                    <button type="button" class="btn-remove-skill" data-index="${index}" style="background: none; border: none; color: #e53e3e; cursor: pointer;">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
+                    <div style="flex: 1; word-break: break-word;">
+                        <i class="fa-solid fa-check" style="color: var(--primary-color); margin-right: 8px;"></i>
+                        <span id="skill-text-${index}" style="line-height: 1.4;">${skillName}</span>
+                    </div>
+                    <input type="hidden" name="skills[]" value="${skillName.replace(/"/g, '&quot;')}">
+                    <div style="display: flex; gap: 12px; padding-top: 2px;">
+                        <button type="button" class="btn-edit-skill" data-index="${index}" style="background: none; border: none; color: #3182ce; cursor: pointer; padding: 0;" title="Editar Skill">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button type="button" class="btn-remove-skill" data-index="${index}" style="background: none; border: none; color: #e53e3e; cursor: pointer; padding: 0;" title="Remover Skill">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
                 `;
                 list.appendChild(li);
+            });
+
+            // Bind events for edit buttons
+            document.querySelectorAll('.btn-edit-skill').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const idx = parseInt(this.getAttribute('data-index'));
+                    editarSkillDOM(idx);
+                });
             });
 
             // Bind events for remove buttons
@@ -235,6 +251,43 @@
                     removerSkillDOM(idx);
                 });
             });
+        }
+    }
+
+    async function editarSkillDOM(index) {
+        if(index >= 0 && index < tempSkills.length) {
+            const currentVal = tempSkills[index];
+            if (typeof Swal !== 'undefined') {
+                const { value: newSkill } = await Swal.fire({
+                    title: 'Editar Skill',
+                    input: 'textarea',
+                    inputValue: currentVal,
+                    showCancelButton: true,
+                    confirmButtonColor: '#4f46e5',
+                    cancelButtonColor: '#a0aec0',
+                    confirmButtonText: 'Salvar',
+                    cancelButtonText: 'Cancelar',
+                    customClass: {
+                        input: 'swal2-textarea-custom' // To adjust height if needed
+                    },
+                    inputValidator: (value) => {
+                        if (!value.trim()) {
+                            return 'A skill não pode estar vazia!';
+                        }
+                    }
+                });
+                
+                if (newSkill && newSkill.trim() !== currentVal) {
+                    tempSkills[index] = newSkill.trim();
+                    renderSkillsDOM();
+                }
+            } else {
+                const newSkill = prompt('Editar Skill:', currentVal);
+                if (newSkill !== null && newSkill.trim() !== '') {
+                    tempSkills[index] = newSkill.trim();
+                    renderSkillsDOM();
+                }
+            }
         }
     }
 

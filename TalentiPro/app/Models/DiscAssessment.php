@@ -10,6 +10,10 @@ class DiscAssessment extends Model
     use HasFactory;
     protected $guarded = [];
 
+    protected $casts = [
+        'metadata' => 'array',
+    ];
+
     public function responses()
     {
         return $this->hasMany(DiscResponse::class);

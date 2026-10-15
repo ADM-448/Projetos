@@ -27,13 +27,16 @@
 
         html {
             scroll-behavior: smooth;
+            overflow-x: hidden !important;
         }
 
         body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background: #f8f7f4;
             color: #1e1b2e;
-            overflow-x: hidden;
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 100vw;
             -webkit-font-smoothing: antialiased;
         }
 
@@ -322,6 +325,7 @@
             top: 0;
             left: 0;
             right: 0;
+            width: 100%;
             z-index: 999;
             height: 64px;
             transition: background .3s ease, box-shadow .3s ease;
@@ -333,6 +337,7 @@
             justify-content: space-between;
             height: 64px;
             max-width: 1140px;
+            width: 100%;
             margin: 0 auto;
             padding: 0 24px;
         }
@@ -1677,12 +1682,14 @@
 
         /* ── RESPONSIVE ───────────────────────────────────────── */
         @media (max-width: 1024px) {
-            .nav-links {
-                display: none;
+            .nav-links,
+            .nav-login {
+                display: none !important;
             }
 
             .nav-hamburger {
-                display: block;
+                display: block !important;
+                margin-left: auto;
             }
 
             .features-grid {
@@ -1709,6 +1716,10 @@
         }
 
         @media (max-width: 768px) {
+            .platform-panel {
+                padding: 16px 12px;
+            }
+
             .hero h1 {
                 font-size: 34px;
             }
@@ -1777,6 +1788,33 @@
                 flex-direction: column;
                 align-items: center;
             }
+
+            /* Garante 1 coluna para os cards de KPI do dashboard */
+            .panel-kpi-grid,
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            /* Empilha o conteúdo das linhas de PDI no mobile */
+            .pdi-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            /* Ajusta cabeçalho dos ciclos de avaliação */
+            .cycle-head {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            /* Reduz levemente fontes longas para caberem no container */
+            .pdi-title,
+            .cycle-name {
+                font-size: 13px;
+            }
+
         }
 
         /* ── ANIMATIONS ───────────────────────────────────────── */
@@ -2354,6 +2392,8 @@
             </div>
 
             @php
+                $whatsappUrl = 'https://wa.me/554497078165?text=Ol%C3%A1%2C%20vim%20pelo%20site%2C%20gostaria%20de%20saber%20mais%3F';
+
                 $plans = [
                     [
                         'name' => 'Básico',
@@ -2400,7 +2440,8 @@
                         'lives' => 'Até 500 vidas',
                         'popular' => false,
                         'btn_class' => 'plan-btn-outline',
-                        'href' => 'mailto:contato@talentipro.com.br',
+                        'href' => $whatsappUrl,
+                        'target' => '_blank',
                         'features' => [
                             [true, 'Tudo do Profissional'],
                             [true, 'Dashboard consolidado'],
@@ -2418,7 +2459,8 @@
                         'lives' => 'Acima de 500 vidas',
                         'popular' => false,
                         'btn_class' => 'plan-btn-slate',
-                        'href' => 'mailto:contato@talentipro.com.br',
+                        'href' => $whatsappUrl,
+                        'target' => '_blank',
                         'features' => [
                             [true, 'Tudo do Enterprise'],
                             [true, 'Acordo comercial sob medida'],
@@ -2542,7 +2584,8 @@
                     <i class="fa-solid fa-rocket" style="font-size:12px;"></i>
                     Começar agora
                 </a>
-                <a href="mailto:contato@talentipro.com.br" class="btn btn-ghost">
+                <a href="https://wa.me/554497078165?text=Ol%C3%A1%2C%20vim%20pelo%20site%2C%20gostaria%20de%20saber%20mais%3F"
+                    target="_blank" rel="noopener noreferrer" class="btn btn-ghost">
                     <i class="fa-solid fa-envelope" style="font-size:12px;"></i>
                     Falar com especialista
                 </a>
@@ -2570,8 +2613,7 @@
                                 class="fa-brands fa-linkedin-in"></i></a>
                         <a href="#" class="footer-social" aria-label="Instagram"><i
                                 class="fa-brands fa-instagram"></i></a>
-                        <a href="mailto:contato@talentipro.com.br" class="footer-social" aria-label="E-mail"><i
-                                class="fa-solid fa-envelope"></i></a>
+                        <a href="mailto:contato@talentipro.com" class="footer-social" aria-label="E-mail"><i class="fa-solid fa-envelope"></i></a>
                     </div>
                 </div>
 
@@ -2586,7 +2628,7 @@
                 <div class="footer-col">
                     <h4>Suporte</h4>
                     <a href="#faq">FAQ</a>
-                    <a href="mailto:contato@talentipro.com.br">Contato</a>
+                    <a href="mailto:contato@talentipro.com">Contato</a>
                     <a href="#">Política de Privacidade</a>
                     <a href="#">Termos de Uso</a>
                 </div>

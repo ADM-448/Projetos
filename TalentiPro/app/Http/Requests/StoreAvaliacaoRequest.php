@@ -24,12 +24,14 @@ class StoreAvaliacaoRequest extends FormRequest
     {
         $empresaId = $this->user()->empresa_id;
         return [
+            'template_id' => ['nullable', 'exists:avaliacoes,id,empresa_id,' . $empresaId],
             'titulo' => ['required', 'string', 'max:255'],
-            'grau' => ['required', 'string', 'in:90,180,360'],
+            'grau' => ['nullable', 'string', 'in:90,180,360'],
+            'recorrencia' => ['nullable', 'string', 'in:none,diario,semanal,quinzenal,mensal,bimestral,trimestral,semestral,anual'],
             'descricao' => ['nullable', 'string'],
             'data_inicio' => ['required', 'date'],
-            'data_fim' => ['required', 'date', 'after_or_equal:data_inicio'],
-            'competencias' => ['required', 'array', 'min:1'],
+            'data_fim' => ['nullable', 'date', 'after_or_equal:data_inicio'],
+            'competencias' => ['nullable', 'array'],
             'competencias.*' => ['exists:competencias,id,empresa_id,' . $empresaId],
             'avaliadores' => ['required', 'array', 'min:1'],
             'avaliadores.*' => ['exists:users,id,empresa_id,' . $empresaId],

@@ -87,12 +87,33 @@
             </p>
 
             <div id="recording-controls">
-                <button id="btn-start" onclick="iniciarGravacao()" class="btn-primary" style="background: #ef4444; font-size: 1.1rem; padding: 16px 35px; border-radius: 50px; border: none; cursor: pointer;">
+                <button id="btn-start" onclick="abrirGravador()" class="btn-primary" style="background: #ef4444; font-size: 1.1rem; padding: 16px 35px; border-radius: 50px; border: none; cursor: pointer;">
                     <i class="fa-solid fa-circle"></i> Iniciar Gravação
                 </button>
                 <button id="btn-stop" onclick="pararGravacao()" style="display: none; background: #475569; color: white; font-size: 1.1rem; padding: 16px 35px; border-radius: 50px; border: none; cursor: pointer;">
                     <i class="fa-solid fa-square"></i> Parar e Enviar
                 </button>
+                <p style="color:#94a3b8; font-size:.8rem; margin: 14px 0 0;">
+                    <i class="fa-solid fa-window-restore"></i> A gravação abre em uma janela separada — você pode navegar livremente pelo sistema enquanto grava.
+                </p>
+            </div>
+
+            {{-- Gravação em andamento no popup --}}
+            <div id="gravando-popup" style="display: none;">
+                <div style="display:inline-flex; align-items:center; gap:10px; font-weight:700; color:#ef4444; font-size:1.1rem;">
+                    <span style="width:12px; height:12px; border-radius:50%; background:#ef4444; animation: gwPulse 1.2s infinite;"></span>
+                    <span id="gp-titulo">Gravando em outra janela</span>
+                </div>
+                <div id="gp-tempo" style="margin-top:14px; font-size: 2rem; font-weight: bold; color: #ef4444; font-family: monospace;" aria-live="polite">00:00</div>
+                <p id="gp-msg" style="color:#64748b; margin: 10px 0 18px;">Você pode sair desta tela. Ao parar, você será levado automaticamente para a revisão da transcrição.</p>
+                <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                    <button type="button" onclick="solicitarPararPopup()" style="background:#ef4444; color:#fff; border:none; border-radius:50px; padding:14px 28px; font-weight:700; cursor:pointer;">
+                        <i class="fa-solid fa-square"></i> Parar e revisar
+                    </button>
+                    <button type="button" onclick="abrirGravadorPopup()" style="background:#f1f5f9; color:#334155; border:1px solid #e2e8f0; border-radius:50px; padding:14px 28px; font-weight:700; cursor:pointer;">
+                        <i class="fa-solid fa-window-restore"></i> Abrir janela do gravador
+                    </button>
+                </div>
             </div>
 
             <div id="cronometro" style="display: none; margin-top: 20px; font-size: 2rem; font-weight: bold; color: #ef4444; font-family: monospace;" aria-live="polite">00:00</div>
@@ -141,7 +162,27 @@
             </div>
 
             <div id="resultado-transcricao" style="display: none; text-align: left;">
-                <h3 style="color: #334155; margin-bottom: 15px;"><i class="fa-solid fa-quote-left" style="color: var(--primary-color);"></i> Transcrição (editável)</h3>
+                <div id="alerta-inaudivel" style="display:none; background:#fffbeb; border:1px solid #fde68a; border-left:4px solid #f59e0b; padding:15px; border-radius:8px; margin-bottom:15px;">
+                    <div style="display:flex; align-items:flex-start; gap:12px;">
+                        <i class="fa-solid fa-triangle-exclamation" style="color:#d97706; font-size:1.3rem; margin-top:2px;"></i>
+                        <div style="flex:1;">
+                            <strong style="color:#92400e; display:block; margin-bottom:4px;">Nenhuma voz identificada no áudio gravado</strong>
+                            <p style="margin:0 0 10px; color:#b45309; font-size:0.9rem;">
+                                O microfone pode ter ficado mudo ou o volume da fala estava muito baixo. Você pode regravar ou digitar/ajustar o texto abaixo.
+                            </p>
+                            <button type="button" onclick="regravarDoZero()" class="btn-primary" style="background:#ef4444; border:none; padding:8px 16px; border-radius:6px; font-size:0.85rem; font-weight:bold; cursor:pointer;">
+                                <i class="fa-solid fa-rotate-left"></i> Descartar e Gravar Novamente
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+                    <h3 style="color: #334155; margin:0;"><i class="fa-solid fa-quote-left" style="color: var(--primary-color);"></i> Transcrição (editável)</h3>
+                    <button type="button" onclick="regravarDoZero()" style="background:#f8fafc; border:1px solid #cbd5e1; color:#64748b; padding:6px 14px; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">
+                        <i class="fa-solid fa-rotate-left"></i> Regravar
+                    </button>
+                </div>
                 <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 10px;">Revise e corrija o texto abaixo antes de prosseguir.</p>
                 <textarea id="transcricao-texto" rows="12"
                     style="width: 100%; padding: 15px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; resize: vertical; box-sizing: border-box; font-family: monospace; color: #334155; line-height: 1.6;"></textarea>
@@ -158,9 +199,14 @@
                     </div>
                 </div>
 
-                <button onclick="analisarComIa()" class="btn-primary" style="margin-top: 20px; background: var(--primary-color); border: none; padding: 14px 30px; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; width: 100%;">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> Analisar Reunião com IA →
-                </button>
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                    <button type="button" onclick="regravarDoZero()" style="background:#f1f5f9; border:1px solid #cbd5e1; color:#475569; padding:14px 20px; border-radius:6px; font-size:0.95rem; font-weight:600; cursor:pointer;">
+                        <i class="fa-solid fa-rotate-left"></i> Regravar
+                    </button>
+                    <button onclick="analisarComIa()" class="btn-primary" style="flex:1; background: var(--primary-color); border: none; padding: 14px 30px; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer;">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Analisar Reunião com IA →
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -234,12 +280,131 @@ const CSRF_TOKEN   = '{{ csrf_token() }}';
 const URL_UPLOAD   = '{{ route('reunioes.upload_audio', $reuniao->id) }}';
 const URL_PROCESSAR = '{{ route('reunioes.processar_transcricao', $reuniao->id) }}';
 const URL_SALVAR   = '{{ route('reunioes.salvar_com_ia', $reuniao->id) }}';
+const URL_RASCUNHO = '{{ route('reunioes.rascunho', $reuniao->id) }}';
+const URL_STATUS   = '{{ route('reunioes.gravacao.status', $reuniao->id) }}';
+const URL_GRAVADOR = '{{ route('reunioes.gravador', $reuniao->id) }}';
+const URL_CANCELAR_GRAVACAO = '{{ route('reunioes.gravacao.cancelar', $reuniao->id) }}';
+
+// Estado de rascunho vindo do servidor (permite retomar de onde parou)
+const RASCUNHO = @json($reuniao->rascunhoPayload());
 
 // Lista de participantes disponíveis para seleção manual de PDI
 const PARTICIPANTES_LISTA = @json($participantes->map(fn($p) => ['id' => $p->id, 'name' => $p->name]));
 
 let mediaRecorder, audioChunks = [], cronometroInterval, segundos = 0;
 let transcricaoOriginalData = '';
+
+// ==================== GRAVAÇÃO EM POPUP (segundo plano) ====================
+
+const canalGravacao = ('BroadcastChannel' in window) ? new BroadcastChannel('talenti-gravacao') : null;
+const POPUP_NOME = 'talenti-gravador-' + REUNIAO_ID;
+const POPUP_FEATURES = 'width=380,height=330,menubar=no,toolbar=no,location=no,status=no,resizable=yes';
+
+/**
+ * Abre (ou apenas foca, se já existir) a janela do gravador.
+ * Usa window.open('') primeiro para não recarregar um popup que já está gravando.
+ */
+function abrirGravadorPopup() {
+    let p = null;
+    try { p = window.open('', POPUP_NOME, POPUP_FEATURES); } catch (e) {}
+    if (!p) return false;
+    let href = 'about:blank';
+    try { href = p.location.href; } catch (e) {}
+    if (href === 'about:blank') p.location.href = URL_GRAVADOR;
+    p.focus();
+    return true;
+}
+
+function abrirGravador() {
+    const ehMobile = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent) || !canalGravacao;
+    if (ehMobile) { iniciarGravacao(); return; } // fallback: grava na própria tela
+
+    if (!abrirGravadorPopup()) {
+        alert('O navegador bloqueou a janela do gravador. A gravação será feita nesta tela — não saia dela até terminar. (Libere popups para este site para gravar em segundo plano.)');
+        iniciarGravacao();
+        return;
+    }
+    mostrarPainelPopup(false);
+}
+
+function mostrarPainelPopup(interrompida, segundosIniciais = 0) {
+    document.getElementById('recording-controls').style.display = 'none';
+    document.getElementById('gravando-popup').style.display = 'block';
+    document.getElementById('gp-tempo').textContent = fmtTempo(segundosIniciais);
+    if (interrompida) {
+        document.getElementById('gp-titulo').textContent = 'Gravação interrompida';
+        document.getElementById('gp-msg').textContent = 'A janela do gravador foi fechada. Abra-a novamente para recuperar e enviar o áudio já gravado, ou descarte esta gravação.';
+        if (!document.getElementById('gp-descartar')) {
+            const b = document.createElement('button');
+            b.id = 'gp-descartar'; b.type = 'button';
+            b.style.cssText = 'margin-top:12px; background:#fef2f2; color:#b91c1c; border:1px solid #fecaca; border-radius:50px; padding:10px 22px; font-weight:700; cursor:pointer;';
+            b.innerHTML = '<i class="fa-solid fa-trash"></i> Descartar gravação';
+            b.onclick = descartarGravacao;
+            document.getElementById('gravando-popup').appendChild(b);
+        }
+    }
+}
+
+function fmtTempo(s) {
+    return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+}
+
+function solicitarPararPopup() {
+    canalGravacao && canalGravacao.postMessage({ type: 'solicitar_parar', reuniaoId: REUNIAO_ID });
+    // Se o popup não respondeu (foi fechado), reabre para que ele assuma o envio do áudio
+    setTimeout(() => { if (Date.now() - ultimoTickPopup > 2500) abrirGravadorPopup(); }, 1500);
+}
+
+async function descartarGravacao() {
+    try {
+        await fetch(URL_CANCELAR_GRAVACAO, { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF_TOKEN, 'Accept': 'application/json' } });
+    } catch (e) {}
+    window.location.reload();
+}
+
+let ultimoTickPopup = 0;
+if (canalGravacao) {
+    canalGravacao.addEventListener('message', ev => {
+        const m = ev.data || {};
+        if (m.reuniaoId !== REUNIAO_ID) return;
+        if (m.type === 'tick') {
+            ultimoTickPopup = Date.now();
+            if (document.getElementById('gravando-popup').style.display === 'none') mostrarPainelPopup(false, m.seconds);
+            document.getElementById('gp-tempo').textContent = fmtTempo(m.seconds);
+            document.getElementById('gp-titulo').textContent = m.pausado ? 'Gravação pausada' : 'Gravando em outra janela';
+        } else if (m.type === 'parou' || m.type === 'enviando') {
+            document.getElementById('gravando-popup').style.display = 'none';
+            irParaEtapa(2);
+        } else if (m.type === 'erro') {
+            window.location.reload();
+        }
+        // 'transcrita' é tratado pelo widget global (redireciona/recarrega esta tela)
+    });
+}
+
+// ==================== AUTO-SAVE DO RASCUNHO ====================
+
+let rascunhoTimer = null;
+function agendarRascunho(montarPayload) {
+    clearTimeout(rascunhoTimer);
+    rascunhoTimer = setTimeout(() => {
+        fetch(URL_RASCUNHO, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': CSRF_TOKEN, 'Accept': 'application/json', 'Content-Type': 'application/json' },
+            body: JSON.stringify(montarPayload())
+        }).catch(() => {});
+    }, 2000);
+}
+
+function aguardarTranscricaoServidor() {
+    const t = setInterval(async () => {
+        try {
+            const r = await fetch(URL_STATUS, { headers: { 'Accept': 'application/json' } });
+            const d = await r.json();
+            if (d.status !== 'enviando') { clearInterval(t); window.location.reload(); }
+        } catch (e) {}
+    }, 3000);
+}
 
 // ==================== GRAVAÇÃO ====================
 
@@ -635,6 +800,78 @@ function escapeHtml(text) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
 }
+
+// ==================== RETOMADA DO RASCUNHO ====================
+
+function regravarDoZero() {
+    showGlobalModal({
+        title: 'Regravar Reunião',
+        message: 'Tem certeza que deseja descartar esta transcrição/áudio e gravar novamente do início?',
+        type: 'danger',
+        showCancel: true,
+        confirmText: 'Sim, descartar e regravar',
+        cancelText: 'Cancelar',
+        onConfirm: async () => {
+            try {
+                await fetch(URL_CANCELAR_GRAVACAO, { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF_TOKEN, 'Accept': 'application/json' } });
+            } catch (e) {}
+            window.location.href = '{{ route('reunioes.sala', $reuniao->id) }}';
+        }
+    });
+}
+
+function mostrarTranscricaoRascunho(texto) {
+    document.getElementById('spinner-transcricao').style.display = 'none';
+    document.getElementById('transcricao-texto').value = texto || '';
+    transcricaoOriginalData = texto || '';
+
+    const alertaInaudivel = document.getElementById('alerta-inaudivel');
+    if (alertaInaudivel) {
+        alertaInaudivel.style.display = (texto && texto.includes('[Áudio inaudível')) ? 'block' : 'none';
+    }
+
+    document.getElementById('resultado-transcricao').style.display = 'block';
+    irParaEtapa(2);
+}
+
+// Auto-save: transcrição (etapa 2) e análise/PDIs (etapa 4)
+document.getElementById('transcricao-texto').addEventListener('input', () => {
+    agendarRascunho(() => ({ transcricao: document.getElementById('transcricao-texto').value }));
+});
+['input', 'change'].forEach(evt => {
+    document.getElementById('etapa-4').addEventListener(evt, () => {
+        agendarRascunho(() => ({
+            transcricao: document.getElementById('transcricao-texto').value,
+            analise: {
+                resumo: document.getElementById('resumo-ia').value,
+                sentimento: document.getElementById('sentimento-select').value,
+                pdis: pdisData
+            }
+        }));
+    });
+});
+
+(function hidratarDoServidor() {
+    switch (RASCUNHO.status) {
+        case 'gravando':
+            mostrarPainelPopup(RASCUNHO.interrompida, RASCUNHO.segundos);
+            if (!RASCUNHO.interrompida && canalGravacao) {
+                canalGravacao.postMessage({ type: 'ping', reuniaoId: REUNIAO_ID });
+            }
+            break;
+        case 'enviando':
+            irParaEtapa(2);
+            aguardarTranscricaoServidor();
+            break;
+        case 'transcrita':
+            if (RASCUNHO.transcricao !== null) mostrarTranscricaoRascunho(RASCUNHO.transcricao);
+            break;
+        case 'analisada':
+            if (RASCUNHO.transcricao !== null) mostrarTranscricaoRascunho(RASCUNHO.transcricao);
+            if (RASCUNHO.analise) renderizarEtapa4(RASCUNHO.analise);
+            break;
+    }
+})();
 </script>
 @endpush
 @endif

@@ -235,7 +235,7 @@ class AvaliacaoTest extends TestCase
 
         $response = $this->actingAs($mediador)->post(route('avaliacoes.salvar-fechamento', [$avaliacao->id, $this->colab1->id]), $payload);
 
-        $response->assertRedirect(route('avaliacoes.show', $avaliacao->id));
+        $response->assertRedirect(route('avaliacoes.index'));
 
         $this->assertDatabaseHas('avaliacao_fechamentos', [
             'avaliacao_id' => $avaliacao->id,
@@ -486,7 +486,7 @@ class AvaliacaoTest extends TestCase
             $payload
         );
 
-        $response->assertRedirect(route('avaliacoes.show', $avaliacao->id));
+        $response->assertRedirect(route('avaliacoes.index'));
 
         // Valida que o fechamento foi salvo com nota_final = 5.00
         $this->assertDatabaseHas('avaliacao_fechamentos', [

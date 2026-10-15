@@ -13,7 +13,7 @@ class AvaliacaoPolicy
      */
     public function viewAny(User $user): bool
     {
-        return in_array($user->perfil_acesso->value, ['admin', 'master', 'gestor']);
+        return in_array($user->perfil_acesso->value, ['admin', 'master', 'gestor', 'consultor']);
     }
 
     /**
@@ -25,6 +25,10 @@ class AvaliacaoPolicy
         
         $perfil = $user->perfil_acesso->value ?? $user->perfil_acesso;
         
+        if ($perfil === 'consultor') {
+            return true;
+        }
+
         if ($perfil === 'gestor') {
             if ($avaliacao->created_by === $user->id) {
                 return true;

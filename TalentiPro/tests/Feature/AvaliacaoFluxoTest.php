@@ -338,7 +338,7 @@ class AvaliacaoFluxoTest extends TestCase
 
         $this->actingAs($this->master)
              ->delete(route('avaliacoes.destroy', $avaliacao))
-             ->assertRedirect(route('avaliacoes.index'));
+             ->assertRedirect(route('avaliacoes.index', ['tab' => 'campanhas']));
 
         $this->assertDatabaseMissing('avaliacoes', ['id' => $avaliacao->id]);
     }

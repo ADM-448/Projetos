@@ -14,10 +14,9 @@ trait BelongsToEmpresa
      */
     protected static function bootBelongsToEmpresa(): void
     {
-        // 1. Aplica o filtro automático em todas as consultas (Global Scope)
         static::addGlobalScope('empresa', function (Builder $builder) {
             if (Auth::check() && Auth::user()->empresa_id !== null) {
-                $builder->where($builder->getQuery()->from.'.empresa_id', '=', Auth::user()->empresa_id);
+                $builder->where($builder->qualifyColumn('empresa_id'), '=', Auth::user()->empresa_id);
             }
         });
 

@@ -201,16 +201,17 @@
             <div style="flex: 1; min-width: 250px;">
                 <label class="filter-label"><i class="fa-solid fa-list-check" style="color: #3498db; margin-right: 5px;"></i> Selecione a Avaliação</label>
                 <select id="avaliacao_id" class="custom-select">
-                    <option value="">-- Selecione uma Avaliação --</option>
                     @foreach($avaliacoes as $av)
-                        <option value="{{ $av->id }}">{{ $av->titulo }} ({{ \Carbon\Carbon::parse($av->data_inicio)->format('d/m/Y') }})</option>
+                        <option value="{{ $av->id }}" {{ $loop->first ? 'selected' : '' }}>
+                            {{ $av->titulo }} (Última Avaliação - {{ \Carbon\Carbon::parse($av->data_inicio)->format('d/m/Y') }})
+                        </option>
                     @endforeach
                 </select>
             </div>
 
             <div>
                 <button onclick="buscarMeuRelatorio()" class="btn-generate">
-                    <i class="fa-solid fa-chart-line"></i> Ver Resultados
+                    <i class="fa-solid fa-chart-line"></i> Atualizar Relatório
                 </button>
             </div>
         </div>
@@ -231,13 +232,10 @@
 @push('scripts')
 <script>
     async function buscarMeuRelatorio() {
-        const avaliacaoId = document.getElementById('avaliacao_id').value;
+        const avaliacaoId = document.getElementById('avaliacao_id')?.value;
         const colaboradorId = {{ auth()->id() }};
 
-        if(!avaliacaoId) {
-            alert('Selecione uma avaliação primeiro.');
-            return;
-        }
+        if(!avaliacaoId) return;
 
         document.getElementById('reportContent').style.display = 'none';
         document.getElementById('loading').style.display = 'block';
@@ -258,5 +256,12 @@
             document.getElementById('loading').style.display = 'none';
         }
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const avSelect = document.getElementById('avaliacao_id');
+        if (avSelect && avSelect.value) {
+            buscarMeuRelatorio();
+        }
+    });
 </script>
 @endpush

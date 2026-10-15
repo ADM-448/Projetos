@@ -27,13 +27,32 @@
         <main class="main-content">
             {{-- Header superior --}}
             <header class="top-bar">
-                <div style="display: flex; align-items: center;">
-                    <button class="btn-mobile-menu" onclick="toggleSidebar()">
-                        <i class="fa-solid fa-bars"></i>
-                    </button>
-                    <div class="top-logo">
-                        <i class="fa-solid fa-brain"></i> TALENTIPRO
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="display: flex; align-items: center;">
+                        <button class="btn-mobile-menu" onclick="toggleSidebar()">
+                            <i class="fa-solid fa-bars"></i>
+                        </button>
+                        <div class="top-logo">
+                            <i class="fa-solid fa-brain"></i> TALENTIPRO
+                        </div>
                     </div>
+
+                    @if(auth()->check() && auth()->user()->isConsultor() && auth()->user()->empresasConsultoria->count() > 0)
+                        <div class="consultor-tenant-switcher" style="display: flex; align-items: center; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; padding: 4px 12px;">
+                            <i class="fa-solid fa-building" style="color: #f39c12; margin-right: 8px; font-size: 0.95rem;"></i>
+                            <form action="{{ route('consultor.selecionar-empresa') }}" method="POST" id="formSwitchEmpresa" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                                @csrf
+                                <label for="consultor_empresa_id" style="color: rgba(255,255,255,0.9); font-size: 0.8rem; font-weight: 600; white-space: nowrap; margin: 0;">Empresa:</label>
+                                <select name="empresa_id" id="consultor_empresa_id" onchange="document.getElementById('formSwitchEmpresa').submit()" style="background: rgba(0,0,0,0.3); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; padding: 4px 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; outline: none;">
+                                    @foreach(auth()->user()->empresasConsultoria as $emp)
+                                        <option value="{{ $emp->id }}" {{ auth()->user()->empresa_id == $emp->id ? 'selected' : '' }} style="color: #1e293b; background: #ffffff;">
+                                            {{ $emp->nome }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </form>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="header-profile-info" style="display: flex; align-items: center; gap: 20px;">
@@ -130,6 +149,12 @@
         @yield('content')
     @endif
 
+    @hasSection('sidebar')
+        @if(auth()->check() && auth()->user()->perfil_acesso->value !== 'colaborador')
+            @include('layouts.partials.gravacao-widget')
+        @endif
+    @endif
+
     @stack('scripts')
 
     {{-- Modal Global de Alerta/Confirmação --}}
@@ -176,18 +201,21 @@
                 iconDiv.style.color = '#e74c3c';
                 confirmBtn.className = 'btn-danger';
                 confirmBtn.style.backgroundColor = '#e74c3c';
+                confirmBtn.style.color = '#ffffff';
             } else if (options.type === 'success') {
                 icon.className = 'fa-solid fa-circle-check';
                 iconDiv.style.backgroundColor = 'rgba(46, 204, 113, 0.1)';
                 iconDiv.style.color = '#2ecc71';
                 confirmBtn.className = 'btn-primary';
                 confirmBtn.style.backgroundColor = '#2ecc71';
+                confirmBtn.style.color = '#ffffff';
             } else { // info
                 icon.className = 'fa-solid fa-circle-info';
                 iconDiv.style.backgroundColor = 'rgba(106, 76, 124, 0.1)';
                 iconDiv.style.color = '#6a4c7c';
                 confirmBtn.className = 'btn-primary';
                 confirmBtn.style.backgroundColor = '#6a4c7c';
+                confirmBtn.style.color = '#ffffff';
             }
             iconDiv.appendChild(icon);
             
@@ -406,6 +434,29 @@
             });
         });
     </script>
+
+    <!-- Global SweetAlert2 for modern alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Intercepta todos os alert() do sistema e transforma num modal bonito
+        window.alert = function(message) {
+            Swal.fire({
+                text: message,
+                icon: 'info',
+                confirmButtonColor: '#6a4c7c',
+                confirmButtonText: 'Entendido',
+                customClass: {
+                    popup: 'swal-modern-popup'
+                }
+            });
+        };
+    </script>
+    <style>
+        .swal-modern-popup {
+            border-radius: 16px !important;
+            font-family: inherit;
+        }
+    </style>
 </body>
 
 </html>

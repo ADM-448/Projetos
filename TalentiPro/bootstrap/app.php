@@ -20,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsurePerfilAcesso::class,
         ]);
 
+        $middleware->web(append: [
+            \App\Http\Middleware\CapturaIntendedUrl::class,
+        ]);
+
         $middleware->redirectUsersTo(function (Request $request) {
             $user = $request->user();
             if ($user && $user->perfil_acesso === \App\Enums\UserRole::ADMIN) {

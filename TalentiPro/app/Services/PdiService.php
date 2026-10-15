@@ -53,15 +53,6 @@ class PdiService implements PdiServiceContract
                 'responder'
             );
 
-            // Dispara E-mail
-            app(\App\Services\EmailService::class)->notificar(
-                $dados['colaborador_id'],
-                "Novo PDI Atribuído: {$pdi->titulo}",
-                "Você recebeu um novo Plano de Desenvolvimento Individual (PDI). Acesse a plataforma para visualizar os detalhes e acompanhar o seu progresso.",
-                route('pdis.show', $pdi->id),
-                'Acessar PDI'
-            );
-
             return $pdi;
         });
     }

@@ -29,15 +29,32 @@
             
             <ul class="atividade-list">
                 @foreach($atividades as $atividade)
+                    @php
+                        $itemUrl = config('app.url') . '/login';
+                        if (!empty($atividade->url)) {
+                            $parsed = parse_url($atividade->url);
+                            $path = $parsed['path'] ?? '';
+                            $query = isset($parsed['query']) ? '?' . $parsed['query'] : '';
+                            $relativeUrl = ltrim($path . $query, '/');
+                            if ($relativeUrl && $relativeUrl !== 'login') {
+                                $itemUrl = route('login') . '?redirect_to=/' . urlencode($relativeUrl);
+                            }
+                        }
+                    @endphp
                     <li class="atividade-item">
                         <p class="atividade-title">{{ $atividade->titulo }}</p>
                         <p class="atividade-desc">{{ $atividade->descricao }}</p>
+                        <div style="margin-top: 8px;">
+                            <a href="{{ $itemUrl }}" style="font-size: 13px; color: #6a4c7c; text-decoration: underline; font-weight: 600;">
+                                Acessar esta atividade &rarr;
+                            </a>
+                        </div>
                     </li>
                 @endforeach
             </ul>
 
             <div class="btn-container">
-                <a href="{{ config('app.url') }}/login" class="btn">Acessar Plataforma</a>
+                <a href="{{ route('login') }}" class="btn">Acessar Plataforma</a>
             </div>
         </div>
         <div class="footer">

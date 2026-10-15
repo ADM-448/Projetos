@@ -20,6 +20,7 @@ class AvaliacaoParticipante extends Model
         'avaliador_id',
         'tipo',
         'status',
+        'observacao',
     ];
 
     protected $casts = [

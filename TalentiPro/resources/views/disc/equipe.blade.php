@@ -207,16 +207,30 @@
 }
 </style>
 
-<div class="header-actions" style="margin-bottom: 25px;">
-    <div>
-        <h1 class="page-title" style="margin-bottom: 8px;">
+<div class="header-actions" style="margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+    <div style="min-width: 0;">
+        <h1 class="page-title" style="margin-bottom: 8px; font-size: clamp(1.2rem, 4vw, 1.5rem); word-break: break-word;">
             <i class="fa-solid fa-users-viewfinder" style="color: #6a4c7c;"></i> Teste DISC da Equipe
         </h1>
-        <p style="color: #64748b; font-size: 0.95rem;">
+        <p style="color: #64748b; font-size: 0.95rem; word-break: break-word;">
             Mapeamento comportamental completo da sua equipe. Acompanhe perfis, estatísticas e relatórios individuais.
         </p>
     </div>
+    <div>
+        <button onclick="copiarLinkExterno()" class="btn-primary" style="padding: 10px 18px; border-radius: 8px; font-weight: 700; background: #38a169; border: none; color: white; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; white-space: normal; text-align: center;">
+            <i class="fa-solid fa-link"></i> Link para Candidatos
+        </button>
+    </div>
 </div>
+
+<script>
+function copiarLinkExterno() {
+    const url = "{{ route('disc.external', auth()->user()->empresa_id ?? 0) }}";
+    navigator.clipboard.writeText(url).then(() => {
+        alert('Link copiado para a área de transferência:\n' + url);
+    });
+}
+</script>
 
 {{-- CARDS DE ESTATÍSTICAS --}}
 <div class="disc-stats-grid">
@@ -484,6 +498,75 @@
                     </td>
                 </tr>
                 @endforelse
+
+                {{-- LOOP PARA EXTERNOS (CANDIDATOS) --}}
+                @foreach($externalAssessments as $ext)
+                <tr style="border-bottom: 1px solid #f1f5f9; background: #fffcf8; transition: background 0.2s;" onmouseover="this.style.background='#fffaf0'" onmouseout="this.style.background='#fffcf8'">
+                    <td style="padding: 16px 24px;">
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <div class="user-avatar-circle" style="background: linear-gradient(135deg, #d69e2e 0%, #b7791f 100%);">
+                                {{ strtoupper(substr($ext->respondent_name ?? 'C', 0, 2)) }}
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; color: #1e293b; font-size: 0.95rem;">
+                                    {{ $ext->respondent_name ?? 'Candidato Externo' }}
+                                    <span style="background:#fef3c7; color:#92400e; font-size:0.65rem; padding:2px 6px; border-radius:4px; margin-left:6px; font-weight:bold;">EXTERNO</span>
+                                </div>
+                                <div style="font-size: 0.8rem; color: #64748b; margin-top: 1px;">{{ $ext->respondent_email }}</div>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td style="padding: 16px;">
+                        <div style="font-weight: 700; color: #a0aec0; font-size: 0.85rem; font-style: italic;">Não aplicável</div>
+                    </td>
+
+                    <td style="padding: 16px; text-align: center;">
+                        <span style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 14px; border-radius: 9999px; font-size: 0.76rem; font-weight: 700; background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;">
+                            <i class="fa-solid fa-check"></i> Concluído
+                        </span>
+                    </td>
+
+                    <td style="padding: 16px;">
+                        @php
+                            $pBr = $ext->primary_profile_br;
+                            $cCls = $clsMap[$pBr] ?? 'badge-cauteloso';
+                        @endphp
+                        <span class="badge-profile {{ $cCls }}">
+                            {{ mb_strtoupper($pBr) }}
+                        </span>
+                    </td>
+
+                    <td style="padding: 16px;">
+                        @if($ext->secondary_profile_br)
+                            @php
+                                $p2Br = $ext->secondary_profile_br;
+                                $c2Cls = $clsMap[$p2Br] ?? 'badge-cauteloso';
+                            @endphp
+                            <span class="badge-profile {{ $c2Cls }}" style="opacity: 0.9;">
+                                {{ mb_strtoupper($p2Br) }}
+                            </span>
+                        @else
+                            <span style="color: #cbd5e0; font-size: 0.9rem; font-weight: bold;">—</span>
+                        @endif
+                    </td>
+
+                    <td style="padding: 16px; text-align: center;">
+                        <div class="disc-score-group">
+                            <span class="disc-score-chip" style="background: #e53e3e;" title="Dominância (D)">D: {{ $ext->score_d }}</span>
+                            <span class="disc-score-chip" style="background: #d69e2e;" title="Influência (I)">I: {{ $ext->score_i }}</span>
+                            <span class="disc-score-chip" style="background: #38a169;" title="Estabilidade (S)">S: {{ $ext->score_s }}</span>
+                            <span class="disc-score-chip" style="background: #3182ce;" title="Conformidade (C)">C: {{ $ext->score_c }}</span>
+                        </div>
+                    </td>
+
+                    <td style="padding: 16px 24px; text-align: center;">
+                        <a href="{{ route('disc.result', $ext->id) }}" class="btn-view-report">
+                            <i class="fa-solid fa-chart-radar"></i> Ver Relatório
+                        </a>
+                    </td>
+                </tr>
+                @endforeach
             </tbody>
         </table>
     </div>
@@ -494,14 +577,14 @@
     @forelse($colaboradores as $u)
         <div class="mobile-emp-card">
             {{-- Cabeçalho do Card --}}
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 12px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0;">
                     <div class="user-avatar-circle">
                         {{ strtoupper(substr($u->name, 0, 2)) }}
                     </div>
-                    <div>
-                        <div style="font-weight: 700; color: #1e293b; font-size: 0.95rem; line-height: 1.3;">{{ $u->name }}</div>
-                        <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
+                    <div style="min-width: 0;">
+                        <div style="font-weight: 700; color: #1e293b; font-size: 0.95rem; line-height: 1.3; word-break: break-word;">{{ $u->name }}</div>
+                        <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px; word-break: break-word;">
                             {{ $u->departamento->nome ?? 'Sem Dept.' }} • {{ $u->cargo->nome ?? 'Sem Cargo' }}
                         </div>
                     </div>
@@ -569,5 +652,75 @@
             <div style="font-weight: 700; color: #64748b; font-size: 1rem;">Nenhum colaborador encontrado</div>
         </div>
     @endforelse
+
+    {{-- LOOP PARA EXTERNOS (CANDIDATOS) NO MOBILE --}}
+    @foreach($externalAssessments as $ext)
+        <div class="mobile-emp-card" style="background: #fffcf8; border-color: #fef3c7;">
+            {{-- Cabeçalho do Card --}}
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0;">
+                    <div class="user-avatar-circle" style="background: linear-gradient(135deg, #d69e2e 0%, #b7791f 100%);">
+                        {{ strtoupper(substr($ext->respondent_name ?? 'C', 0, 2)) }}
+                    </div>
+                    <div style="min-width: 0;">
+                        <div style="font-weight: 700; color: #1e293b; font-size: 0.95rem; line-height: 1.3; word-break: break-word;">
+                            {{ $ext->respondent_name ?? 'Candidato Externo' }}
+                            <span style="background:#fef3c7; color:#92400e; font-size:0.65rem; padding:2px 6px; border-radius:4px; margin-left:6px; font-weight:bold; display: inline-block;">EXTERNO</span>
+                        </div>
+                        <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px; word-break: break-word;">
+                            {{ $ext->respondent_email }}
+                        </div>
+                    </div>
+                </div>
+
+                <div style="flex-shrink: 0;">
+                    <span style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 9999px; font-size: 0.72rem; font-weight: 700; background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;">
+                        <i class="fa-solid fa-check"></i> Concluído
+                    </span>
+                </div>
+            </div>
+
+            {{-- Conteúdo do Teste Concluído --}}
+            <div style="background: #fffaf0; border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 10px; border: 1px dashed #fbd38d;">
+                @php
+                    $pBr = $ext->primary_profile_br;
+                    $cCls = $clsMap[$pBr] ?? 'badge-cauteloso';
+                @endphp
+
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                    <span style="font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Perfis:</span>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <span class="badge-profile {{ $cCls }}">
+                            {{ mb_strtoupper($pBr) }}
+                        </span>
+
+                        @if($ext->secondary_profile_br)
+                            @php
+                                $p2Br = $ext->secondary_profile_br;
+                                $c2Cls = $clsMap[$p2Br] ?? 'badge-cauteloso';
+                            @endphp
+                            <span class="badge-profile {{ $c2Cls }}" style="opacity: 0.9;">
+                                {{ mb_strtoupper($p2Br) }}
+                            </span>
+                        @endif
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; border-top: 1px dashed #fef08a; padding-top: 8px;">
+                    <span style="font-size: 0.78rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Notas:</span>
+                    <div class="disc-score-group" style="background: white;">
+                        <span class="disc-score-chip" style="background: #e53e3e;">D: {{ $ext->score_d }}</span>
+                        <span class="disc-score-chip" style="background: #d69e2e;">I: {{ $ext->score_i }}</span>
+                        <span class="disc-score-chip" style="background: #38a169;">S: {{ $ext->score_s }}</span>
+                        <span class="disc-score-chip" style="background: #3182ce;">C: {{ $ext->score_c }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <a href="{{ route('disc.result', $ext->id) }}" class="btn-view-report" style="width: 100%; justify-content: center; box-sizing: border-box;">
+                <i class="fa-solid fa-chart-radar"></i> Ver Relatório Completo
+            </a>
+        </div>
+    @endforeach
 </div>
 @endsection

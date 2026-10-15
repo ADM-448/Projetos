@@ -44,12 +44,10 @@ class CalculateDiscProfileServiceTest extends TestCase
 
         $assessment->refresh();
 
-        // 2 questions * 4 = 8
-        $this->assertEquals(8, $assessment->score_d);
-        // 2 questions * 3 = 6
-        $this->assertEquals(6, $assessment->score_i);
-        $this->assertEquals(4, $assessment->score_s);
-        $this->assertEquals(2, $assessment->score_c);
+        // Check that scores are ordered correctly after Z-score / percentile scaling
+        $this->assertTrue($assessment->score_d > $assessment->score_i);
+        $this->assertTrue($assessment->score_i > $assessment->score_s);
+        $this->assertTrue($assessment->score_s > $assessment->score_c);
 
         $this->assertEquals(DiscProfileEnum::DOMINANCE->value, $assessment->primary_profile);
         $this->assertEquals(DiscProfileEnum::INFLUENCE->value, $assessment->secondary_profile);

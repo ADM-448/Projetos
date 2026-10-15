@@ -47,7 +47,7 @@
         padding: 30px 20px;
         text-align: center;
         flex: 1;
-        min-width: 250px;
+        min-width: 200px;
         box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
         transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
         position: relative;
@@ -133,7 +133,7 @@
         text-align: left;
     }
 
-    @media (max-width: 768px) {
+    @media screen and (max-width: 768px) {
 
         .table-custom,
         .table-custom tbody,
@@ -163,6 +163,7 @@
             justify-content: space-between;
             align-items: center;
             text-align: right !important;
+            gap: 8px;
         }
 
         .table-custom td::before {
@@ -172,15 +173,36 @@
             font-size: 0.75rem;
             text-transform: uppercase;
             text-align: left;
+            flex-shrink: 0;
+        }
+
+        /* Campanha: empilha label em cima, valor embaixo (nome longo) */
+        .table-custom td[data-label="Campanha"] {
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left !important;
+            gap: 4px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 12px;
+            margin-bottom: 4px;
+        }
+
+        .table-custom td[data-label="Campanha"] > span,
+        .table-custom td[data-label="Campanha"] {
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            white-space: normal;
         }
 
         .table-custom td:first-child {
+            display: block;
             font-size: 1.05rem;
             color: #0f172a;
             border-bottom: 1px solid #f1f5f9;
             padding-bottom: 12px;
             margin-bottom: 8px;
-            justify-content: flex-start;
+            text-align: left !important;
+            line-height: 1.5;
         }
 
         .table-custom td:first-child::before {
@@ -191,6 +213,30 @@
             border-top: 1px dashed #e2e8f0;
             margin-top: 8px;
             padding-top: 12px;
+        }
+
+        /* Score cards: uma coluna só no mobile */
+        .scores-grid {
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .score-card {
+            min-width: 0 !important;
+            width: 100%;
+        }
+
+        /* Header do card de competência: empilha no mobile */
+        .table-header {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 10px;
+            padding: 16px !important;
+        }
+
+        /* Remove padding-left fixo das médias no mobile */
+        .table-header > div[style*="padding-left: 42px"] {
+            padding-left: 0 !important;
         }
 
         .table-card {
@@ -268,25 +314,311 @@
         border-radius: 12px;
         background: #f1f5f9;
     }
+
+    @page {
+        size: A4 portrait;
+        margin: 10mm 10mm 12mm 10mm;
+    }
+
+    /* Print Styles - Para deixar o PDF executivo, proporcional e sem vazios */
+    @media print {
+        /* Esconde menus, cabeçalhos, botões, sidebar e filtros */
+        aside, header, nav, .navbar, .sidebar, #btnExportPdf, #aiActionContainer, footer,
+        .header-actions, .filter-panel, button, .no-print {
+            display: none !important;
+        }
+
+        .only-print {
+            display: inline-block !important;
+        }
+
+        /* Ocupa a página inteira e remove scrolls que cortam o PDF */
+        body, html, .main-content, .content-wrapper, main, .page-content {
+            background: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            min-height: auto !important;
+            overflow: visible !important;
+            position: relative !important;
+        }
+
+        #reportContent {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            display: block !important;
+        }
+
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+        }
+
+        /* Reduz espaçamentos gerais gigantescos para caber harmonicamente no A4 */
+        .report-header-card {
+            border: 1px solid #e2e8f0 !important;
+            padding: 12px 16px !important;
+            margin-bottom: 10px !important;
+            box-shadow: none !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+        .header-main-grid {
+            display: table !important;
+            width: 100% !important;
+            table-layout: fixed !important;
+        }
+
+        .header-col-empresa {
+            display: table-cell !important;
+            width: 44% !important;
+            vertical-align: middle !important;
+        }
+
+        .header-col-colab {
+            display: table-cell !important;
+            width: 56% !important;
+            vertical-align: middle !important;
+            border-left: 2px solid #f1f5f9 !important;
+            padding-left: 16px !important;
+        }
+
+        .termo-lgpd-box {
+            background: #f8fafc !important;
+            border: 1px solid #e2e8f0 !important;
+            border-left: 4px solid #6366f1 !important;
+            padding: 8px 12px !important;
+            margin-bottom: 12px !important;
+            font-size: 0.72rem !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+        .termo-lgpd-box p {
+            font-size: 0.7rem !important;
+            line-height: 1.35 !important;
+            color: #475569 !important;
+            margin: 0 !important;
+        }
+
+        /* Bloco comparativos gerais enxuto */
+        .comparative-box {
+            min-width: 90px !important;
+            padding: 8px 12px !important;
+            margin-bottom: 0 !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+        }
+
+        .comparative-box p {
+            font-size: 0.68rem !important;
+            margin-bottom: 4px !important;
+        }
+
+        .comparative-box .comp-value {
+            font-size: 1.55rem !important;
+        }
+
+        /* Grid de notas circulares enxuta */
+        .scores-grid {
+            gap: 10px !important;
+            margin-bottom: 12px !important;
+        }
+
+        .score-card {
+            border: 1px solid #e2e8f0 !important;
+            padding: 10px 8px !important;
+            margin-bottom: 0 !important;
+            border-radius: 10px !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+        .score-card h3 {
+            font-size: 0.92rem !important;
+            margin-bottom: 2px !important;
+        }
+
+        .score-card p {
+            font-size: 0.7rem !important;
+            margin: 2px 0 6px 0 !important;
+        }
+
+        .chart-circle {
+            width: 78px !important;
+            height: 78px !important;
+            margin: 6px auto !important;
+            font-size: 1.2rem !important;
+        }
+
+        .chart-circle::before {
+            inset: 7px !important;
+        }
+
+        .chart-value {
+            font-size: 1.2rem !important;
+        }
+
+        /* Títulos de seção nunca ficam órfãos no fim da página */
+        .section-title {
+            break-after: avoid !important;
+            page-break-after: avoid !important;
+            font-size: 1.05rem !important;
+            margin-top: 14px !important;
+            margin-bottom: 8px !important;
+        }
+
+        /* Cards de competência com tabela */
+        .table-card {
+            border: 1px solid #e2e8f0 !important;
+            padding: 10px 14px !important;
+            margin-bottom: 10px !important;
+            border-radius: 8px !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+        .table-custom th, .table-custom td {
+            padding: 6px 8px !important;
+            font-size: 0.8rem !important;
+        }
+
+        /* Considerações Finais */
+        #feedbackContainer {
+            border: 1px solid #e2e8f0 !important;
+            border-left: 4px solid #8b5cf6 !important;
+            padding: 14px 18px !important;
+            margin-bottom: 14px !important;
+            border-radius: 8px !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+        }
+
+        .obs-card-item {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+            margin-bottom: 8px !important;
+            padding: 10px 12px !important;
+            border-radius: 6px !important;
+        }
+
+        /* Se tiver PDI injetado depois */
+        .pdi-print-section {
+            page-break-before: always;
+        }
+    }
+
+    .only-print {
+        display: none;
+    }
 </style>
 
 <div id="reportContent" style="display: none; margin-top: 10px; animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);">
 
-    <div
-        style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; align-items: center; margin-bottom: 35px; background: white; padding: 25px 20px; border-radius: 20px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">
-        <div>
-            <p
-                style="text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-size: 0.8rem; font-weight: 700; margin: 0 0 5px 0;">
-                Relatório Consolidado</p>
-            <h2
-                style="color: #0f172a; margin: 0; font-size: 2rem; font-weight: 800; display: flex; align-items: center; gap: 12px;">
-                <span id="reportTitle">Resultados da Avaliação</span>
-            </h2>
+    <!-- Cabeçalho Executivo: Identificação da Empresa Cliente e Colaborador -->
+    <div class="report-header-card"
+        style="background: white; padding: 22px 28px; border-radius: 18px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; margin-bottom: 20px;">
+        
+        <!-- Barra Superior: Identificação da Plataforma TalentiPro e Ação -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 18px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                @if(file_exists(public_path('images/logo-talentipro.png')))
+                    <img src="{{ asset('images/logo-talentipro.png') }}" alt="TalentiPro" style="height: 26px; width: auto; display: inline-block;">
+                @elseif(file_exists(public_path('images/logo-talentipro.jpg')))
+                    <img src="{{ asset('images/logo-talentipro.jpg') }}" alt="TalentiPro" style="height: 26px; width: auto; display: inline-block;">
+                @else
+                    <span style="font-size: 1.15rem; font-weight: 800; color: #0f172a; display: inline-flex; align-items: center; gap: 7px; letter-spacing: -0.3px;">
+                        <i class="fa-solid fa-brain" style="color: #f39c12; font-size: 1.25rem;"></i>
+                        Talenti<span style="color: #4f46e5;">Pro</span>
+                    </span>
+                @endif
+                <span style="color: #cbd5e1; font-size: 0.85rem; margin: 0 4px;">|</span>
+                <span style="font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Gestão Inteligente de Talentos
+                </span>
+            </div>
+
+            <div>
+                @if(auth()->user()->perfil_acesso->value !== 'colaborador')
+                    <a href="#" id="btnExportPdf" onclick="imprimirRelatorioPdf(); return false;" class="btn no-print"
+                        style="background: linear-gradient(135deg, #4f46e5, #4338ca); color: white; border: none; padding: 8px 18px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; text-decoration: none; box-shadow: 0 4px 12px -2px rgba(79, 70, 229, 0.35); transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-print"></i> Salvar Relatório
+                    </a>
+                @endif
+                <span class="only-print" style="font-size: 0.75rem; color: #64748b; font-weight: 600;">
+                    Emitido em: {{ date('d/m/Y H:i') }}
+                </span>
+            </div>
         </div>
-        <a href="#" id="btnExportPdf" target="_blank" class="btn"
-            style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border: none; padding: 14px 24px; border-radius: 12px; font-weight: 700; text-decoration: none; box-shadow: 0 10px 20px -5px rgba(239, 68, 68, 0.4); transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
-            <i class="fa-solid fa-file-pdf"></i> Exportar PDF
-        </a>
+
+        <!-- Linha Principal: Empresa Cliente (Esquerda) e Colaborador (Direita) -->
+        <div class="header-main-grid" style="display: flex; gap: 24px; align-items: center; justify-content: space-between;">
+            
+            <!-- Coluna 1: Empresa Cliente & Logotipo -->
+            <div class="header-col-empresa" style="flex: 1; max-width: 45%; display: flex; align-items: center; gap: 16px;">
+                <div id="reportEmpresaLogoWrapper" style="display: flex; align-items: center; justify-content: center; min-width: 60px; max-width: 140px;">
+                    <img id="reportEmpresaLogo" src="" alt="Logotipo da Empresa" style="display: none; max-height: 52px; max-width: 140px; object-fit: contain; border-radius: 8px;">
+                    <div id="reportEmpresaIcon" style="display: flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 12px; background: linear-gradient(135deg, #1e293b, #334155); color: white; box-shadow: 0 6px 14px rgba(15, 23, 42, 0.15);">
+                        <i class="fa-solid fa-building" style="font-size: 1.3rem;"></i>
+                    </div>
+                </div>
+                <div>
+                    <span style="display: inline-block; text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-size: 0.68rem; font-weight: 800; margin-bottom: 2px;">
+                        Empresa Avaliadora
+                    </span>
+                    <h2 id="reportEmpresaNome" style="color: #0f172a; margin: 0; font-size: 1.25rem; font-weight: 800; line-height: 1.2; letter-spacing: -0.3px;">
+                        Empresa Cliente
+                    </h2>
+                    <span id="reportEmpresaCnpj" style="display: inline-block; margin-top: 3px; font-size: 0.75rem; color: #475569; background: #f1f5f9; padding: 2px 7px; border-radius: 6px; font-weight: 600;"></span>
+                </div>
+            </div>
+
+            <!-- Coluna 2: Colaborador e Metadados -->
+            <div class="header-col-colab" style="flex: 1.2; border-left: 2px solid #f1f5f9; padding-left: 20px;">
+                <span style="display: inline-block; text-transform: uppercase; letter-spacing: 1px; color: #4f46e5; font-size: 0.68rem; font-weight: 800; margin-bottom: 2px;">
+                    Colaborador Avaliado
+                </span>
+                <h3 style="color: #0f172a; margin: 0 0 6px 0; font-size: 1.45rem; font-weight: 800; line-height: 1.2; letter-spacing: -0.4px;">
+                    <span id="reportTitle">Resultados da Avaliação</span>
+                </h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 0.78rem;">
+                    <span style="background: #f8fafc; border: 1px solid #e2e8f0; color: #334155; padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fa-solid fa-briefcase" style="color: #6366f1;"></i>
+                        <span style="color: #64748b;">Cargo:</span> <strong id="reportColabCargo" style="color: #0f172a;">—</strong>
+                    </span>
+                    <span style="background: #f8fafc; border: 1px solid #e2e8f0; color: #334155; padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fa-solid fa-sitemap" style="color: #0ea5e9;"></i>
+                        <span style="color: #64748b;">Setor:</span> <strong id="reportColabSetor" style="color: #0f172a;">—</strong>
+                    </span>
+                    <span style="background: #f8fafc; border: 1px solid #e2e8f0; color: #334155; padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;">
+                        <i class="fa-solid fa-clipboard-list" style="color: #8b5cf6;"></i>
+                        <span style="color: #64748b;">Campanha:</span> <strong id="reportCampanhaTitulo" style="color: #0f172a;">—</strong>
+                    </span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Caixa de Conformidade LGPD & Confidencialidade (Visual Executivo & Discreto) -->
+    <div class="termo-lgpd-box"
+        style="background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); border: 1px solid #e2e8f0; border-left: 4px solid #6366f1; border-radius: 14px; padding: 12px 18px; margin-bottom: 26px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 5px;">
+            <div style="display: flex; align-items: center; gap: 8px; color: #1e293b; font-weight: 800; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.6px;">
+                <i class="fa-solid fa-shield-halved" style="color: #6366f1; font-size: 0.95rem;"></i>
+                <span>Documento Confidencial • Proteção de Dados (LGPD)</span>
+            </div>
+            <span style="font-size: 0.7rem; font-weight: 700; color: #4338ca; background: #e0e7ff; padding: 2px 8px; border-radius: 10px;">
+                Lei Federal nº 13.709/2018
+            </span>
+        </div>
+        <p style="margin: 0; font-size: 0.77rem; line-height: 1.5; color: #64748b;">
+            Este relatório contém dados pessoais e avaliações de desempenho de caráter estritamente confidencial, de propriedade e interesse exclusivo do colaborador avaliado e da liderança/RH autorizados. São vedados a divulgação, compartilhamento ou envio a terceiros sem prévia autorização formal, sob pena das sanções civis, penais e trabalhistas cabíveis (LGPD - Lei 13.709/2018, Art. 5º, X da CF/88, Arts. 153 e 154 do Código Penal e Art. 482, &ldquo;g&rdquo; da CLT).
+        </p>
     </div>
 
     <!-- Seção: Comparativos Gerais -->
@@ -335,6 +667,22 @@
                 @endif
             </div>
         </div>
+
+        <!-- Seção: Histórico de Avaliações do Colaborador (Apenas para Gestor/Master/Admin) -->
+        <div id="historicoContainer" style="display: none; background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 30px; margin-bottom: 45px; box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                <h3 class="section-title" style="margin-bottom: 0;">
+                    <div class="icon-wrapper" style="color: #6366f1; background: #e0e7ff;"><i class="fa-solid fa-timeline"></i></div>
+                    Histórico & Evolução do Colaborador
+                </h3>
+                <span style="font-size: 0.85rem; color: #64748b; background: #f1f5f9; padding: 4px 12px; border-radius: 20px; font-weight: 600;">
+                    <i class="fa-solid fa-lock" style="margin-right: 4px; font-size: 0.75rem;"></i> Acesso exclusivo Gestão / RH
+                </span>
+            </div>
+            <div id="historicoTableWrapper" style="overflow-x: auto;">
+                <!-- Tabela de histórico renderizada via JS -->
+            </div>
+        </div>
     @endif
 
     <!-- Seção: Gráficos de Círculo (Notas Principais) -->
@@ -373,21 +721,16 @@
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Seção: Feedback Geral / Fechamento -->
-    <div id="feedbackContainer"
-        style="display: none; background: white; border: 1px solid #e2e8f0; padding: 35px; border-radius: 20px; margin-bottom: 45px; box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05); position: relative; overflow: hidden;">
-        <div
-            style="position: absolute; top: 0; left: 0; bottom: 0; width: 6px; background: linear-gradient(180deg, #ec4899, #8b5cf6);">
-        </div>
-        <h3 class="section-title">
-            <div class="icon-wrapper" style="color: #ec4899; background: #fdf2f8;"><i
-                    class="fa-solid fa-quote-left"></i></div>
-            Considerações Finais
-        </h3>
-        <div id="feedbackText" style="color: #334155; line-height: 1.8; font-size: 1.05rem; padding-left: 10px;">
-            <!-- Injetado via JS -->
+        <div class="score-card" id="cardMediaFinal" style="--card-color: #10b981;">
+            <h3 style="font-size: 1.25rem; color: #0f172a; margin-top: 0; font-weight: 800;">Média Final</h3>
+            <p style="color: #64748b; font-size: 0.9rem; margin: 5px 0 25px 0;">Média consolidada</p>
+            <div style="display: flex; justify-content: center; margin: 20px 0;">
+                <div class="chart-circle" id="circleMediaConsolidada">
+                    <span class="chart-value" id="scoreMediaConsolidada"
+                        style="background: linear-gradient(135deg, #10b981, #047857); -webkit-background-clip: text;">0.0</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -399,6 +742,19 @@
     </h3>
     <div id="detailsContainer">
         <!-- Tabelas injetadas via JS -->
+    </div>
+
+    <!-- Seção: Feedback Geral / Considerações Finais -->
+    <div id="feedbackContainer"
+        style="display: none; background: white; border: 1px solid #e2e8f0; border-left: 4px solid #8b5cf6; padding: 25px 28px; border-radius: 16px; margin-top: 25px; margin-bottom: 35px; box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.04);">
+        <h3 class="section-title" style="margin-top: 0; margin-bottom: 16px;">
+            <div class="icon-wrapper" style="color: #8b5cf6; background: #f3e8ff;"><i
+                    class="fa-solid fa-quote-left"></i></div>
+            Considerações Finais & Observações
+        </h3>
+        <div id="feedbackText" style="color: #334155; line-height: 1.6; font-size: 0.95rem;">
+            <!-- Injetado via JS -->
+        </div>
     </div>
 
     <!-- Seção IA PDI Automático -->
@@ -417,9 +773,22 @@
             </button>
         </div>
     @endif
+    
+    <!-- Seção: PDI Anexado ao Relatório (Fica visível na tela e no print se houver) -->
+    <div id="pdiReportContainer" style="display: none;" class="pdi-print-section">
+        <h3 class="section-title" style="margin-top: 40px; border-top: 2px dashed #cbd5e1; padding-top: 40px;">
+            <div class="icon-wrapper" style="color: #8b5cf6; background: #f3e8ff;"><i class="fa-solid fa-bullseye"></i></div>
+            Plano de Desenvolvimento Individual (PDI)
+        </h3>
+        <div id="pdiReportContent">
+            <!-- Injetado via JS -->
+        </div>
+    </div>
 </div>
 
 <script>
+    window.isColaboradorProfile = {{ auth()->user()->perfil_acesso->value === 'colaborador' ? 'true' : 'false' }};
+
     function updateCircle(elemId, textId, score, colorHex) {
         const elem = document.getElementById(elemId);
         const text = document.getElementById(textId);
@@ -463,7 +832,43 @@
 
         // 0. Atualizar Título e Link PDF
         document.getElementById('reportTitle').innerText = data.colaborador.name;
-        document.getElementById('btnExportPdf').href = `{{ route('relatorios.exportar.pdf') }}?avaliacao_id=${data.avaliacao.id}&colaborador_id=${data.colaborador.id}`;
+        const btnPdf = document.getElementById('btnExportPdf');
+        if (btnPdf) {
+            btnPdf.href = `{{ route('relatorios.exportar.pdf') }}?avaliacao_id=${data.avaliacao.id}&colaborador_id=${data.colaborador.id}`;
+        }
+
+        // Dados da Empresa Cliente
+        const empresaNomeElem = document.getElementById('reportEmpresaNome');
+        const empresaCnpjElem = document.getElementById('reportEmpresaCnpj');
+        const empresaLogoElem = document.getElementById('reportEmpresaLogo');
+        const empresaIconElem = document.getElementById('reportEmpresaIcon');
+
+        if (empresaNomeElem) empresaNomeElem.innerText = data.empresa ? data.empresa.nome : 'Empresa Avaliadora';
+        if (empresaCnpjElem) {
+            empresaCnpjElem.innerText = (data.empresa && data.empresa.cnpj) ? `CNPJ: ${data.empresa.cnpj}` : '';
+        }
+        if (empresaLogoElem && empresaIconElem) {
+            if (data.empresa && data.empresa.logo_url) {
+                empresaLogoElem.src = data.empresa.logo_url;
+                empresaLogoElem.style.display = 'block';
+                empresaIconElem.style.display = 'none';
+            } else {
+                empresaLogoElem.style.display = 'none';
+                empresaIconElem.style.display = 'flex';
+                const inicial = (data.empresa && data.empresa.nome) ? data.empresa.nome.charAt(0).toUpperCase() : 'E';
+                empresaIconElem.innerHTML = `<span style="font-weight: 800; font-size: 1.3rem;">${inicial}</span>`;
+            }
+        }
+
+        // Campanha, Cargo e Setor do Colaborador
+        const campanhaTituloElem = document.getElementById('reportCampanhaTitulo');
+        if (campanhaTituloElem) campanhaTituloElem.innerText = data.avaliacao ? data.avaliacao.titulo : '—';
+
+        const colabCargoElem = document.getElementById('reportColabCargo');
+        if (colabCargoElem) colabCargoElem.innerText = (data.colaborador.cargo && data.colaborador.cargo.nome) ? data.colaborador.cargo.nome : 'Não informado';
+
+        const colabSetorElem = document.getElementById('reportColabSetor');
+        if (colabSetorElem) colabSetorElem.innerText = (data.colaborador.departamento && data.colaborador.departamento.nome) ? data.colaborador.departamento.nome : 'Geral';
 
         // 1. Médias Comparativas
         if (document.getElementById('txtMediaInd')) document.getElementById('txtMediaInd').innerText = data.charts.individual.toFixed(1);
@@ -479,7 +884,7 @@
         const is90 = data.avaliacao.grau == 90;
         const is360 = data.avaliacao.grau == 360;
 
-        if (is90) {
+        if (is90 && window.isColaboradorProfile) {
             document.getElementById('cardAuto').style.display = 'none';
         } else {
             document.getElementById('cardAuto').style.display = 'block';
@@ -502,6 +907,24 @@
         } else {
             document.getElementById('cardMediacao').style.display = 'block';
             updateCircle('circleFinal', 'scoreFinal', sFinal, '#ec4899');
+        }
+
+        // Cálculo da Média Final Consolidada
+        let sumAverages = 0;
+        let countAverages = 0;
+        if (!isNaN(sAuto) && sAuto > 0) { sumAverages += sAuto; countAverages++; }
+        if (!isNaN(sGestor) && sGestor > 0) { sumAverages += sGestor; countAverages++; }
+        if (!isNaN(sFinal) && sFinal > 0) { sumAverages += sFinal; countAverages++; }
+        
+        const mFinalCalculada = countAverages > 0 ? (sumAverages / countAverages) : 0;
+
+        // Card Média Final: só para gestores/masters, não para colaborador
+        const cardMediaFinal = document.getElementById('cardMediaFinal');
+        if (window.isColaboradorProfile) {
+            cardMediaFinal.style.display = 'none';
+        } else {
+            cardMediaFinal.style.display = 'block';
+            updateCircle('circleMediaConsolidada', 'scoreMediaConsolidada', mFinalCalculada, '#10b981');
         }
 
         // 3. Detalhamento (Tabelas)
@@ -561,6 +984,12 @@
             let avgColab = dados.notasColab.length > 0 ? (dados.notasColab.reduce((a, b) => a + b, 0) / dados.notasColab.length).toFixed(1) : '-';
             let avgAval = dados.notasAval.length > 0 ? (dados.notasAval.reduce((a, b) => a + b, 0) / dados.notasAval.length).toFixed(1) : '-';
 
+            // Média Final da competência (Auto + Avaliadores)
+            let partsForFinal = [];
+            if (avgColab !== '-') partsForFinal.push(parseFloat(avgColab));
+            if (avgAval !== '-') partsForFinal.push(parseFloat(avgAval));
+            let avgFinalComp = partsForFinal.length > 0 ? (partsForFinal.reduce((a, b) => a + b, 0) / partsForFinal.length).toFixed(1) : '-';
+
             let card = document.createElement('div');
             card.className = "table-card";
 
@@ -576,18 +1005,14 @@
                     <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; font-size: 0.9rem; flex-shrink: 0; max-width: 100%;">
                         <span style="color: #64748b; font-weight: 600; white-space: nowrap;">Média Avaliador:</span> 
                         <span style="background: #eff6ff; color: #1d4ed8; padding: 4px 10px; border-radius: 8px; font-weight: 800;">${avgAval}</span>
+                        ${!window.isColaboradorProfile ? `
+                        <span style="width: 1px; height: 18px; background: #e2e8f0; display: inline-block; margin: 0 4px;"></span>
+                        <span style="color: #64748b; font-weight: 600; white-space: nowrap;">Média Geral:</span>
+                        <span style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46; padding: 4px 10px; border-radius: 8px; font-weight: 800;">${avgFinalComp}</span>
+                        ` : ''}
                     </div>
                 </div>
-                <div style="padding: 0; overflow-x: auto;">
-                    <table class="table-custom">
-                        <thead>
-                            <tr>
-                                <th style="width: 70%;">Critério Avaliado</th>
-                                <th style="text-align: center; width: 30%;">${is360 ? 'Média Pares' : 'Avaliador'}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
+            `;
             } else {
                 html += `
                     <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 0.85rem; flex-shrink: 0; padding-left: 42px; max-width: 100%;">
@@ -599,51 +1024,65 @@
                             <span style="color: #64748b; font-weight: 600; white-space: nowrap;">${is360 ? 'Média Pares:' : 'Média Avaliadores:'}</span> 
                             <span style="background: #eff6ff; color: #1d4ed8; padding: 4px 10px; border-radius: 8px; font-weight: 800;">${avgAval}</span>
                         </div>
+                        ${!window.isColaboradorProfile ? `
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="width: 1px; height: 18px; background: #e2e8f0; display: inline-block;"></span>
+                            <span style="color: #64748b; font-weight: 600; white-space: nowrap;">Média Geral:</span>
+                            <span style="background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46; padding: 4px 10px; border-radius: 8px; font-weight: 800;">${avgFinalComp}</span>
+                        </div>
+                        ` : ''}
                     </div>
                 </div>
-                <div style="padding: 0; overflow-x: auto;">
-                    <table class="table-custom">
-                        <thead>
-                            <tr>
-                                <th style="width: 70%;">Critério Avaliado</th>
-                                <th style="text-align: center; width: 15%;">Autoavaliação</th>
-                                <th style="text-align: center; width: 15%;">${is360 ? 'Média Pares' : 'Avaliadores'}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
+            `;
             }
 
-            for (const [skillName, skillData] of Object.entries(dados.skills)) {
-                let nColab = skillData.colab && skillData.colab.nota !== null ? skillData.colab.nota : '-';
-                let nAval = skillData.aval && skillData.aval.nota !== null ? skillData.aval.nota : '-';
-
-                let badgeColab = nColab !== '-' ? `<span class="badge-score" style="background: #f3e8ff; color: #7e22ce;">${nColab}</span>` : `<span style="color: #cbd5e1; font-weight:600;">-</span>`;
-                let badgeAval = nAval !== '-' ? `<span class="badge-score" style="background: #eff6ff; color: #1d4ed8;">${nAval}</span>` : `<span style="color: #cbd5e1; font-weight:600;">-</span>`;
-
-
-
+            // O colaborador agora pode ver o detalhamento por competência
+            if (true) {
                 if (is90) {
-                    let breakdownHtml = '';
-                    if (!data.is_own_report && skillData.aval && skillData.aval.breakdown && skillData.aval.breakdown.length > 0) {
-                        const jsonStr = JSON.stringify(skillData.aval.breakdown).replace(/"/g, '&quot;');
-                        const sName = skillName.replace(/"/g, '&quot;').replace(/'/g, "\\'");
-                        breakdownHtml = `
-                            <button onclick="window.abrirModalNotas('${sName}', '${jsonStr}')" title="Ver Notas" style="background: transparent; border: none; color: #94a3b8; font-size: 1rem; cursor: pointer; transition: color 0.2s; padding: 0; margin-left: 6px; vertical-align: middle; display: inline;" onmouseover="this.style.color='#3b82f6'" onmouseout="this.style.color='#94a3b8'">
-                                <i class="fa-solid fa-list-ul"></i>
-                            </button>
-                        `;
-                    }
-
                     html += `
-                        <tr>
-                            <td data-label="Critério Avaliado" style="font-weight: 600; color: #0f172a;">${skillName}</td>
-                            <td data-label="${is360 ? 'Média Pares' : 'Avaliador'}" style="text-align: center;">
-                                <span>${badgeAval}${breakdownHtml}</span>
-                            </td>
-                        </tr>
+                    <div style="padding: 0; overflow-x: auto;">
+                        <table class="table-custom">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60%;">Critério Avaliado</th>
+                                    <th style="text-align: center; width: 20%;">${is360 ? 'Média Pares' : 'Avaliador'}</th>
+                                    <th style="text-align: center; width: 20%; color: #065f46; background: #f0fdf4;">Média Final</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                     `;
                 } else {
+                    html += `
+                    <div style="padding: 0; overflow-x: auto;">
+                        <table class="table-custom">
+                            <thead>
+                                <tr>
+                                    <th style="width: 55%;">Critério Avaliado</th>
+                                    <th style="text-align: center; width: 15%;">Autoavaliação</th>
+                                    <th style="text-align: center; width: 15%;">${is360 ? 'Média Pares' : 'Avaliadores'}</th>
+                                    <th style="text-align: center; width: 15%; color: #065f46; background: #f0fdf4;">Média Final</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                }
+
+                for (const [skillName, skillData] of Object.entries(dados.skills)) {
+                    let nColab = skillData.colab && skillData.colab.nota !== null ? skillData.colab.nota : '-';
+                    let nAval = skillData.aval && skillData.aval.nota !== null ? skillData.aval.nota : '-';
+
+                    // Média final por skill
+                    let skillFinalParts = [];
+                    if (nColab !== '-') skillFinalParts.push(parseFloat(nColab));
+                    if (nAval !== '-') skillFinalParts.push(parseFloat(nAval));
+                    let skillFinal = skillFinalParts.length > 0
+                        ? (skillFinalParts.reduce((a, b) => a + b, 0) / skillFinalParts.length).toFixed(2)
+                        : '-';
+
+                    let badgeColab = nColab !== '-' ? `<span class="badge-score" style="background: #f3e8ff; color: #7e22ce;">${nColab}</span>` : `<span style="color: #cbd5e1; font-weight:600;">-</span>`;
+                    let badgeAval = nAval !== '-' ? `<span class="badge-score" style="background: #eff6ff; color: #1d4ed8;">${nAval}</span>` : `<span style="color: #cbd5e1; font-weight:600;">-</span>`;
+                    let badgeFinal = skillFinal !== '-' ? `<span class="badge-score" style="background: #d1fae5; color: #065f46;">${skillFinal}</span>` : `<span style="color: #cbd5e1; font-weight:600;">-</span>`;
+
                     let breakdownHtml = '';
                     if (!data.is_own_report && skillData.aval && skillData.aval.breakdown && skillData.aval.breakdown.length > 0) {
                         const jsonStr = JSON.stringify(skillData.aval.breakdown).replace(/"/g, '&quot;');
@@ -655,49 +1094,80 @@
                         `;
                     }
 
-                    html += `
-                        <tr>
-                            <td data-label="Critério Avaliado" style="font-weight: 600; color: #0f172a;">${skillName}</td>
-                            <td data-label="Autoavaliação" style="text-align: center;">${badgeColab}</td>
-                            <td data-label="${is360 ? 'Média Pares' : 'Avaliadores'}" style="text-align: center;">
-                                <span>${badgeAval}${breakdownHtml}</span>
-                            </td>
-                        </tr>
-                    `;
+                    if (is90) {
+                        html += `
+                            <tr>
+                                <td data-label="Critério Avaliado" style="font-weight: 600; color: #0f172a;">${skillName}</td>
+                                <td data-label="${is360 ? 'Média Pares' : 'Avaliador'}" style="text-align: center;">
+                                    <span>${badgeAval}${breakdownHtml}</span>
+                                </td>
+                                <td data-label="Média Final" style="text-align: center; background: #f0fdf4;">${badgeFinal}</td>
+                            </tr>
+                        `;
+                    } else {
+                        html += `
+                            <tr>
+                                <td data-label="Critério Avaliado" style="font-weight: 600; color: #0f172a;">${skillName}</td>
+                                <td data-label="Autoavaliação" style="text-align: center;">${badgeColab}</td>
+                                <td data-label="${is360 ? 'Média Pares' : 'Avaliadores'}" style="text-align: center;">
+                                    <span>${badgeAval}${breakdownHtml}</span>
+                                </td>
+                                <td data-label="Média Final" style="text-align: center; background: #f0fdf4;">${badgeFinal}</td>
+                            </tr>
+                        `;
+                    }
                 }
-            }
 
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
 
             card.innerHTML = html;
             container.appendChild(card);
         }
 
-        // 4. Feedback Geral
+        // 4. Feedback Geral / Considerações Finais
         const fbContainer = document.getElementById('feedbackContainer');
         const fbText = document.getElementById('feedbackText');
 
-        const obsMaster = data.scores.med.comentarios;
+        const obsMaster = data.scores.med && data.scores.med.comentarios ? data.scores.med.comentarios : null;
         const obsAvaliado = data.scores.observacao_avaliado;
 
         let htmlContent = '';
 
         if (obsMaster) {
-            htmlContent += `<div style="margin-bottom: 25px;">
-                <span style="font-weight: 800; color: #be185d; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-check-double"></i> Feedback do Gestor / RH</span>
-                <p style="margin: 10px 0 0 0; background: #fdf2f8; padding: 15px 20px; border-radius: 12px; border: 1px solid #fbcfe8;">${obsMaster}</p>
+            htmlContent += `
+            <div class="obs-card-item" style="border: 1px solid #fbcfe8; border-left: 4px solid #db2777; border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; background: #fdf2f8; break-inside: avoid; page-break-inside: avoid;">
+                <div style="font-weight: 800; color: #9d174d; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; display: flex; align-items: center; gap: 7px;">
+                    <i class="fa-solid fa-check-double" style="color: #db2777;"></i> Feedback do Gestor / RH
+                </div>
+                <div style="color: #4a044e; font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap;">${obsMaster}</div>
             </div>`;
         }
 
         if (obsAvaliado) {
-            htmlContent += `<div>
-                <span style="font-weight: 800; color: #1d4ed8; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-comment-dots"></i> Auto-reflexão Geral</span>
-                <p style="margin: 10px 0 0 0; background: #eff6ff; padding: 15px 20px; border-radius: 12px; border: 1px solid #bfdbfe;">${obsAvaliado}</p>
+            htmlContent += `
+            <div class="obs-card-item" style="border: 1px solid #bfdbfe; border-left: 4px solid #2563eb; border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; background: #eff6ff; break-inside: avoid; page-break-inside: avoid;">
+                <div style="font-weight: 800; color: #1e40af; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; display: flex; align-items: center; gap: 7px;">
+                    <i class="fa-solid fa-comment-dots" style="color: #2563eb;"></i> Observação do Avaliado
+                </div>
+                <div style="color: #1e3a8a; font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap;">${obsAvaliado}</div>
             </div>`;
+        }
+
+        if (data.scores.observacoes_avaliadores && data.scores.observacoes_avaliadores.length > 0) {
+            data.scores.observacoes_avaliadores.forEach(obs => {
+                htmlContent += `
+                <div class="obs-card-item" style="border: 1px solid #a7f3d0; border-left: 4px solid #059669; border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; background: #ecfdf5; break-inside: avoid; page-break-inside: avoid;">
+                    <div style="font-weight: 800; color: #065f46; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; display: flex; align-items: center; gap: 7px;">
+                        <i class="fa-solid fa-user-tie" style="color: #059669;"></i> Observação do Avaliador (${obs.nome})
+                    </div>
+                    <div style="color: #064e3b; font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap;">${obs.texto}</div>
+                </div>`;
+            });
         }
 
         if (htmlContent) {
@@ -711,51 +1181,186 @@
         const aiContainer = document.getElementById('aiActionContainer');
         if (aiContainer) {
             let hasLowScores = false;
-            let isComplete = true; // Flag para verificar se todos responderam
-
+            let totalNotas = 0;
             for (const [compName, dados] of Object.entries(competencias)) {
                 for (const [skillName, skillData] of Object.entries(dados.skills)) {
                     let nAval = skillData.aval && skillData.aval.nota !== null ? parseFloat(skillData.aval.nota) : null;
                     let nColab = skillData.colab && skillData.colab.nota !== null ? parseFloat(skillData.colab.nota) : null;
 
-                    if (nAval !== null && nAval <= 3.0) {
+                    if (nAval !== null || nColab !== null) {
+                        totalNotas++;
+                    }
+
+                    if ((nAval !== null && nAval <= 3.0) || (nColab !== null && nColab <= 3.0)) {
                         hasLowScores = true;
                     }
-
-                    // Se não tem nota do avaliador ou do avaliado (colab), não está completo
-                    if (nAval === null || nColab === null) {
-                        isComplete = false;
-                    }
                 }
             }
-            if (hasLowScores) {
-                aiContainer.style.display = 'block';
 
-                const btnAi = document.getElementById('btnGerarPdiIa');
-                if (!isComplete) {
-                    btnAi.disabled = true;
-                    btnAi.style.opacity = '0.5';
-                    btnAi.style.cursor = 'not-allowed';
-                    btnAi.title = 'Aguarde a finalização de todas as respostas (Autoavaliação e Avaliadores) para gerar o PDI com Inteligência Artificial.';
+            let isComplete = totalNotas > 0;
+
+            const aiContainerDesc = document.getElementById('aiActionDesc');
+            
+            // Sempre exibe o container de IA
+            aiContainer.style.display = 'block';
+
+            if (aiContainerDesc) {
+                if (hasLowScores) {
+                    aiContainerDesc.innerText = 'Notamos que algumas competências estão com nota 3.0 ou inferior. Você pode gerar um PDI focado nestes gaps automaticamente.';
                 } else {
-                    btnAi.disabled = false;
-                    btnAi.style.opacity = '1';
-                    btnAi.style.cursor = 'pointer';
-                    btnAi.title = '';
+                    aiContainerDesc.innerText = 'Você pode gerar um Plano de Desenvolvimento com a IA para potencializar e aprimorar ainda mais as competências avaliadas.';
                 }
+            }
 
-                // Salvar dados globais para envio à IA
-                window.dadosParaIa = {
-                    avaliacao_id: data.avaliacao.id,
-                    colaborador_id: data.colaborador.id,
-                    colaborador_nome: data.colaborador.name,
-                    competencias: competencias
-                };
+            const btnAi = document.getElementById('btnGerarPdiIa');
+            if (!isComplete) {
+                btnAi.disabled = true;
+                btnAi.style.opacity = '0.5';
+                btnAi.style.cursor = 'not-allowed';
+                btnAi.title = 'Aguarde a finalização de todas as respostas (Autoavaliação e Avaliadores) para gerar o PDI com Inteligência Artificial.';
             } else {
-                aiContainer.style.display = 'none';
+                btnAi.disabled = false;
+                btnAi.style.opacity = '1';
+                btnAi.style.cursor = 'pointer';
+                btnAi.title = '';
+            }
+
+            // Salvar dados globais para envio à IA
+            window.dadosParaIa = {
+                avaliacao_id: data.avaliacao.id,
+                colaborador_id: data.colaborador.id,
+                colaborador_nome: data.colaborador.name,
+                competencias: competencias
+            };
+        }
+
+        // 6. Renderizar Histórico de Avaliações (apenas Gestor/Master/Admin)
+        const histContainer = document.getElementById('historicoContainer');
+        const histTableWrapper = document.getElementById('historicoTableWrapper');
+        if (histContainer && histTableWrapper) {
+            if (data.historico && data.historico.length > 0) {
+                histContainer.style.display = 'block';
+                let histHtml = `
+                    <table class="table-custom" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                        <thead>
+                            <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                                <th style="padding: 12px 16px; color: #475569; font-weight: 700; font-size: 0.85rem; text-transform: uppercase;">Data / Início</th>
+                                <th style="padding: 12px 16px; color: #475569; font-weight: 700; font-size: 0.85rem; text-transform: uppercase;">Campanha</th>
+                                <th style="text-align: center; padding: 12px 16px; color: #7c3aed; font-weight: 700; font-size: 0.85rem; text-transform: uppercase;">Autoavaliação</th>
+                                <th style="text-align: center; padding: 12px 16px; color: #2563eb; font-weight: 700; font-size: 0.85rem; text-transform: uppercase;">Avaliadores</th>
+                                <th style="text-align: center; padding: 12px 16px; color: #059669; font-weight: 700; font-size: 0.85rem; text-transform: uppercase;">Média Geral</th>
+                                <th style="text-align: center; padding: 12px 16px; color: #475569; font-weight: 700; font-size: 0.85rem; text-transform: uppercase;">Status</th>
+                                <th style="text-align: center; padding: 12px 16px; color: #475569; font-weight: 700; font-size: 0.85rem; text-transform: uppercase;">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                data.historico.forEach(h => {
+                    const isAtual = h.is_atual;
+                    const rowBg = isAtual ? 'background: #f0fdf4;' : '';
+                    const tagAtual = isAtual ? '<span style="background: #dcfce7; color: #15803d; font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; font-weight: 800; margin-left: 6px;">Em Exibição</span>' : '';
+                    
+                    histHtml += `
+                        <tr style="border-bottom: 1px solid #f1f5f9; ${rowBg}">
+                            <td data-label="Data" style="font-weight: 600; color: #334155; padding: 14px 16px;">${h.data_inicio}</td>
+                            <td data-label="Campanha" style="font-weight: 700; color: #0f172a; padding: 14px 16px;">
+                                ${h.titulo} ${tagAtual}
+                            </td>
+                            <td data-label="Auto" style="text-align: center; padding: 14px 16px;">
+                                ${h.media_auto !== null ? `<span class="badge-score" style="background: #f3e8ff; color: #7e22ce;">${h.media_auto}</span>` : '<span style="color:#cbd5e1; font-weight:600;">—</span>'}
+                            </td>
+                            <td data-label="Avaliadores" style="text-align: center; padding: 14px 16px;">
+                                ${h.media_avaliadores !== null ? `<span class="badge-score" style="background: #eff6ff; color: #1d4ed8;">${h.media_avaliadores}</span>` : '<span style="color:#cbd5e1; font-weight:600;">—</span>'}
+                            </td>
+                            <td data-label="Média Geral" style="text-align: center; padding: 14px 16px;">
+                                <span class="badge-score" style="background: #d1fae5; color: #065f46; font-weight: 800;">${h.media_geral}</span>
+                            </td>
+                            <td data-label="Status" style="text-align: center; padding: 14px 16px;">
+                                <span style="font-size: 0.8rem; font-weight: 600; color: #475569; background: #f1f5f9; padding: 3px 10px; border-radius: 12px;">${h.status}</span>
+                            </td>
+                            <td data-label="Ação" style="text-align: center; padding: 14px 16px;">
+                                ${!isAtual ? `
+                                    <button onclick="carregarHistoricoDireto(${h.avaliacao_id}, ${data.colaborador.id})" class="btn" style="background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 6px 14px; font-size: 0.82rem; border-radius: 8px; cursor: pointer; font-weight: 700; transition: all 0.2s;">
+                                        <i class="fa-solid fa-eye"></i> Abrir Relatório
+                                    </button>
+                                ` : '<span style="font-size: 0.82rem; font-weight: 700; color: #16a34a;"><i class="fa-solid fa-circle-check"></i> Aberto</span>'}
+                            </td>
+                        </tr>
+                    `;
+                });
+                histHtml += `</tbody></table>`;
+                histTableWrapper.innerHTML = histHtml;
+            } else {
+                histContainer.style.display = 'none';
             }
         }
+
+        // 7. Renderizar PDI Recente, se existir
+        const pdiContainer = document.getElementById('pdiReportContainer');
+        const pdiContent = document.getElementById('pdiReportContent');
+        if (data.pdi_recente) {
+            pdiContainer.style.display = 'block';
+            let acoesHtml = '';
+            
+            if (data.pdi_recente.acoes && data.pdi_recente.acoes.length > 0) {
+                acoesHtml = '<ul style="list-style: none; padding: 0; margin-top: 20px;">';
+                data.pdi_recente.acoes.forEach(a => {
+                    acoesHtml += `
+                        <li style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 15px;">
+                            <div style="background: ${a.concluida ? '#dcfce7' : '#f1f5f9'}; color: ${a.concluida ? '#16a34a' : '#64748b'}; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px;">
+                                <i class="fa-solid ${a.concluida ? 'fa-check' : 'fa-spinner'}"></i>
+                            </div>
+                            <div>
+                                <h4 style="margin: 0 0 5px 0; color: #0f172a; font-size: 1.05rem;">${a.titulo}</h4>
+                                ${a.descricao ? `<p style="margin: 0; color: #475569; font-size: 0.95rem;">${a.descricao}</p>` : ''}
+                            </div>
+                        </li>
+                    `;
+                });
+                acoesHtml += '</ul>';
+            } else {
+                acoesHtml = '<p style="color: #64748b; font-style: italic;">Nenhuma ação cadastrada neste PDI ainda.</p>';
+            }
+
+            pdiContent.innerHTML = `
+                <div style="background: #f8fafc; border-radius: 16px; padding: 25px; border: 1px solid #e2e8f0;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                        <h4 style="margin: 0; color: #0f172a; font-size: 1.3rem; font-weight: 800;">${data.pdi_recente.titulo}</h4>
+                        <span style="background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">Status: ${data.pdi_recente.status}</span>
+                    </div>
+                    ${data.pdi_recente.descricao ? `<p style="margin: 0 0 20px 0; color: #334155; line-height: 1.6;">${data.pdi_recente.descricao}</p>` : ''}
+                    
+                    <h5 style="margin: 0; color: #0f172a; font-size: 1.1rem; font-weight: 700; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;">Ações Propostas</h5>
+                    ${acoesHtml}
+                </div>
+            `;
+        } else {
+            pdiContainer.style.display = 'none';
+        }
     }
+
+    window.carregarHistoricoDireto = async function(avaliacaoId, colaboradorId) {
+        const selectAv = document.getElementById('avaliacao_id');
+        if (selectAv) selectAv.value = avaliacaoId;
+
+        document.getElementById('reportContent').style.display = 'none';
+        const loadingElem = document.getElementById('loading');
+        if (loadingElem) loadingElem.style.display = 'block';
+
+        try {
+            const url = `{{ route('relatorios.dados') }}?avaliacao_id=${avaliacaoId}&colaborador_id=${colaboradorId}`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('Erro ao buscar avaliação do histórico');
+            const data = await res.json();
+            renderReport(data);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (e) {
+            console.error(e);
+            alert(e.message);
+        } finally {
+            if (loadingElem) loadingElem.style.display = 'none';
+        }
+    };
 
     function gerarPdiIa() {
         if (!window.dadosParaIa || !window.dadosParaIa.colaborador_id) return;
@@ -789,11 +1394,10 @@
                     });
 
                     const data = await res.json();
-                    if (data.success && data.queued) {
-                        window.showAlert(data.message, 'Processando...', 'success');
-                    } else if (data.success) {
-                        // Fallback caso a API respondesse direto (não deveria mais acontecer)
+                    if (data.success && data.dados) {
                         abrirModalPdiIa(data.dados, colaboradorId, `Plano de Desenvolvimento: ${colaboradorNome}`);
+                    } else if (data.success && data.queued) {
+                        window.showAlert(data.message, 'Processando...', 'success');
                     } else {
                         throw new Error(data.error || 'Erro desconhecido');
                     }
@@ -864,6 +1468,24 @@
         }
         
         document.getElementById('modalNotasAvaliadores').style.display = 'flex';
+    };
+
+    window.imprimirRelatorioPdf = function() {
+        const originalTitle = document.title;
+        // Pega o nome do colaborador a partir do card principal
+        const colabNameElement = document.querySelector('.report-colab-name') || document.querySelector('h2.mb-1');
+        let colabName = colabNameElement ? colabNameElement.innerText.trim() : 'Relatorio';
+        
+        // Remove caracteres estranhos
+        colabName = colabName.replace(/[^a-zA-Z0-9 -]/g, '').replace(/ /g, '_');
+        
+        document.title = `Relatorio_Avaliacao_${colabName}`;
+        window.print();
+        
+        // Retorna o titulo original depois da janela de print abrir
+        setTimeout(() => {
+            document.title = originalTitle;
+        }, 1000);
     };
 </script>
 

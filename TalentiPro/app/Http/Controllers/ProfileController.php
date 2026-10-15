@@ -33,6 +33,12 @@ class ProfileController extends Controller
             'telefone' => 'nullable|string|max:25',
         ];
 
+        // Se for Master, pode enviar ou remover o logotipo da empresa
+        if ($isMaster) {
+            $rules['empresa_logo'] = 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:3072';
+            $rules['remover_logo'] = 'nullable|boolean';
+        }
+
         // Apenas Master pode alterar a senha no perfil
         if ($isMaster && $request->filled('password')) {
             $rules['password'] = 'required|string|min:6|confirmed';
@@ -46,6 +52,26 @@ class ProfileController extends Controller
         
         // Normaliza telefone (apenas números)
         $user->telefone = $request->telefone ? preg_replace('/\D/', '', $request->telefone) : null;
+
+        // Se for Master e enviou logotipo da empresa
+        if ($isMaster && $user->empresa_id) {
+            $empresa = \App\Models\Empresa::find($user->empresa_id);
+            if ($empresa) {
+                if ($request->hasFile('empresa_logo')) {
+                    if ($empresa->logo && \Illuminate\Support\Facades\Storage::disk('public')->exists($empresa->logo)) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($empresa->logo);
+                    }
+                    $empresa->logo = $request->file('empresa_logo')->store('empresas/logos', 'public');
+                    $empresa->save();
+                } elseif ($request->boolean('remover_logo')) {
+                    if ($empresa->logo && \Illuminate\Support\Facades\Storage::disk('public')->exists($empresa->logo)) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($empresa->logo);
+                    }
+                    $empresa->logo = null;
+                    $empresa->save();
+                }
+            }
+        }
 
         // Se for Master e preencheu senha, atualiza
         if ($isMaster && $request->filled('password')) {

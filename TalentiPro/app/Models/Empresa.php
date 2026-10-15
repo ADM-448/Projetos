@@ -32,6 +32,17 @@ class Empresa extends Model
         return $this->hasMany(User::class);
     }
 
+    public function users()
+    {
+        return $this->usuarios();
+    }
+
+    public function consultores()
+    {
+        return $this->belongsToMany(User::class, 'consultor_empresas', 'empresa_id', 'user_id')
+            ->withTimestamps();
+    }
+
     public function configuracaoGoogle()
     {
         return $this->hasOne(ConfiguracaoGoogle::class);

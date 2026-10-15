@@ -53,8 +53,8 @@ class GerarPdiIaJobsTest extends TestCase
 
     public function test_gerar_pdi_avaliacao_job_processa_corretamente(): void
     {
-        // Mock do GeminiTextService
-        $this->mock(GeminiTextService::class, function (MockInterface $mock) {
+        // Mock do AiManager
+        $this->mock(\App\Services\AI\AiManager::class, function (MockInterface $mock) {
             $mock->shouldReceive('gerarPdiAvaliacao')
                 ->once()
                 ->andReturn([
@@ -114,8 +114,8 @@ class GerarPdiIaJobsTest extends TestCase
 
     public function test_gerar_pdi_clima_job_processa_corretamente(): void
     {
-        // Mock do GeminiTextService
-        $this->mock(GeminiTextService::class, function (MockInterface $mock) {
+        // Mock do AiManager
+        $this->mock(\App\Services\AI\AiManager::class, function (MockInterface $mock) {
             $mock->shouldReceive('gerarPdiClima')
                 ->once()
                 ->andReturn([
@@ -165,9 +165,23 @@ class GerarPdiIaJobsTest extends TestCase
         ]);
     }
 
-    public function test_controller_avaliacao_despacha_job_para_fila(): void
+    public function test_controller_avaliacao_gera_pdi_ia_com_sucesso(): void
     {
-        Bus::fake();
+        $this->mock(\App\Services\AI\AiManager::class, function (MockInterface $mock) {
+            $mock->shouldReceive('gerarPdiAvaliacao')
+                ->once()
+                ->andReturn([
+                    'success' => true,
+                    'dados' => [
+                        'titulo' => 'PDI de Comunicação',
+                        'descricao' => 'Descrição do plano',
+                        'prazo' => '2026-12-31',
+                        'acoes' => [
+                            ['titulo' => 'Ação 1', 'descricao' => 'Descrição 1']
+                        ]
+                    ]
+                ]);
+        });
 
         $response = $this->actingAs($this->master)->postJson(route('avaliacoes.gerar_pdi_ia'), [
             'avaliacao_id' => 1, // Controller não valida DB
@@ -185,9 +199,19 @@ class GerarPdiIaJobsTest extends TestCase
         ]);
 
         $response->assertStatus(200);
-        $response->assertJson(['queued' => true]);
-
-        Bus::assertDispatched(GerarPdiAvaliacaoJob::class);
+        $response->assertJson(['success' => true]);
+        $response->assertJsonStructure([
+            'success',
+            'dados' => [
+                'titulo',
+                'descricao',
+                'prazo',
+                'acoes' => [
+                    '*' => ['titulo', 'descricao']
+                ]
+            ],
+            'message'
+        ]);
     }
 
     public function test_controller_clima_despacha_job_para_fila(): void

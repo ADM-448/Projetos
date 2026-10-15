@@ -60,14 +60,6 @@ class ProcessScheduledAssessments extends Command
                         'Avaliação',
                         'responder'
                     );
-
-                    app(\App\Services\EmailService::class)->notificar(
-                        $avaliador->id,
-                        "Autoavaliação Pendente: {$avaliacao->titulo}",
-                        "Olá! Você tem uma autoavaliação aguardando suas respostas na campanha de avaliação de desempenho.",
-                        route('avaliacoes.minhas'),
-                        'Acessar Minhas Avaliações'
-                    );
                 } elseif ($participante->tipo === 'gestor') {
                     app(\App\Services\AtividadeService::class)->registrar(
                         $avaliacao->empresa_id,
@@ -76,17 +68,9 @@ class ProcessScheduledAssessments extends Command
                         "Você foi designado para avaliar {$avaliado->name} na campanha: {$avaliacao->titulo}.",
                         'fa-solid fa-list-check',
                         '#e53e3e',
-                        route('avaliacoes.show', $avaliacao->id),
+                        route('avaliacoes.minhas'),
                         'Avaliação',
                         'avaliar'
-                    );
-
-                    app(\App\Services\EmailService::class)->notificar(
-                        $avaliador->id,
-                        "Nova Avaliação Pendente",
-                        "Você foi designado como avaliador para o(a) colaborador(a) {$avaliado->name} na campanha {$avaliacao->titulo}.",
-                        route('avaliacoes.show', $avaliacao->id),
-                        'Acessar Avaliação'
                     );
                 } elseif ($participante->tipo === 'mediador') {
                     app(\App\Services\AtividadeService::class)->registrar(
@@ -96,17 +80,9 @@ class ProcessScheduledAssessments extends Command
                         "Você foi designado como mediador para acompanhar a avaliação de {$avaliado->name} na campanha: {$avaliacao->titulo}.",
                         'fa-solid fa-people-arrows',
                         '#f39c12',
-                        route('avaliacoes.show', $avaliacao->id),
+                        route('avaliacoes.minhas'),
                         'Avaliação',
                         'acompanhar'
-                    );
-
-                    app(\App\Services\EmailService::class)->notificar(
-                        $avaliador->id,
-                        "Mediação de Avaliação",
-                        "Você foi designado como mediador para acompanhar a avaliação de {$avaliado->name} na campanha {$avaliacao->titulo}.",
-                        route('avaliacoes.show', $avaliacao->id),
-                        'Acessar Avaliação'
                     );
                 }
             }
@@ -128,23 +104,16 @@ class ProcessScheduledAssessments extends Command
                 ->get();
 
             foreach ($participacoes as $participacao) {
-                \App\Models\Atividade::create([
-                    'user_id'    => $participacao->user_id,
-                    'empresa_id' => $survey->empresa_id,
-                    'icone'      => 'fa-solid fa-heart-pulse',
-                    'cor'        => '#ec4899',
-                    'titulo'     => 'Pesquisa de Clima Ativa',
-                    'descricao'  => 'Uma nova pesquisa de clima foi aberta. Sua resposta é 100% anônima!',
-                    'url'        => route('clima.responder', $survey->id),
-                    'lida'       => false,
-                ]);
-
-                app(\App\Services\EmailService::class)->notificar(
+                app(\App\Services\AtividadeService::class)->registrar(
+                    $survey->empresa_id,
                     $participacao->user_id,
-                    "Nova Pesquisa de Clima Ativa",
-                    "Uma nova pesquisa de clima foi aberta. Sua resposta é 100% anônima e muito importante para nós!",
+                    'Pesquisa de Clima Ativa',
+                    'Uma nova pesquisa de clima foi aberta. Sua resposta é 100% anônima e muito importante para nós!',
+                    'fa-solid fa-heart-pulse',
+                    '#ec4899',
                     route('clima.responder', $survey->id),
-                    'Responder Pesquisa'
+                    'Pesquisa de Clima',
+                    'responder'
                 );
             }
         }

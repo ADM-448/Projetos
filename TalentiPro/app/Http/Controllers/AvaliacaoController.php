@@ -22,7 +22,16 @@ class AvaliacaoController extends Controller
     {
         Gate::authorize('viewAny', Avaliacao::class);
 
+        $templates = Avaliacao::where('empresa_id', auth()->user()->empresa_id)
+            ->where('is_template', true)
+            ->with(['competencias.skills'])
+            ->withCount(['campanhas'])
+            ->orderBy('titulo')
+            ->get();
+
         $query = Avaliacao::where('empresa_id', auth()->user()->empresa_id)
+            ->where('is_template', false)
+            ->with(['template'])
             ->withCount(['participantes as avaliados_count' => function ($query) {
                 $query->select(\Illuminate\Support\Facades\DB::raw('count(distinct avaliado_id)'));
             }])
@@ -34,15 +43,20 @@ class AvaliacaoController extends Controller
 
         $avaliacoes = $query->get();
 
-        return view('avaliacoes.index', compact('avaliacoes'));
+        return view('avaliacoes.index', compact('templates', 'avaliacoes'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         Gate::authorize('create', Avaliacao::class);
 
-        $competencias = Competencia::where('empresa_id', auth()->user()->empresa_id)->get();
-        
+        $templates = Avaliacao::where('empresa_id', auth()->user()->empresa_id)
+            ->where('is_template', true)
+            ->with('competencias.skills')
+            ->get();
+
+        $selectedTemplateId = $request->get('template_id');
+
         $colaboradoresQuery = User::where('empresa_id', auth()->user()->empresa_id);
         if (auth()->user()->perfil_acesso->value === 'gestor') {
             $colaboradoresQuery->where(function($q) {
@@ -57,7 +71,17 @@ class AvaliacaoController extends Controller
         $cargos = \App\Models\Cargo::where('empresa_id', auth()->user()->empresa_id)->get();
 
         $avaliacao = new Avaliacao();
-        return view('avaliacoes.create', compact('competencias', 'colaboradores', 'gestores', 'departamentos', 'cargos', 'avaliacao'));
+        if ($selectedTemplateId) {
+            $avaliacao->template_id = $selectedTemplateId;
+            $selectedTemplate = $templates->firstWhere('id', $selectedTemplateId);
+            if ($selectedTemplate) {
+                $avaliacao->titulo = $selectedTemplate->titulo;
+                $avaliacao->grau = $selectedTemplate->grau;
+                $avaliacao->descricao = $selectedTemplate->descricao;
+            }
+        }
+
+        return view('avaliacoes.create', compact('templates', 'selectedTemplateId', 'colaboradores', 'gestores', 'departamentos', 'cargos', 'avaliacao'));
     }
 
     public function store(StoreAvaliacaoRequest $request)
@@ -108,7 +132,12 @@ class AvaliacaoController extends Controller
     {
         Gate::authorize('update', $avaliacao);
 
-        $competencias = Competencia::where('empresa_id', auth()->user()->empresa_id)->get();
+        $templates = Avaliacao::where('empresa_id', auth()->user()->empresa_id)
+            ->where('is_template', true)
+            ->with('competencias.skills')
+            ->get();
+
+        $selectedTemplateId = $avaliacao->template_id;
         
         $colaboradoresQuery = User::where('empresa_id', auth()->user()->empresa_id);
         if (auth()->user()->perfil_acesso->value === 'gestor') {
@@ -124,9 +153,9 @@ class AvaliacaoController extends Controller
         $cargos = \App\Models\Cargo::where('empresa_id', auth()->user()->empresa_id)->get();
 
         // Carrega as dependências necessárias para a view preencher os dados
-        $avaliacao->load(['competencias', 'participantes.avaliado', 'participantes.avaliador']);
+        $avaliacao->load(['competencias', 'participantes.avaliado', 'participantes.avaliador', 'template']);
 
-        return view('avaliacoes.create', compact('competencias', 'colaboradores', 'gestores', 'departamentos', 'cargos', 'avaliacao'));
+        return view('avaliacoes.create', compact('templates', 'selectedTemplateId', 'colaboradores', 'gestores', 'departamentos', 'cargos', 'avaliacao'));
     }
 
     public function update(UpdateAvaliacaoRequest $request, Avaliacao $avaliacao)
@@ -141,22 +170,11 @@ class AvaliacaoController extends Controller
 
     public function destroy(Avaliacao $avaliacao)
     {
-        if (!Gate::allows('delete', $avaliacao)) {
-            \Illuminate\Support\Facades\Log::error('Falha no delete', [
-                'user_id' => auth()->id(),
-                'user_empresa' => auth()->user()->empresa_id,
-                'avaliacao_empresa' => $avaliacao->empresa_id,
-                'user_perfil' => auth()->user()->perfil_acesso,
-            ]);
-            abort(403, 'Você não tem permissão para excluir esta avaliação.');
-        }
+        Gate::authorize('delete', $avaliacao);
 
-        // Opcional: mover isso para o AvaliacaoService
-        $avaliacao->participantes()->delete();
-        $avaliacao->competencias()->detach();
-        $avaliacao->delete();
+        $this->avaliacaoService->excluir($avaliacao);
 
-        return redirect()->route('avaliacoes.index')->with('success', 'Avaliação excluída com sucesso!');
+        return redirect()->route('avaliacoes.index', ['tab' => 'campanhas'])->with('success', 'Avaliação excluída com sucesso!');
     }
 
     public function mediar(Avaliacao $avaliacao, User $avaliado)
@@ -218,7 +236,7 @@ class AvaliacaoController extends Controller
             auth()->id()
         );
 
-        return redirect()->route('avaliacoes.show', $avaliacao->id)
+        return redirect()->route('avaliacoes.index')
             ->with('success', 'Avaliação consolidada e fechada com sucesso!');
     }
 }

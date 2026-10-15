@@ -14,7 +14,7 @@ class CompetenciaPolicy
      */
     public function viewAny(User $user): bool
     {
-        return in_array($user->perfil_acesso, [UserRole::MASTER, UserRole::GESTOR]);
+        return in_array($user->perfil_acesso, [UserRole::MASTER, UserRole::GESTOR, UserRole::CONSULTOR]);
     }
 
     /**

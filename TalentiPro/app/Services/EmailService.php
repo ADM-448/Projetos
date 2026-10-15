@@ -35,6 +35,21 @@ class EmailService
                 return;
             }
 
+            // Converter links internos para deep links de login
+            if ($link) {
+                $appUrl = config('app.url');
+                if (str_starts_with($link, $appUrl)) {
+                    $parsed = parse_url($link);
+                    $path = $parsed['path'] ?? '';
+                    $query = isset($parsed['query']) ? '?' . $parsed['query'] : '';
+                    $relativeUrl = ltrim($path . $query, '/');
+                    
+                    if ($relativeUrl !== 'login') {
+                        $link = route('login') . '?redirect_to=/' . urlencode($relativeUrl);
+                    }
+                }
+            }
+
             // Despacha para a fila (background)
             SendEmailNotificationJob::dispatch($email, $nome, $assunto, $mensagem, $link, $textoBotao);
 

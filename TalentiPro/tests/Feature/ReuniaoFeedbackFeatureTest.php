@@ -374,7 +374,7 @@ class ReuniaoFeedbackFeatureTest extends TestCase
     }
 
     #[Test]
-    public function colaborador_visualiza_relatorio_da_propria_reuniao(): void
+    public function colaborador_nao_visualiza_resumo_da_ia_da_propria_reuniao(): void
     {
         ['empresa' => $empresa, 'gestor' => $gestor, 'colaborador' => $colaborador] = $this->criarEmpresaComUsuarios();
         $reuniao  = $this->criarReuniao($gestor, $colaborador, ['status' => 'concluido']);
@@ -382,7 +382,8 @@ class ReuniaoFeedbackFeatureTest extends TestCase
 
         $response = $this->actingAs($colaborador)->get(route('reunioes.show', $reuniao));
 
-        $response->assertStatus(200);
+        // Regra de negócio: o resumo da IA é restrito a gestores/admins.
+        $response->assertStatus(403);
     }
 
     #[Test]

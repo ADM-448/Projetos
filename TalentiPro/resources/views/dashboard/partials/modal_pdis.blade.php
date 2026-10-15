@@ -8,16 +8,16 @@
         @foreach($pdis as $pdi)
             <div style="background: white; border: 1px solid #edf2f7; border-radius: 12px; padding: 16px 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
-                    <div>
-                        <h4 style="font-size: 1.05rem; font-weight: 700; color: #2d3748; margin: 0 0 5px 0;">
+                    <div style="min-width: 0;">
+                        <h4 style="font-size: 1.05rem; font-weight: 700; color: #2d3748; margin: 0 0 5px 0; word-break: break-word;">
                             <i class="fa-solid fa-bullseye" style="color: #6a4c7c; margin-right: 8px;"></i>
                             {{ $pdi->colaborador->name ?? 'Usuário Removido' }}
                         </h4>
-                        <p style="font-size: 0.85rem; color: #718096; margin: 0; padding-left: 25px;">
+                        <p style="font-size: 0.85rem; color: #718096; margin: 0; padding-left: 25px; word-break: break-word;">
                             {{ $pdi->titulo }}
                         </p>
                     </div>
-                    <span style="font-size: 0.75rem; color: #a0aec0; font-weight: 600; background: #f7fafc; padding: 4px 8px; border-radius: 6px;">
+                    <span style="display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; font-size: 0.75rem; color: #a0aec0; font-weight: 600; background: #f7fafc; padding: 4px 8px; border-radius: 6px;">
                         Prazo: {{ $pdi->data_fim->format('d/m/Y') }}
                     </span>
                 </div>

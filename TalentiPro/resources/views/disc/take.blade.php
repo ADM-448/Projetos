@@ -12,16 +12,19 @@
 <style>
 .disc-btn-group {
     display: flex;
-    gap: 6px;
+    gap: 4px;
     flex-shrink: 0;
+    width: auto;
+    flex-wrap: nowrap;
 }
 .disc-btn {
-    width: 36px;
-    height: 36px;
+    flex: none;
+    width: 34px;
+    height: 34px;
     border-radius: 8px;
     border: 2px solid transparent;
     font-weight: 800;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -29,6 +32,7 @@
     transition: transform 0.1s, box-shadow 0.2s, opacity 0.2s;
     opacity: 0.35;
     color: white;
+    padding: 0;
 }
 .disc-btn:hover { opacity: 0.65; transform: scale(1.08); }
 .disc-btn.selected { opacity: 1; box-shadow: 0 0 0 3px rgba(0,0,0,0.18); transform: scale(1.12); }
@@ -42,30 +46,18 @@
 
 .disc-option-row {
     display: flex;
-    flex-direction: column; /* Coloca o texto em cima e botões embaixo sempre */
-    justify-content: center;
+    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
-    text-align: center;
-    padding: 14px 12px;
+    text-align: left;
+    padding: 8px;
     background: #fafbfc;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
-    gap: 12px;
+    gap: 6px;
 }
 
 @media (max-width: 640px) {
-    .disc-option-row {
-        /* No celular continua em coluna, mas as coisas esticam */
-    }
-    .disc-btn-group {
-        width: 100%;
-        justify-content: center;
-        gap: 10px;
-    }
-    .disc-btn {
-        flex: 1;
-        height: 40px;
-    }
     .disc-card-padding {
         padding: 15px !important;
     }
@@ -77,15 +69,28 @@
         justify-content: center;
     }
 }
+
+@keyframes pulseAttention {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.7); }
+    50% { transform: scale(1.02); box-shadow: 0 0 0 15px rgba(229, 62, 62, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(229, 62, 62, 0); }
+}
 </style>
 
 <div style="margin-bottom: 28px;">
     <div style="text-align: center; max-width: 600px; margin: 0 auto; padding: 0 10px;">
         <h1 style="font-size: 1.5rem; font-weight: 800; color: #2d3748; margin-bottom: 8px; text-align: center;"><i class="fa-solid fa-puzzle-piece" style="color: #6a4c7c;"></i> Avaliação Comportamental DISC</h1>
-        <p style="color: #64748b; font-size: 0.9rem; line-height: 1.5;">
-            Para cada bloco abaixo, distribua as notas <strong>1, 2, 3 e 4</strong> para as opções. <br>
-            A nota <strong style="color:#38a169;">4</strong> é a que <strong>mais descreve</strong> você, e a nota <strong style="color:#e53e3e;">1</strong> é a que <strong>menos descreve</strong> você.
-        </p>
+        
+        <div style="background: linear-gradient(135deg, #e53e3e, #d69e2e); padding: 18px 25px; border-radius: 12px; color: white; box-shadow: 0 8px 20px rgba(229, 62, 62, 0.4); margin-top: 15px; margin-bottom: 10px; animation: pulseAttention 2.5s infinite;">
+            <p style="font-size: 1.25rem; font-weight: 900; line-height: 1.3; margin: 0; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); text-transform: uppercase;">
+                <i class="fa-solid fa-triangle-exclamation" style="margin-right: 8px;"></i> Atenção: Não repita as notas!
+            </p>
+            <p style="font-size: 1.05rem; font-weight: 600; line-height: 1.5; margin: 10px 0 0 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">
+                Em cada bloco, você deve distribuir obrigatoriamente as notas <strong>1, 2, 3 e 4</strong>.<br>
+                <span style="display:inline-block; margin-top:5px;">A nota <strong style="background: white; color: #38a169; padding: 2px 8px; border-radius: 6px; font-size: 1.1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">4</strong> é a que <strong>MAIS DESCREVE</strong> você.</span><br>
+                <span style="display:inline-block; margin-top:5px;">A nota <strong style="background: white; color: #e53e3e; padding: 2px 8px; border-radius: 6px; font-size: 1.1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">1</strong> é a que <strong>MENOS DESCREVE</strong> você.</span>
+            </p>
+        </div>
         <div style="display:flex; gap:10px; margin-top:10px; align-items:center; justify-content:center; flex-wrap: wrap;">
             <span style="display:flex;align-items:center;gap:5px;font-size:0.82rem;font-weight:700;color:#e53e3e;"><span style="background:#e53e3e;color:white;border-radius:5px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;">1</span> Menos descreve</span>
             <span style="display:flex;align-items:center;gap:5px;font-size:0.82rem;font-weight:700;color:#d69e2e;"><span style="background:#d69e2e;color:white;border-radius:5px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;">2</span></span>
@@ -104,15 +109,15 @@
 <form action="{{ route('disc.store') }}" method="POST" id="disc-form">
     @csrf
     
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr)); gap: 20px;">
         @foreach($questions as $question)
         <div class="form-card disc-card-padding" id="block-{{ $question->id }}" style="padding: 22px; border-radius: 12px; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 2px solid #f0f2f5; transition: border-color 0.3s;">
             <h3 style="font-size: 1.05rem; font-weight: 800; color: #2d3748; margin-bottom: 15px; border-bottom: 1px solid #edf2f7; padding-bottom: 10px;">{{ $question->title }}</h3>
             
             <div style="display: flex; flex-direction: column; gap: 10px;">
                 @foreach($question->options as $option)
-                <div class="disc-option-row">
-                    <span style="color: #4a5568; font-weight: 600; font-size: 0.92rem;">{{ $option->text }}</span>
+                <div class="disc-option-row" style="flex-wrap: wrap;">
+                    <span style="color: #4a5568; font-weight: 600; font-size: 0.95rem; flex: 1; text-align: left; padding-right: 6px; line-height: 1.3; min-width: 120px;">{{ $option->text }}</span>
                     
                     {{-- Hidden input stores the selected value --}}
                     <input type="hidden" name="responses[{{ $question->id }}][{{ $option->id }}]" id="inp-{{ $option->id }}" value="">

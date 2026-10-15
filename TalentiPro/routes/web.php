@@ -16,6 +16,7 @@ use App\Http\Controllers\PdiController;
 use App\Http\Controllers\SolicitacaoController;
 use App\Http\Controllers\GoogleOAuthController;
 use App\Http\Controllers\ReuniaoFeedbackController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // ==========================================
@@ -42,19 +43,33 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
+// Rotas Públicas do DISC (Formulário Externo)
+Route::get('/disc/f/{token_ou_id}', [\App\Http\Controllers\DiscAssessmentController::class, 'createExternal'])->name('disc.external');
+Route::post('/disc/f/{token_ou_id}', [\App\Http\Controllers\DiscAssessmentController::class, 'storeExternal'])->name('disc.storeExternal');
+Route::get('/disc/obrigado', [\App\Http\Controllers\DiscAssessmentController::class, 'thanksExternal'])->name('disc.thanks');
+
 // Rotas Protegidas (Exigem Autenticação)
 Route::middleware(['auth', 'empresa.ativa'])->group(function () {
 
     // Rota de Logout (POST obrigatório por segurança)
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Dashboard do Tenant (Master, Gestor, Colaborador)
+    // Dashboard do Tenant (Master, Gestor, Colaborador, Consultor)
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard')
-        ->middleware('role:master,gestor,colaborador');
+        ->middleware('role:master,gestor,colaborador,consultor');
+
+    // Hub de Seleção de Empresa & Troca de Contexto (Apenas Consultor)
+    Route::get('/consultor/empresas', [\App\Http\Controllers\ConsultorContextController::class, 'index'])
+        ->name('consultor.empresas.hub')
+        ->middleware('role:consultor');
+
+    Route::post('/consultor/selecionar-empresa', [\App\Http\Controllers\ConsultorContextController::class, 'selecionarEmpresa'])
+        ->name('consultor.selecionar-empresa')
+        ->middleware('role:consultor');
 
     // APIs Internas do Dashboard (Modais)
-    Route::middleware('role:master,gestor')->group(function () {
+    Route::middleware('role:master,gestor,consultor')->group(function () {
         Route::get('/dashboard/api/avaliacoes-ativas', [DashboardController::class, 'apiAvaliacoesAtivas'])->name('dashboard.api.avaliacoes-ativas');
         Route::get('/dashboard/api/pdis-pendentes', [DashboardController::class, 'apiPdisPendentes'])->name('dashboard.api.pdis-pendentes');
     });
@@ -67,9 +82,10 @@ Route::middleware(['auth', 'empresa.ativa'])->group(function () {
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'adminIndex'])->name('dashboard');
         
-        // Rotas de gestão de tenants com throttle restritivo para escrita
+        // Rotas de gestão de tenants e consultores
         Route::middleware('throttle:30,1')->group(function () {
             Route::resource('empresas', EmpresaController::class)->except(['show']);
+            Route::resource('consultores', \App\Http\Controllers\ConsultorController::class);
         });
     });
 
@@ -79,19 +95,31 @@ Route::middleware(['auth', 'empresa.ativa'])->group(function () {
     Route::get('api/relatorios/dados', [\App\Http\Controllers\AvaliacaoRelatorioController::class, 'getDadosRelatorio'])->name('relatorios.dados');
     Route::get('avaliacoes/relatorios/pdf', [\App\Http\Controllers\AvaliacaoRelatorioController::class, 'exportarPdf'])->name('relatorios.exportar.pdf');
 
-    // Rotas de Gestão de RH (Apenas Master e Gestor)
-    Route::middleware(['role:master,gestor'])->group(function () {
-
-        // Rotas de LEITURA — throttle generoso (120 req/min)
-        // Protege contra raspagem e crawlers sem prejudicar uso normal
+    // Rotas de LEITURA de RH e Relatórios (Master, Gestor e Consultor)
+    Route::middleware(['role:master,gestor,consultor'])->group(function () {
         Route::middleware('throttle:120,1')->group(function () {
             Route::get('departamentos', [DepartamentoController::class, 'index'])->name('departamentos.index');
             Route::get('cargos', [CargoController::class, 'index'])->name('cargos.index');
             Route::get('colaboradores', [ColaboradorController::class, 'index'])->name('colaboradores.index');
+            Route::get('competencias', [CompetenciaController::class, 'index'])->name('competencias.index');
+            Route::get('competencias/{competencia}/skills', [SkillController::class, 'index'])->name('skills.index');
         });
 
+        // Relatórios de Avaliações da Equipe
+        Route::get('avaliacoes/relatorios', [\App\Http\Controllers\AvaliacaoRelatorioController::class, 'index'])->name('avaliacoes.relatorios');
+        
+        // Modelos de Avaliação (Visualização)
+        Route::get('avaliacoes/templates', [\App\Http\Controllers\AvaliacaoTemplateController::class, 'index'])->name('avaliacoes.templates.index');
+        Route::get('avaliacoes/templates/{template}', [\App\Http\Controllers\AvaliacaoTemplateController::class, 'show'])->name('avaliacoes.templates.show');
+        
+        // Mediação (Visualização dos dados de fechamento)
+        Route::get('avaliacoes/{avaliacao}/mediar/{avaliado}', [AvaliacaoController::class, 'mediar'])->name('avaliacoes.mediar');
+    });
+
+    // Rotas de ESCRITA de RH (Apenas Master e Gestor)
+    Route::middleware(['role:master,gestor'])->group(function () {
+
         // Rotas de ESCRITA — throttle restritivo (30 req/min)
-        // Protege criação, edição e exclusão contra abuso automatizado
         Route::middleware('throttle:30,1')->group(function () {
             Route::resource('departamentos', DepartamentoController::class)->except(['index']);
             Route::resource('cargos', CargoController::class)->except(['index']);
@@ -100,21 +128,25 @@ Route::middleware(['auth', 'empresa.ativa'])->group(function () {
             Route::resource('colaboradores', ColaboradorController::class)->except(['index']);
         });
 
-        // Competências e Skills
+        // Competências e Skills (Escrita)
         Route::post('competencias/importar', [CompetenciaController::class, 'importar'])->name('competencias.importar');
-        Route::resource('competencias', CompetenciaController::class)->except(['show', 'create', 'edit']);
-        Route::get('competencias/{competencia}/skills', [SkillController::class, 'index'])->name('skills.index');
+        Route::post('competencias', [CompetenciaController::class, 'store'])->name('competencias.store');
+        Route::put('competencias/{competencia}', [CompetenciaController::class, 'update'])->name('competencias.update');
+        Route::delete('competencias/{competencia}', [CompetenciaController::class, 'destroy'])->name('competencias.destroy');
         Route::post('competencias/{competencia}/skills', [SkillController::class, 'store'])->name('skills.store');
         Route::delete('competencias/{competencia}/skills/{skill}', [SkillController::class, 'destroy'])->name('skills.destroy');
-
-        // Relatórios de Avaliações (Equipe)
-        Route::get('avaliacoes/relatorios', [\App\Http\Controllers\AvaliacaoRelatorioController::class, 'index'])->name('avaliacoes.relatorios');
         
-        // Avaliações (Gestão)
+        // Modelos de Avaliação (Escrita)
+        Route::get('avaliacoes/templates/create', [\App\Http\Controllers\AvaliacaoTemplateController::class, 'create'])->name('avaliacoes.templates.create');
+        Route::post('avaliacoes/templates', [\App\Http\Controllers\AvaliacaoTemplateController::class, 'store'])->name('avaliacoes.templates.store');
+        Route::get('avaliacoes/templates/{template}/edit', [\App\Http\Controllers\AvaliacaoTemplateController::class, 'edit'])->name('avaliacoes.templates.edit');
+        Route::put('avaliacoes/templates/{template}', [\App\Http\Controllers\AvaliacaoTemplateController::class, 'update'])->name('avaliacoes.templates.update');
+        Route::delete('avaliacoes/templates/{template}', [\App\Http\Controllers\AvaliacaoTemplateController::class, 'destroy'])->name('avaliacoes.templates.destroy');
+
+        // Avaliações (Gestão e Escrita)
         Route::resource('avaliacoes', AvaliacaoController::class)->parameters([
             'avaliacoes' => 'avaliacao'
-        ]);
-        Route::get('avaliacoes/{avaliacao}/mediar/{avaliado}', [AvaliacaoController::class, 'mediar'])->name('avaliacoes.mediar');
+        ])->except(['index']);
         Route::post('avaliacoes/{avaliacao}/mediar/{avaliado}', [AvaliacaoController::class, 'salvarFechamento'])->name('avaliacoes.salvar-fechamento');
         
         // IA para Relatórios
@@ -143,10 +175,25 @@ Route::middleware(['auth', 'empresa.ativa'])->group(function () {
     Route::post('/auth/google/disconnect', [GoogleOAuthController::class, 'disconnect'])->name('google.disconnect');
 
     // Reuniões de Feedback (Google Meet / IA)
+    // Gravação ativa do usuário (widget global) — deve vir antes do resource
+    Route::get('/reunioes/gravacao/ativa', [ReuniaoFeedbackController::class, 'gravacaoAtiva'])->name('reunioes.gravacao.ativa');
     Route::resource('reunioes', ReuniaoFeedbackController::class)->parameters([
         'reunioes' => 'reuniao'
-    ]);
-    Route::get('/reunioes/{reuniao}/sala',                  [ReuniaoFeedbackController::class, 'sala'])->name('reunioes.sala');
+    ])->missing(function (Request $request) {
+        return redirect()->route('reunioes.index')->with('error', 'Reunião não encontrada ou já foi excluída.');
+    });
+    
+    Route::get('/reunioes/{reuniao}/sala',                  [ReuniaoFeedbackController::class, 'sala'])
+        ->name('reunioes.sala')
+        ->missing(function (Request $request) {
+            return redirect()->route('reunioes.index')->with('error', 'Reunião não encontrada ou já foi excluída.');
+        });
+    Route::get('/reunioes/{reuniao}/gravador',              [ReuniaoFeedbackController::class, 'gravador'])->name('reunioes.gravador');
+    Route::post('/reunioes/{reuniao}/gravacao/iniciar',     [ReuniaoFeedbackController::class, 'iniciarGravacao'])->name('reunioes.gravacao.iniciar');
+    Route::post('/reunioes/{reuniao}/gravacao/heartbeat',   [ReuniaoFeedbackController::class, 'heartbeatGravacao'])->name('reunioes.gravacao.heartbeat');
+    Route::get('/reunioes/{reuniao}/gravacao/status',       [ReuniaoFeedbackController::class, 'statusGravacao'])->name('reunioes.gravacao.status');
+    Route::post('/reunioes/{reuniao}/gravacao/cancelar',    [ReuniaoFeedbackController::class, 'cancelarGravacao'])->name('reunioes.gravacao.cancelar');
+    Route::post('/reunioes/{reuniao}/rascunho',             [ReuniaoFeedbackController::class, 'salvarRascunho'])->name('reunioes.rascunho');
     Route::post('/reunioes/{reuniao}/upload-audio',         [ReuniaoFeedbackController::class, 'uploadAudio'])->name('reunioes.upload_audio');
     Route::post('/reunioes/{reuniao}/processar-transcricao',[ReuniaoFeedbackController::class, 'processarTranscricao'])->name('reunioes.processar_transcricao');
     Route::post('/reunioes/{reuniao}/salvar-com-ia',        [ReuniaoFeedbackController::class, 'salvarComIa'])->name('reunioes.salvar_com_ia');
@@ -181,6 +228,7 @@ Route::middleware(['auth', 'empresa.ativa'])->group(function () {
     Route::get('/disc/teste', [\App\Http\Controllers\DiscAssessmentController::class, 'create'])->name('disc.take');
     Route::post('/disc/teste', [\App\Http\Controllers\DiscAssessmentController::class, 'store'])->name('disc.store');
     Route::post('/disc/refazer', [\App\Http\Controllers\DiscAssessmentController::class, 'retake'])->name('disc.retake');
+    Route::post('/disc/liberar/{assessment}', [\App\Http\Controllers\DiscAssessmentController::class, 'liberar'])->name('disc.liberar');
     Route::post('/disc/solicitar-refazer', [\App\Http\Controllers\DiscSolicitacaoController::class, 'store'])->name('disc.solicitar-refazer');
     Route::get('/disc/resultado/{assessment}', [\App\Http\Controllers\DiscAssessmentController::class, 'show'])->name('disc.result');
     Route::get('/disc/equipe', [\App\Http\Controllers\DiscAssessmentController::class, 'equipe'])->name('disc.equipe');

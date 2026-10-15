@@ -8,6 +8,7 @@ use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -95,6 +96,32 @@ class User extends Authenticatable
 
     public function discAssessment(): HasOne
     {
-        return $this->hasOne(DiscAssessment::class);
+        return $this->hasOne(DiscAssessment::class)->latestOfMany();
+    }
+
+    public function discAssessments(): HasMany
+    {
+        return $this->hasMany(DiscAssessment::class)->latest();
+    }
+
+    /**
+     * Empresas às quais o usuário tem acesso como Consultor.
+     */
+    public function empresasConsultoria(): BelongsToMany
+    {
+        return $this->belongsToMany(Empresa::class, 'consultor_empresas', 'user_id', 'empresa_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Verifica se o usuário possui o perfil Consultor.
+     */
+    public function isConsultor(): bool
+    {
+        $role = $this->perfil_acesso instanceof \BackedEnum
+            ? $this->perfil_acesso->value
+            : $this->perfil_acesso;
+
+        return $role === UserRole::CONSULTOR->value;
     }
 }

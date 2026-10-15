@@ -13,7 +13,6 @@ use App\Models\User;
 use App\Models\Pdi;
 use App\Models\PdiAcao;
 use App\Enums\UserRole;
-use App\Services\GeminiTextService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +32,7 @@ class ClimateSurveyController extends Controller
         $user = Auth::user();
         $role = $user->perfil_acesso->value ?? $user->perfil_acesso;
 
-        if (!in_array($role, ['master', 'gestor', 'admin'])) {
+        if (!in_array($role, ['master', 'gestor', 'admin', 'consultor'])) {
             abort(403, 'Acesso não autorizado.');
         }
 
@@ -160,23 +159,16 @@ class ClimateSurveyController extends Controller
                 ]);
 
                 if ($status === 'ativa') {
-                    \App\Models\Atividade::create([
-                        'user_id'    => $colab->id,
-                        'empresa_id' => $user->empresa_id,
-                        'icone'      => 'fa-solid fa-heart-pulse',
-                        'cor'        => '#ec4899',
-                        'titulo'     => 'Pesquisa de Clima Ativa',
-                        'descricao'  => 'Uma nova pesquisa de clima foi aberta. Sua resposta é 100% anônima!',
-                        'url'        => route('clima.responder', $survey->id),
-                        'lida'       => false,
-                    ]);
-
-                    app(\App\Services\EmailService::class)->notificar(
+                    app(\App\Services\AtividadeService::class)->registrar(
+                        $user->empresa_id,
                         $colab->id,
-                        "Nova Pesquisa de Clima Ativa",
-                        "Uma nova pesquisa de clima foi aberta. Sua resposta é 100% anônima e muito importante para nós!",
+                        'Pesquisa de Clima Ativa',
+                        'Uma nova pesquisa de clima foi aberta. Sua resposta é 100% anônima e muito importante para nós!',
+                        'fa-solid fa-heart-pulse',
+                        '#ec4899',
                         route('clima.responder', $survey->id),
-                        'Responder Pesquisa'
+                        'Pesquisa de Clima',
+                        'responder'
                     );
                 }
             }
@@ -329,23 +321,16 @@ class ClimateSurveyController extends Controller
                         'status' => 'pendente'
                     ]);
 
-                    \App\Models\Atividade::create([
-                        'user_id'    => $colab->id,
-                        'empresa_id' => $user->empresa_id,
-                        'icone'      => 'fa-solid fa-heart-pulse',
-                        'cor'        => '#ec4899',
-                        'titulo'     => 'Pesquisa de Clima Ativa',
-                        'descricao'  => 'Uma nova pesquisa de clima foi aberta. Sua resposta é 100% anônima!',
-                        'url'        => route('clima.responder', $survey->id),
-                        'lida'       => false,
-                    ]);
-
-                    app(\App\Services\EmailService::class)->notificar(
+                    app(\App\Services\AtividadeService::class)->registrar(
+                        $user->empresa_id,
                         $colab->id,
-                        "Nova Pesquisa de Clima Ativa",
-                        "Uma nova pesquisa de clima foi aberta. Sua resposta é 100% anônima e muito importante para nós!",
+                        'Pesquisa de Clima Ativa',
+                        'Uma nova pesquisa de clima foi aberta. Sua resposta é 100% anônima e muito importante para nós!',
+                        'fa-solid fa-heart-pulse',
+                        '#ec4899',
                         route('clima.responder', $survey->id),
-                        'Responder Pesquisa'
+                        'Pesquisa de Clima',
+                        'responder'
                     );
                 }
             }
@@ -462,6 +447,41 @@ class ClimateSurveyController extends Controller
             }
         }
 
+        // Médias por Pergunta
+        $perguntasStats = [];
+        // Carrega o departamento para as respostas
+        $todasRespostasLikert->load('departamento');
+
+        foreach ($survey->perguntas as $pergunta) {
+            if ($pergunta->tipo_resposta !== 'escala_1_10') {
+                continue; // Pula perguntas de texto livre pois não têm nota
+            }
+
+            $respostasPergunta = $todasRespostasLikert->where('climate_question_id', $pergunta->id);
+            $media = $respostasPergunta->count() > 0 ? round($respostasPergunta->avg('nota'), 2) : 0;
+            $fav = $respostasPergunta->count() > 0 
+                ? round(($respostasPergunta->whereIn('nota', [8, 9, 10])->count() / $respostasPergunta->count()) * 100, 1) 
+                : 0;
+            
+            $respostasIndividuais = [];
+            foreach ($respostasPergunta as $r) {
+                $respostasIndividuais[] = [
+                    'nota' => $r->nota,
+                    'departamento' => $r->departamento->nome ?? null,
+                    'data' => $r->created_at->format('d/m/Y H:i')
+                ];
+            }
+            
+            $perguntasStats[] = [
+                'pergunta' => $pergunta->texto_pergunta,
+                'dimensao' => $pergunta->dimensao,
+                'media' => $media,
+                'favorabilidade' => $fav,
+                'total_respostas' => $respostasPergunta->count(),
+                'respostas' => $respostasIndividuais
+            ];
+        }
+
         return view('climate.relatorio', compact(
             'survey',
             'totalParticipacoes',
@@ -470,6 +490,7 @@ class ClimateSurveyController extends Controller
             'mediaGeral',
             'taxaFavorabilidade',
             'dimensoesStats',
+            'perguntasStats',
             'comentarios',
             'statsDepartamentos'
         ));
@@ -689,6 +710,19 @@ class ClimateSurveyController extends Controller
                 'status'        => 'respondido',
                 'respondido_em' => now(),
             ]);
+
+            // Marca a atividade da pesquisa de clima como lida para este usuário
+            Atividade::where('user_id', $user->id)
+                ->where('lida', false)
+                ->where(function ($q) use ($survey) {
+                    $q->where('url', 'like', "%clima/responder/{$survey->id}%")
+                      ->orWhere('url', 'like', '%clima/minhas%')
+                      ->orWhere('titulo', 'like', '%Pesquisa de Clima%');
+                })
+                ->update([
+                    'lida' => true,
+                    'read_at' => Carbon::now(),
+                ]);
 
             DB::commit();
 
