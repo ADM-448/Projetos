@@ -2,6 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    /* Tema Claro (Light Mode) */
+    :root {
+        --color-canvas: #f9fafb;     /* Fundo branco/cinza bem claro */
+        --color-surface: #ffffff;    /* Superfície puramente branca */
+        --color-panel: #f3f4f6;      /* Cinza claro para painéis secundários */
+        --color-border: #e5e7eb;     /* Bordas bem sutis (cinza claro) */
+        --color-divider: #e5e7eb;    /* Divisores iguais as bordas */
+        --color-main: #1f2937;       /* Texto principal (cinza quase preto) */
+        --color-muted: #6b7280;      /* Texto secundário/mutado */
+        --color-neon: #10b981;       /* Verde Esmeralda (sucesso/neon) */
+        --color-neon-rgb: 16, 185, 129;
+        --color-black: #ffffff;      /* Para inverter onde usamos preto sólido (botões pretos no tema escuro ficam brancos e vice versa) - mas melhor não usar esse hack, vamos usar as reais */
+    }
+
+    /* Tema Escuro (Tron Dark Mode) */
+    .dark {
+        --color-canvas: #050505;
+        --color-surface: #121212;
+        --color-panel: #1A1A1A;
+        --color-border: #2A2A2A;
+        --color-divider: #222222;
+        --color-main: #FFFFFF;
+        --color-muted: #A0A0A0;
+        --color-neon: #FF5500;
+        --color-neon-rgb: 255, 85, 0;
+    }
+}
+
 /* Custom Dark Scrollbars */
 ::-webkit-scrollbar {
     width: 6px;

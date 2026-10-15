@@ -11,13 +11,4 @@ class Cargo extends Model
 
     protected $fillable = ['nome', 'salario_mercado', 'departamento'];
 
-    public function funcionarios()
-    {
-        return $this->hasMany(Funcionario::class);
-    }
-
-    public function tabelaNiveis()
-    {
-        return $this->hasMany(TabelaNivel::class);
-    }
 }

@@ -12,6 +12,10 @@ class MarketSalary extends Model
     protected $fillable = [
         'cargo',
         'regiao',
+        'porte_empresa',
+        'segmento_empresa',
+        'competencias_chave',
+        'context_hash',
         'status', // 'pending', 'completed', 'failed'
         'mediana',
         'piso',
@@ -24,6 +28,7 @@ class MarketSalary extends Model
         'mediana' => 'decimal:2',
         'piso' => 'decimal:2',
         'teto' => 'decimal:2',
+        'competencias_chave' => 'array',
         'raw_data' => 'array',
         'last_scraped_at' => 'datetime',
     ];

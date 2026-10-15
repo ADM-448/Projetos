@@ -15,7 +15,32 @@ return [
     */
 
     'postmark' => [
-        'key' => env('POSTMARK_API_KEY'),
+        'token' => env('POSTMARK_TOKEN'),
+    ],
+
+    'gemini' => [
+        'api_key' => env('GEMINI_API_KEY'),
+    ],
+
+    'jsearch' => [
+        'api_key' => env('JSEARCH_API_KEY', env('RAPIDAPI_API_KEY', env('RAPIDAPI_KEY'))),
+    ],
+
+    'serpapi' => [
+        'api_key' => env('SERPAPI_API_KEY'),
+    ],
+
+    'adzuna' => [
+        'app_id' => env('ADZUNA_APP_ID'),
+        'app_key' => env('ADZUNA_APP_KEY'),
+    ],
+
+    'scraperapi' => [
+        'api_key' => env('SCRAPERAPI_KEY', env('SCRAPEDO_TOKEN', env('SCRAPE_DO_TOKEN'))),
+    ],
+
+    'jooble' => [
+        'api_key' => env('JOOBLE_API_KEY'),
     ],
 
     'resend' => [
