@@ -13,6 +13,7 @@
         <form id="formPdiIa" action="{{ route('pdis.store') }}" method="POST">
             @csrf
             <input type="hidden" name="tipo_criacao" value="individual">
+            <input type="hidden" name="gerado_ia" value="1">
             {{-- colaborador_id será setado via JS --}}
             <input type="hidden" name="colaborador_id" id="ai_colaborador_id">
 

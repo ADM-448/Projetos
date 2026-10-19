@@ -34,6 +34,7 @@ class AvaliacaoTemplateController extends Controller
             'descricao' => 'nullable|string',
             'competencias' => 'required|array',
             'competencias.*' => 'exists:competencias,id',
+            'pesos' => 'nullable|array',
         ]);
 
         $template = Avaliacao::create([
@@ -46,7 +47,14 @@ class AvaliacaoTemplateController extends Controller
             'created_by' => auth()->id(),
         ]);
 
-        $template->competencias()->sync($request->competencias);
+        $competenciasSync = [];
+        $pesosInput = $request->input('pesos', []);
+        foreach ($request->competencias as $compId) {
+            $peso = isset($pesosInput[$compId]) && is_numeric($pesosInput[$compId]) ? max(1, (int)$pesosInput[$compId]) : 1;
+            $competenciasSync[$compId] = ['peso' => $peso];
+        }
+
+        $template->competencias()->sync($competenciasSync);
 
         return redirect()->route('avaliacoes.index', ['tab' => 'templates'])->with('success', 'Modelo de Avaliação criado com sucesso! Agora você pode delegar os participantes.');
     }
@@ -71,6 +79,7 @@ class AvaliacaoTemplateController extends Controller
             abort(404, 'Modelo não encontrado.');
         }
 
+        $template->load('competencias');
         $competencias = Competencia::where('empresa_id', auth()->user()->empresa_id)->get();
         return view('avaliacoes.templates.edit', ['avaliacao' => $template, 'competencias' => $competencias]);
     }
@@ -89,6 +98,7 @@ class AvaliacaoTemplateController extends Controller
             'descricao' => 'nullable|string',
             'competencias' => 'required|array',
             'competencias.*' => 'exists:competencias,id',
+            'pesos' => 'nullable|array',
         ]);
 
         $template->update([
@@ -97,7 +107,14 @@ class AvaliacaoTemplateController extends Controller
             'descricao' => $request->descricao,
         ]);
 
-        $template->competencias()->sync($request->competencias);
+        $competenciasSync = [];
+        $pesosInput = $request->input('pesos', []);
+        foreach ($request->competencias as $compId) {
+            $peso = isset($pesosInput[$compId]) && is_numeric($pesosInput[$compId]) ? max(1, (int)$pesosInput[$compId]) : 1;
+            $competenciasSync[$compId] = ['peso' => $peso];
+        }
+
+        $template->competencias()->sync($competenciasSync);
 
         return redirect()->route('avaliacoes.index', ['tab' => 'templates'])->with('success', 'Modelo de Avaliação atualizado com sucesso!');
     }

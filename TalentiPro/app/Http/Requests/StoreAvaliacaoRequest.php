@@ -27,6 +27,8 @@ class StoreAvaliacaoRequest extends FormRequest
             'template_id' => ['nullable', 'exists:avaliacoes,id,empresa_id,' . $empresaId],
             'titulo' => ['required', 'string', 'max:255'],
             'grau' => ['nullable', 'string', 'in:90,180,360'],
+            'peso_tecnico' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'peso_comportamental' => ['nullable', 'integer', 'min:0', 'max:100'],
             'recorrencia' => ['nullable', 'string', 'in:none,diario,semanal,quinzenal,mensal,bimestral,trimestral,semestral,anual'],
             'descricao' => ['nullable', 'string'],
             'data_inicio' => ['required', 'date'],

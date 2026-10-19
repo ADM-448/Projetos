@@ -14,9 +14,11 @@
         <p style="color: #666; font-size: 0.95rem;">Grau: {{ $template->grau }}° @if($template->descricao) | {{ $template->descricao }} @endif</p>
     </div>
     <div style="display: flex; gap: 10px;">
+        @if(!auth()->user()->isConsultor())
         <a href="{{ route('avaliacoes.templates.edit', $template->id) }}" class="btn-primary" style="background: #d69e2e; border-color: #d69e2e;">
             <i class="fa-solid fa-pen"></i> Editar
         </a>
+        @endif
         <a href="{{ route('avaliacoes.index', ['tab' => 'templates']) }}" class="btn-secondary">
             <i class="fa-solid fa-arrow-left"></i> Voltar
         </a>
@@ -30,7 +32,12 @@
 
     @forelse($template->competencias as $comp)
         <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px; padding: 20px;">
-            <h3 style="font-size: 1.05rem; font-weight: bold; color: #1e293b; margin-bottom: 5px;">{{ $comp->nome }}</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+                <h3 style="font-size: 1.05rem; font-weight: bold; color: #1e293b; margin: 0;">{{ $comp->nome }}</h3>
+                <span style="background: #eff6ff; color: #1d4ed8; font-weight: 700; font-size: 0.82rem; padding: 3px 10px; border-radius: 20px; border: 1px solid #bfdbfe;">
+                    <i class="fa-solid fa-weight-hanging" style="margin-right: 4px;"></i> Peso: {{ $comp->pivot->peso ?? 1 }}%
+                </span>
+            </div>
             @if($comp->descricao)
                 <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 15px;">{{ $comp->descricao }}</p>
             @endif

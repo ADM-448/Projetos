@@ -3,23 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>Relatório de Desempenho - {{ $data['colaborador']['name'] }}</title>
+    @php
+        $corPrimaria = $data['empresa']['cor_primaria'] ?? '#4f46e5';
+        $corSecundaria = $data['empresa']['cor_secundaria'] ?? '#7c3aed';
+        $corTerciaria = $data['empresa']['cor_terciaria'] ?? '#1e1b4b';
+    @endphp
     <style>
         * { box-sizing: border-box; }
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
-            font-size: 10.5px;
+            font-size: 10px;
             color: #1e293b;
             margin: 0;
-            padding: 16px 24px;
+            padding: 14px 20px;
             line-height: 1.4;
         }
 
-        /* CABEÇALHO */
+        /* CABEÇALHO 50% / 50% SIMÉTRICO */
         .header-table {
             width: 100%;
-            border-bottom: 2px solid #4f46e5;
+            border-bottom: 2px solid {{ $corPrimaria }};
             padding-bottom: 8px;
             margin-bottom: 10px;
+            table-layout: fixed;
         }
 
         /* INFO DO COLABORADOR */
@@ -29,19 +35,20 @@
             background: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 4px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
+            table-layout: fixed;
         }
-        .info-grid td { padding: 6px 10px; border-bottom: 1px solid #f1f5f9; }
+        .info-grid td { padding: 5px 8px; border-bottom: 1px solid #f1f5f9; }
         .info-grid tr:last-child td { border-bottom: none; }
-        .info-grid .lbl { font-weight: bold; color: #64748b; font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .info-grid .val { color: #0f172a; font-weight: 700; font-size: 10.5px; }
+        .info-grid .lbl { font-weight: bold; color: #64748b; font-size: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-grid .val { color: #0f172a; font-weight: 700; font-size: 10px; }
 
         /* TÍTULOS DE SEÇÃO */
         h2 {
-            font-size: 10px;
+            font-size: 9.5px;
             font-weight: 800;
             color: #0f172a;
-            margin: 12px 0 6px 0;
+            margin: 10px 0 5px 0;
             padding-bottom: 3px;
             border-bottom: 1px solid #e2e8f0;
             text-transform: uppercase;
@@ -49,33 +56,33 @@
         }
 
         /* SCORES */
-        .scores-wrap { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-        .score-box { text-align: center; padding: 7px 4px; border: 1px solid #e2e8f0; background: #ffffff; }
+        .scores-wrap { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout: fixed; }
+        .score-box { text-align: center; padding: 6px 4px; border: 1px solid #e2e8f0; background: #ffffff; }
         .score-box .s-label { font-size: 7.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
-        .score-box .s-value { font-size: 18px; font-weight: 800; }
-        .score-auto  { color: #7c3aed; border-top: 3px solid #7c3aed; }
-        .score-aval  { color: #2563eb; border-top: 3px solid #2563eb; }
-        .score-med   { color: #db2777; border-top: 3px solid #db2777; }
+        .score-box .s-value { font-size: 17px; font-weight: 800; }
+        .score-auto  { color: {{ $corSecundaria }}; border-top: 3px solid {{ $corSecundaria }}; }
+        .score-aval  { color: {{ $corPrimaria }}; border-top: 3px solid {{ $corPrimaria }}; }
+        .score-med   { color: #ec4899; border-top: 3px solid #ec4899; }
         .score-final { color: #059669; border-top: 3px solid #059669; }
 
         /* COMPARATIVOS */
-        .comp-wrap { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-        .comp-box { text-align: center; padding: 5px 4px; border: 1px solid #e2e8f0; background: #f8fafc; }
+        .comp-wrap { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout: fixed; }
+        .comp-box { text-align: center; padding: 6px 4px; border: 1px solid #e2e8f0; background: #f8fafc; }
         .comp-box .c-label { font-size: 7.5px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold; }
-        .comp-box .c-value { font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 2px; }
+        .comp-box .c-value { font-size: 13.5px; font-weight: 800; color: #0f172a; margin-top: 2px; }
 
         /* COMPETÊNCIAS */
         .comp-header {
-            background: #1e1b4b;
+            background: {{ $corTerciaria }};
             color: #ffffff;
             padding: 5px 10px;
             font-weight: 700;
             font-size: 8.5px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
-        .skill-table { width: 100%; border-collapse: collapse; margin-bottom: 0; font-size: 9.5px; }
+        .skill-table { width: 100%; border-collapse: collapse; margin-bottom: 0; font-size: 9px; }
         .skill-table th {
             background: #f1f5f9; padding: 4px 8px; text-align: left;
             font-weight: 700; color: #475569; font-size: 7.5px;
@@ -87,68 +94,69 @@
         .skill-table tr:last-child td { border-bottom: none; }
         .skill-table tr:nth-child(even) td { background: #fafafa; }
 
-        .badge-auto  { color: #7c3aed; font-weight: 800; font-size: 11px; }
-        .badge-aval  { color: #2563eb; font-weight: 800; font-size: 11px; }
-        .badge-final { color: #059669; font-weight: 800; font-size: 11px; }
+        .badge-auto  { color: {{ $corSecundaria }}; font-weight: 800; font-size: 10.5px; }
+        .badge-aval  { color: {{ $corPrimaria }}; font-weight: 800; font-size: 10.5px; }
+        .badge-final { color: #059669; font-weight: 800; font-size: 10.5px; }
         .dash        { color: #cbd5e1; }
 
         /* CONSIDERAÇÕES */
-        .feedback-box { border: 1px solid #e2e8f0; border-left: 3px solid #6366f1; background: #f8fafc; padding: 8px 10px; margin-top: 10px; font-size: 9px; page-break-inside: avoid; }
-        .feedback-box h4 { margin: 0 0 3px 0; font-size: 8.5px; color: #4338ca; text-transform: uppercase; letter-spacing: 0.4px; }
-        .feedback-box p  { margin: 0 0 6px 0; color: #334155; line-height: 1.4; }
+        .feedback-box { border: 1px solid #e2e8f0; border-left: 3px solid {{ $corPrimaria }}; background: #f8fafc; padding: 8px 10px; margin-top: 8px; font-size: 8.5px; page-break-inside: avoid; }
+        .feedback-box h4 { margin: 0 0 3px 0; font-size: 8.5px; color: {{ $corPrimaria }}; text-transform: uppercase; letter-spacing: 0.4px; }
+        .feedback-box p  { margin: 0 0 6px 0; color: #334155; line-height: 1.4; text-align: justify; }
 
         /* TERMO LGPD */
         .termo-lgpd-pdf {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            border-left: 3px solid #6366f1;
-            padding: 5px 8px;
+            border-left: 3px solid {{ $corPrimaria }};
+            padding: 6px 10px;
             margin-bottom: 10px;
             font-size: 7px;
             line-height: 1.35;
             color: #64748b;
+            text-align: justify;
         }
         .termo-lgpd-pdf strong { color: #1e293b; }
 
         /* RODAPÉ */
         .footer { text-align: center; font-size: 7.5px; color: #94a3b8; margin-top: 14px; border-top: 1px solid #e2e8f0; padding-top: 6px; position: fixed; bottom: -20px; width: 100%; }
 
-        .competencia-section { page-break-inside: avoid; margin-bottom: 10px; }
+        .competencia-section { page-break-inside: avoid; margin-bottom: 8px; }
     </style>
 </head>
 <body>
 
-    {{-- CABEÇALHO COM LOGO E IDENTIFICAÇÃO DA EMPRESA CLIENTE E TALENTIPRO --}}
+    {{-- CABEÇALHO COM LOGO E IDENTIFICAÇÃO DA EMPRESA CLIENTE E TALENTIPRO - 50% / 50% --}}
     <table class="header-table">
         <tr>
-            {{-- LADO ESQUERDO: EMPRESA CLIENTE --}}
-            <td style="width: 55%; vertical-align: middle;">
-                <div style="font-size: 7.5px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; font-weight: bold; margin-bottom: 2px;">
+            {{-- LADO ESQUERDO: EMPRESA CLIENTE (50%) --}}
+            <td style="width: 50%; vertical-align: middle; padding-right: 10px;">
+                <div style="font-size: 7px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; font-weight: bold; margin-bottom: 2px;">
                     Empresa Avaliadora
                 </div>
                 @if(!empty($data['empresa']['logo_path']) && file_exists($data['empresa']['logo_path']))
-                    <img src="{{ $data['empresa']['logo_path'] }}" style="max-height: 44px; max-width: 170px; margin-bottom: 3px; display: block;">
+                    <img src="{{ $data['empresa']['logo_path'] }}" style="max-height: 40px; max-width: 150px; margin-bottom: 3px; display: block; object-fit: contain;">
                 @elseif(!empty($data['empresa']['logo_url']))
-                    <img src="{{ $data['empresa']['logo_url'] }}" style="max-height: 44px; max-width: 170px; margin-bottom: 3px; display: block;">
+                    <img src="{{ $data['empresa']['logo_url'] }}" style="max-height: 40px; max-width: 150px; margin-bottom: 3px; display: block; object-fit: contain;">
                 @endif
-                <div style="font-size: 13px; font-weight: 800; color: #0f172a; letter-spacing: -0.3px;">{{ $data['empresa']['nome'] ?? 'Empresa Avaliadora' }}</div>
+                <div style="font-size: 12.5px; font-weight: 800; color: #0f172a; letter-spacing: -0.3px;">{{ $data['empresa']['nome'] ?? 'Empresa Avaliadora' }}</div>
                 @if(!empty($data['empresa']['cnpj']))
-                    <div style="font-size: 8px; color: #64748b; font-weight: 600; margin-top: 1px;">CNPJ: {{ $data['empresa']['cnpj'] }}</div>
+                    <div style="font-size: 7.5px; color: #64748b; font-weight: 600; margin-top: 1px;">CNPJ: {{ $data['empresa']['cnpj'] }}</div>
                 @endif
             </td>
 
-            {{-- LADO DIREITO: LOGO TALENTIPRO E DADOS DA AVALIAÇÃO --}}
-            <td style="width: 45%; text-align: right; vertical-align: middle;">
-                <div style="margin-bottom: 3px;">
+            {{-- LADO DIREITO: LOGO TALENTIPRO E DADOS DA AVALIAÇÃO (50%) --}}
+            <td style="width: 50%; text-align: right; vertical-align: middle; border-left: 1px solid #f1f5f9; padding-left: 10px;">
+                <div style="margin-bottom: 2px;">
                     @if(file_exists(public_path('images/logo-talentipro.png')))
-                        <img src="{{ public_path('images/logo-talentipro.png') }}" style="height: 28px; width: auto; display: inline-block;">
+                        <img src="{{ public_path('images/logo-talentipro.png') }}" style="height: 24px; width: auto; display: inline-block;">
                     @elseif(file_exists(public_path('images/logo-talentipro.jpg')))
-                        <img src="{{ public_path('images/logo-talentipro.jpg') }}" style="height: 28px; width: auto; display: inline-block;">
+                        <img src="{{ public_path('images/logo-talentipro.jpg') }}" style="height: 24px; width: auto; display: inline-block;">
                     @else
-                        <div style="font-size: 16px; font-weight: 800; color: #0f172a; letter-spacing: -0.3px;">Talenti<span style="color: #4f46e5;">Pro</span></div>
+                        <div style="font-size: 15px; font-weight: 800; color: #0f172a; letter-spacing: -0.3px;">Talenti<span style="color: {{ $corPrimaria }};">Pro</span></div>
                     @endif
                 </div>
-                <div style="font-size: 10.5px; font-weight: 800; color: #4f46e5; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1px;">
+                <div style="font-size: 10px; font-weight: 800; color: {{ $corPrimaria }}; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1px;">
                     Relatório de Desempenho
                 </div>
                 <div style="font-size: 8px; color: #475569;">Campanha: <strong>{{ $data['avaliacao']['titulo'] ?? 'Avaliação' }}</strong></div>
@@ -266,9 +274,17 @@
             $avgCF = count($fp) ? number_format(array_sum($fp)/count($fp),1) : '-';
         @endphp
 
+        @php
+            $compPeso = 1;
+            foreach ($skills as $s) {
+                if (isset($s['colab']['peso'])) { $compPeso = $s['colab']['peso']; break; }
+                if (isset($s['aval']['peso'])) { $compPeso = $s['aval']['peso']; break; }
+            }
+        @endphp
+
         <div class="competencia-section">
         <div class="comp-header">
-            ★ {{ strtoupper($compName) }}
+            ★ {{ strtoupper($compName) }} <span style="background: rgba(255,255,255,0.15); padding: 1px 6px; border-radius: 3px; font-size: 7.5px;">Peso: {{ $compPeso }}%</span>
             &nbsp;&nbsp;
             @if(!$is90)Média Auto: {{ $avgCC }} &nbsp;|&nbsp;@endif
             Média Avaliadores: {{ $avgCA }} &nbsp;|&nbsp;
@@ -293,7 +309,21 @@
                         $sF  = count($fp2) ? number_format(array_sum($fp2)/count($fp2),2) : null;
                     @endphp
                     <tr>
-                        <td>{{ $skillName }}</td>
+                        <td>
+                            <strong style="color: #0f172a;">{{ $skillName }}</strong>
+                            @if(!empty($dadosSkill['colab']['evidencia']))
+                                <div style="font-size: 8px; color: #6b21a8; background: #faf5ff; padding: 2px 5px; border-radius: 3px; border-left: 2px solid #a855f7; margin-top: 3px;">
+                                    <strong>Auto:</strong> {{ $dadosSkill['colab']['evidencia'] }}
+                                </div>
+                            @endif
+                            @if(!empty($dadosSkill['aval']['evidencias']))
+                                @foreach($dadosSkill['aval']['evidencias'] as $ev)
+                                    <div style="font-size: 8px; color: #064e3b; background: #f0fdf4; padding: 2px 5px; border-radius: 3px; border-left: 2px solid #10b981; margin-top: 3px;">
+                                        <strong>Evidência{{ $ev['avaliador'] && $ev['avaliador'] !== 'Avaliador' ? ' (' . $ev['avaliador'] . ')' : '' }}:</strong> {{ $ev['texto'] }}
+                                    </div>
+                                @endforeach
+                            @endif
+                        </td>
                         @if(!$is90)
                         <td class="center">
                             @if($nC !== null)<span class="badge-auto">{{ $nC }}</span>@else<span class="dash">—</span>@endif

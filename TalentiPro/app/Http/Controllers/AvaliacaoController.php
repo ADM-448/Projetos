@@ -66,7 +66,17 @@ class AvaliacaoController extends Controller
         }
         $colaboradores = $colaboradoresQuery->get();
 
-        $gestores = User::where('empresa_id', auth()->user()->empresa_id)->get();
+        $gestores = User::where('empresa_id', auth()->user()->empresa_id)
+            ->with(['cargo', 'departamento'])
+            ->orderByRaw("
+                CASE 
+                    WHEN id = ? THEN 0
+                    WHEN perfil_acesso IN ('master', 'admin') THEN 1
+                    WHEN perfil_acesso = 'gestor' THEN 2
+                    ELSE 3
+                END ASC, name ASC
+            ", [auth()->id()])
+            ->get();
         $departamentos = \App\Models\Departamento::where('empresa_id', auth()->user()->empresa_id)->get();
         $cargos = \App\Models\Cargo::where('empresa_id', auth()->user()->empresa_id)->get();
 
@@ -148,7 +158,17 @@ class AvaliacaoController extends Controller
         }
         $colaboradores = $colaboradoresQuery->get();
 
-        $gestores = User::where('empresa_id', auth()->user()->empresa_id)->get();
+        $gestores = User::where('empresa_id', auth()->user()->empresa_id)
+            ->with(['cargo', 'departamento'])
+            ->orderByRaw("
+                CASE 
+                    WHEN id = ? THEN 0
+                    WHEN perfil_acesso IN ('master', 'admin') THEN 1
+                    WHEN perfil_acesso = 'gestor' THEN 2
+                    ELSE 3
+                END ASC, name ASC
+            ", [auth()->id()])
+            ->get();
         $departamentos = \App\Models\Departamento::where('empresa_id', auth()->user()->empresa_id)->get();
         $cargos = \App\Models\Cargo::where('empresa_id', auth()->user()->empresa_id)->get();
 

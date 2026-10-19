@@ -216,11 +216,13 @@
             Mapeamento comportamental completo da sua equipe. Acompanhe perfis, estatísticas e relatórios individuais.
         </p>
     </div>
+    @if(in_array(auth()->user()->perfil_acesso->value ?? auth()->user()->perfil_acesso, ['master', 'admin']))
     <div>
         <button onclick="copiarLinkExterno()" class="btn-primary" style="padding: 10px 18px; border-radius: 8px; font-weight: 700; background: #38a169; border: none; color: white; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; white-space: normal; text-align: center;">
             <i class="fa-solid fa-link"></i> Link para Candidatos
         </button>
     </div>
+    @endif
 </div>
 
 <script>

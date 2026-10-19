@@ -19,9 +19,9 @@ interface AvaliacaoServiceContract
     public function atualizar(Avaliacao $avaliacao, array $dados): Avaliacao;
 
     /**
-     * Salva as respostas (notas) de um avaliador para um avaliado em lote.
+     * Salva as respostas (notas e evidências opcionais) de um avaliador para um avaliado em lote.
      */
-    public function salvarRespostas(AvaliacaoParticipante $participante, array $respostas): void;
+    public function salvarRespostas(AvaliacaoParticipante $participante, array $respostas, array $evidencias = []): void;
 
     /**
      * Fecha a avaliação para um avaliado, computando a nota final (opcional).

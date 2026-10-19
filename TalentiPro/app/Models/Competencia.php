@@ -13,7 +13,14 @@ class Competencia extends Model
     protected $fillable = [
         'nome',
         'descricao',
+        'tipo',
+        'cargo_id',
     ];
+
+    public function cargo()
+    {
+        return $this->belongsTo(Cargo::class);
+    }
 
     public function skills()
     {

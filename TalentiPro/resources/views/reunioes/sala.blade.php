@@ -177,13 +177,23 @@
                     </div>
                 </div>
 
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
-                    <h3 style="color: #334155; margin:0;"><i class="fa-solid fa-quote-left" style="color: var(--primary-color);"></i> Transcrição (editável)</h3>
-                    <button type="button" onclick="regravarDoZero()" style="background:#f8fafc; border:1px solid #cbd5e1; color:#64748b; padding:6px 14px; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">
-                        <i class="fa-solid fa-rotate-left"></i> Regravar
-                    </button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <h3 style="color: #334155; margin:0;"><i class="fa-solid fa-quote-left" style="color: var(--primary-color);"></i> Transcrição (editável)</h3>
+                        <span id="badge-auto-backup" style="font-size: 0.75rem; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 2px 8px; border-radius: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="fa-solid fa-shield-check"></i> Salvo localmente
+                        </span>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" onclick="exportarTranscricaoTxt()" style="background:#f8fafc; border:1px solid #cbd5e1; color:#0284c7; padding:6px 14px; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;" title="Baixar uma cópia de segurança em texto (.txt)">
+                            <i class="fa-solid fa-download"></i> Baixar Transcrição (.txt)
+                        </button>
+                        <button type="button" onclick="regravarDoZero()" style="background:#f8fafc; border:1px solid #cbd5e1; color:#64748b; padding:6px 14px; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">
+                            <i class="fa-solid fa-rotate-left"></i> Regravar
+                        </button>
+                    </div>
                 </div>
-                <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 10px;">Revise e corrija o texto abaixo antes de prosseguir.</p>
+                <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 10px;">Revise e corrija o texto abaixo antes de prosseguir. Todas as alterações são salvas automaticamente na sua máquina.</p>
                 <textarea id="transcricao-texto" rows="12"
                     style="width: 100%; padding: 15px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; resize: vertical; box-sizing: border-box; font-family: monospace; color: #334155; line-height: 1.6;"></textarea>
 
@@ -746,7 +756,8 @@ async function salvarTudo() {
             return;
         }
 
-        // Sucesso! Redireciona
+        // Sucesso! Limpa contingência local e redireciona
+        try { localStorage.removeItem(STORAGE_KEY_TRANSCRICAO); } catch (e) {}
         window.location.href = data.redirect;
 
     } catch (e) {
@@ -813,6 +824,7 @@ function regravarDoZero() {
         cancelText: 'Cancelar',
         onConfirm: async () => {
             try {
+                localStorage.removeItem(STORAGE_KEY_TRANSCRICAO);
                 await fetch(URL_CANCELAR_GRAVACAO, { method: 'POST', headers: { 'X-CSRF-TOKEN': CSRF_TOKEN, 'Accept': 'application/json' } });
             } catch (e) {}
             window.location.href = '{{ route('reunioes.sala', $reuniao->id) }}';
@@ -822,21 +834,68 @@ function regravarDoZero() {
 
 function mostrarTranscricaoRascunho(texto) {
     document.getElementById('spinner-transcricao').style.display = 'none';
-    document.getElementById('transcricao-texto').value = texto || '';
-    transcricaoOriginalData = texto || '';
+
+    // Prioriza o texto do servidor; se vazio, busca contingência no localStorage
+    let textoFinal = texto || '';
+    if (!textoFinal.trim()) {
+        try {
+            const backupLocal = localStorage.getItem(STORAGE_KEY_TRANSCRICAO);
+            if (backupLocal && backupLocal.trim()) {
+                textoFinal = backupLocal;
+            }
+        } catch (e) {}
+    }
+
+    document.getElementById('transcricao-texto').value = textoFinal;
+    transcricaoOriginalData = textoFinal;
 
     const alertaInaudivel = document.getElementById('alerta-inaudivel');
     if (alertaInaudivel) {
-        alertaInaudivel.style.display = (texto && texto.includes('[Áudio inaudível')) ? 'block' : 'none';
+        alertaInaudivel.style.display = (textoFinal && textoFinal.includes('[Áudio inaudível')) ? 'block' : 'none';
     }
 
     document.getElementById('resultado-transcricao').style.display = 'block';
     irParaEtapa(2);
 }
 
-// Auto-save: transcrição (etapa 2) e análise/PDIs (etapa 4)
+// ==================== CONTINGÊNCIA DE TRANSCRIÇÃO (LOCALSTORAGE & DOWNLOAD TXT) ====================
+const STORAGE_KEY_TRANSCRICAO = `talenti_transcricao_${REUNIAO_ID}`;
+
+function salvarTranscricaoLocal(texto) {
+    try {
+        localStorage.setItem(STORAGE_KEY_TRANSCRICAO, texto);
+        const badge = document.getElementById('badge-auto-backup');
+        if (badge) {
+            badge.style.display = 'inline-flex';
+            badge.innerHTML = '<i class="fa-solid fa-shield-check"></i> Salvo na máquina (' + new Date().toLocaleTimeString().slice(0,5) + ')';
+        }
+    } catch (e) {}
+}
+
+function exportarTranscricaoTxt() {
+    const texto = document.getElementById('transcricao-texto')?.value || '';
+    if (!texto.trim()) {
+        alert('Nenhum texto de transcrição para exportar.');
+        return;
+    }
+    const blob = new Blob([texto], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reuniao_${REUNIAO_ID}_transcricao.txt`;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }, 1000);
+}
+
+// Auto-save: transcrição (etapa 2) no servidor e no localStorage local
 document.getElementById('transcricao-texto').addEventListener('input', () => {
-    agendarRascunho(() => ({ transcricao: document.getElementById('transcricao-texto').value }));
+    const val = document.getElementById('transcricao-texto').value;
+    salvarTranscricaoLocal(val);
+    agendarRascunho(() => ({ transcricao: val }));
 });
 ['input', 'change'].forEach(evt => {
     document.getElementById('etapa-4').addEventListener(evt, () => {

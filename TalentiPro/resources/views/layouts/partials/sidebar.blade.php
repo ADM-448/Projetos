@@ -1,24 +1,35 @@
 <aside class="sidebar" style="overflow-y: auto; display: flex; flex-direction: column;">
     <div
         style="padding: 20px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); margin-bottom: 20px; flex-shrink: 0;">
-        <span style="font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; color: white;">
-            <i class="fa-solid fa-brain" style="color: #f39c12; margin-right: 8px;"></i>TalentiPro
-        </span>
+        @if(auth()->user()->empresa && auth()->user()->empresa->logo)
+            <div id="sidebarLogoContainer" style="margin-bottom: 12px; display: flex; justify-content: center; align-items: center;">
+                <div style="background: rgba(255, 255, 255, 0.95); border-radius: 12px; padding: 6px 12px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.15); max-width: 190px;">
+                    <img src="{{ asset('storage/' . auth()->user()->empresa->logo) }}" 
+                         alt="{{ auth()->user()->empresa->nome }}" 
+                         onerror="this.onerror=null; document.getElementById('sidebarLogoContainer').style.display='none';"
+                         style="max-height: 48px; max-width: 160px; width: auto; height: auto; object-fit: contain; display: block;">
+                </div>
+            </div>
+            <div style="font-size: 1.15rem; font-weight: 800; letter-spacing: 0.3px; color: white;">
+                {{ auth()->user()->empresa->nome }}
+            </div>
+        @else
+            <span style="font-size: 1.35rem; font-weight: 800; letter-spacing: 0.5px; color: white; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fa-solid fa-shapes" style="color: rgba(255, 255, 255, 0.9);"></i>{{ auth()->user()->empresa ? auth()->user()->empresa->nome : 'TalentiPro' }}
+            </span>
+        @endif
+
         @if(auth()->user()->isConsultor())
             <div style="font-size: 0.8rem; color: #60a5fa; margin-top: 5px; font-weight: 700; text-transform: uppercase;">
                 <i class="fa-solid fa-user-tie"></i> Consultor
             </div>
             @if(auth()->user()->empresa)
                 <div style="font-size: 0.75rem; color: rgba(255, 255, 255, 0.85); margin-top: 3px; font-weight: 500;">
-                    <i class="fa-solid fa-building" style="font-size: 0.7rem; color: #f39c12;"></i> {{ auth()->user()->empresa->nome }}
+                    <i class="fa-solid fa-building" style="font-size: 0.7rem; color: rgba(255,255,255,0.8);"></i> {{ auth()->user()->empresa->nome }}
                 </div>
             @endif
-        @elseif(auth()->user()->empresa)
-            <div style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.7); margin-top: 5px; font-weight: 500;">
-                {{ auth()->user()->empresa->nome }}
-            </div>
-        @else
-            <div style="font-size: 0.8rem; color: #f39c12; margin-top: 5px; font-weight: 600; text-transform: uppercase;">
+        @elseif(!auth()->user()->empresa)
+            <div style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.7); margin-top: 5px; font-weight: 600; text-transform: uppercase;">
                 Painel Global SaaS
             </div>
         @endif
@@ -265,7 +276,7 @@
                         </li>
                     @endif
 
-            @if(in_array(auth()->user()->perfil_acesso->value, ['master', 'gestor']))
+            @if(auth()->user()->perfil_acesso->value === 'master')
                 <li class="menu-header" style="margin-top: 20px;">SEÇÃO CADASTROS</li>
 
                 {{-- Dropdown: Cadastros --}}
@@ -291,6 +302,10 @@
                                 style="padding: 8px 15px; font-size: 0.9rem;">Competências</a></li>
                     </ul>
                 </li>
+            @endif
+
+            @if(in_array(auth()->user()->perfil_acesso->value, ['master', 'gestor']))
+                <li class="menu-header" style="margin-top: 20px;">RH ORGANIZACIONAL</li>
 
                 <li>
                     <a href="{{ route('solicitacoes.index') }}"
@@ -309,8 +324,6 @@
                         @endif
                     </a>
                 </li>
-
-                <li class="menu-header" style="margin-top: 20px;">RH ORGANIZACIONAL</li>
 
                 <li>
                     <a href="{{ route('reunioes.index') }}"
@@ -366,17 +379,16 @@
                     </a>
                 </li>
 
-                {{-- Dropdown: Configurações --}}
-                <li style="margin-bottom: 5px;">
-                    <a class="menu-link" style="justify-content: space-between; cursor: pointer;"
-                        onclick="toggleSubmenu('submenuConfig')">
-                        <div><i class="fa-solid fa-gear"></i> Configurações</div>
-                        <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
-                    </a>
-                    <ul class="submenu" id="submenuConfig"
-                        style="display: {{ request()->routeIs('whatsapp.*') ? 'block' : 'none' }}; padding-left: 25px; list-style: none; margin-top: 5px;">
-
-                        @if(auth()->user()->perfil_acesso->value === 'master' && auth()->user()->empresa?->whatsapp_ativo)
+                @if(auth()->user()->perfil_acesso->value === 'master' && auth()->user()->empresa?->whatsapp_ativo)
+                    {{-- Dropdown: Configurações --}}
+                    <li style="margin-bottom: 5px;">
+                        <a class="menu-link" style="justify-content: space-between; cursor: pointer;"
+                            onclick="toggleSubmenu('submenuConfig')">
+                            <div><i class="fa-solid fa-gear"></i> Configurações</div>
+                            <i class="fa-solid fa-chevron-down" style="font-size: 0.8rem;"></i>
+                        </a>
+                        <ul class="submenu" id="submenuConfig"
+                            style="display: {{ request()->routeIs('whatsapp.*') ? 'block' : 'none' }}; padding-left: 25px; list-style: none; margin-top: 5px;">
                             <li>
                                 <a href="{{ route('whatsapp.config') }}"
                                     class="menu-link {{ request()->routeIs('whatsapp.*') ? 'active' : '' }}"
@@ -385,9 +397,9 @@
                                     WhatsApp API
                                 </a>
                             </li>
-                        @endif
-                    </ul>
-                </li>
+                        </ul>
+                    </li>
+                @endif
             @endif
         @endif
     </ul>

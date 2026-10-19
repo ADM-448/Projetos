@@ -29,6 +29,7 @@ class StorePdiRequest extends FormRequest
             'titulo' => ['required', 'string', 'max:255'],
             'descricao' => ['nullable', 'string'],
             'categoria' => ['nullable', 'string', 'max:100'],
+            'gerado_ia' => ['nullable', 'boolean'],
             'data_inicio' => ['nullable', 'date'],
             'data_fim' => ['nullable', 'date', 'after_or_equal:data_inicio'],
             'acoes' => ['required', 'array', 'min:1'],

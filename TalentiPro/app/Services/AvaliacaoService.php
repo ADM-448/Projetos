@@ -27,13 +27,21 @@ class AvaliacaoService implements AvaliacaoServiceContract
             $grau = $dados['grau'] ?? '180';
             $competenciasIds = $dados['competencias'] ?? [];
 
+            $competenciasSync = [];
+
             if ($templateId) {
-                $template = Avaliacao::find($templateId);
+                $template = Avaliacao::with('competencias')->find($templateId);
                 if ($template) {
                     $grau = $template->grau ?? $grau;
-                    if (empty($competenciasIds)) {
-                        $competenciasIds = $template->competencias->pluck('id')->toArray();
+                    foreach ($template->competencias as $comp) {
+                        $competenciasSync[$comp->id] = ['peso' => $comp->pivot->peso ?? 1];
                     }
+                }
+            }
+
+            if (empty($competenciasSync) && !empty($competenciasIds)) {
+                foreach ($competenciasIds as $cId) {
+                    $competenciasSync[$cId] = ['peso' => 1];
                 }
             }
 
@@ -43,6 +51,8 @@ class AvaliacaoService implements AvaliacaoServiceContract
                 'template_id' => $templateId,
                 'titulo' => $dados['titulo'],
                 'grau' => $grau,
+                'peso_tecnico' => $dados['peso_tecnico'] ?? 50,
+                'peso_comportamental' => $dados['peso_comportamental'] ?? 50,
                 'descricao' => $dados['descricao'] ?? null,
                 'recorrencia' => $dados['recorrencia'] ?? 'none',
                 'data_inicio' => $dados['data_inicio'],
@@ -53,9 +63,9 @@ class AvaliacaoService implements AvaliacaoServiceContract
                 'mediadores' => $dados['mediadores'] ?? null,
             ]);
 
-            // 2. Vincula Competências
-            if (! empty($competenciasIds)) {
-                $avaliacao->competencias()->sync($competenciasIds);
+            // 2. Vincula Competências preservando os pesos do template
+            if (! empty($competenciasSync)) {
+                $avaliacao->competencias()->sync($competenciasSync);
             }
 
             // 2.1 Salva agendamento de recorrência se configurado
@@ -215,6 +225,8 @@ class AvaliacaoService implements AvaliacaoServiceContract
                 'template_id' => $templateId,
                 'titulo' => $dados['titulo'],
                 'grau' => $grau,
+                'peso_tecnico' => $dados['peso_tecnico'] ?? $avaliacao->peso_tecnico ?? 50,
+                'peso_comportamental' => $dados['peso_comportamental'] ?? $avaliacao->peso_comportamental ?? 50,
                 'descricao' => $dados['descricao'] ?? null,
                 'data_inicio' => $dados['data_inicio'],
                 'data_fim' => $dados['data_fim'],
@@ -362,17 +374,22 @@ class AvaliacaoService implements AvaliacaoServiceContract
         });
     }
 
-    public function salvarRespostas(AvaliacaoParticipante $participante, array $respostas): void
+    public function salvarRespostas(AvaliacaoParticipante $participante, array $respostas, array $evidencias = []): void
     {
-        DB::transaction(function () use ($participante, $respostas) {
+        DB::transaction(function () use ($participante, $respostas, $evidencias) {
             $now = Carbon::now();
             $respostasBatch = [];
 
             foreach ($respostas as $skillId => $nota) {
+                $evidenciaTexto = isset($evidencias[$skillId]) && trim($evidencias[$skillId]) !== '' 
+                    ? trim($evidencias[$skillId]) 
+                    : null;
+
                 $respostasBatch[] = [
                     'avaliacao_participante_id' => $participante->id,
                     'skill_id' => $skillId,
                     'nota' => $nota,
+                    'evidencia' => $evidenciaTexto,
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];

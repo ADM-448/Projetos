@@ -104,4 +104,53 @@ class ConsultorAcessoMultiEmpresaTest extends TestCase
         $responseAvaliacao = $this->actingAs($consultor)->get(route('avaliacoes.create'));
         $responseAvaliacao->assertForbidden();
     }
+
+    public function test_consultor_pode_visualizar_painel_de_avaliacao_da_empresa_ativa(): void
+    {
+        $empresa = Empresa::factory()->create(['nome' => 'Empresa Avaliacao', 'status' => 'ativa']);
+
+        $consultor = User::factory()->create([
+            'perfil_acesso' => UserRole::CONSULTOR,
+            'empresa_id'    => $empresa->id,
+        ]);
+        $consultor->empresasConsultoria()->sync([$empresa->id]);
+
+        $avaliacao = Avaliacao::create([
+            'empresa_id'  => $empresa->id,
+            'titulo'      => 'Avaliação Q1 Consultoria',
+            'status'      => 'andamento',
+            'data_inicio' => now(),
+            'data_fim'    => now()->addDays(15),
+            'grau'        => 360,
+        ]);
+
+        $response = $this->actingAs($consultor)->get(route('avaliacoes.show', $avaliacao->id));
+        $response->assertStatus(200);
+    }
+
+    public function test_consultor_recebe_403_ao_visualizar_avaliacao_de_outra_empresa(): void
+    {
+        $empresa1 = Empresa::factory()->create(['status' => 'ativa']);
+        $empresa2 = Empresa::factory()->create(['status' => 'ativa']);
+
+        $consultor = User::factory()->create([
+            'perfil_acesso' => UserRole::CONSULTOR,
+            'empresa_id'    => $empresa1->id,
+        ]);
+        $consultor->empresasConsultoria()->sync([$empresa1->id]);
+
+        $avaliacaoOutraEmpresa = Avaliacao::create([
+            'empresa_id'  => $empresa2->id,
+            'titulo'      => 'Avaliação Sigilosa Empresa 2',
+            'status'      => 'andamento',
+            'data_inicio' => now(),
+            'data_fim'    => now()->addDays(15),
+            'grau'        => 360,
+        ]);
+
+        $response = $this->actingAs($consultor)->get(route('avaliacoes.show', $avaliacaoOutraEmpresa->id));
+        // O global scope BelongsToEmpresa ou a Policy impedem o acesso a registros de outra empresa (404 ou 403)
+        $this->assertTrue(in_array($response->status(), [403, 404]));
+    }
 }
+

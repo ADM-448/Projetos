@@ -360,8 +360,8 @@
         /* Reduz espaçamentos gerais gigantescos para caber harmonicamente no A4 */
         .report-header-card {
             border: 1px solid #e2e8f0 !important;
-            padding: 12px 16px !important;
-            margin-bottom: 10px !important;
+            padding: 14px 18px !important;
+            margin-bottom: 12px !important;
             box-shadow: none !important;
             break-inside: avoid !important;
             page-break-inside: avoid !important;
@@ -375,24 +375,25 @@
 
         .header-col-empresa {
             display: table-cell !important;
-            width: 44% !important;
+            width: 50% !important;
             vertical-align: middle !important;
+            padding-right: 15px !important;
         }
 
         .header-col-colab {
             display: table-cell !important;
-            width: 56% !important;
+            width: 50% !important;
             vertical-align: middle !important;
             border-left: 2px solid #f1f5f9 !important;
-            padding-left: 16px !important;
+            padding-left: 18px !important;
         }
 
         .termo-lgpd-box {
             background: #f8fafc !important;
             border: 1px solid #e2e8f0 !important;
-            border-left: 4px solid #6366f1 !important;
-            padding: 8px 12px !important;
-            margin-bottom: 12px !important;
+            border-left: 4px solid var(--empresa-cor-primaria, #4f46e5) !important;
+            padding: 9px 14px !important;
+            margin-bottom: 14px !important;
             font-size: 0.72rem !important;
             break-inside: avoid !important;
             page-break-inside: avoid !important;
@@ -400,18 +401,31 @@
 
         .termo-lgpd-box p {
             font-size: 0.7rem !important;
-            line-height: 1.35 !important;
+            line-height: 1.4 !important;
             color: #475569 !important;
             margin: 0 !important;
+            text-align: justify !important;
         }
 
-        /* Bloco comparativos gerais enxuto */
+        /* Bloco comparativos gerais enxuto e perfeitamente simétrico */
+        .comparative-grid-container {
+            display: table !important;
+            width: 100% !important;
+            table-layout: fixed !important;
+            gap: 0 !important;
+        }
+
         .comparative-box {
-            min-width: 90px !important;
-            padding: 8px 12px !important;
-            margin-bottom: 0 !important;
+            display: table-cell !important;
+            width: 25% !important;
+            min-width: 0 !important;
+            max-width: none !important;
+            padding: 10px 8px !important;
+            margin: 0 4px !important;
             border: 1px solid #e2e8f0 !important;
             border-radius: 8px !important;
+            text-align: center !important;
+            vertical-align: middle !important;
         }
 
         .comparative-box p {
@@ -425,13 +439,14 @@
 
         /* Grid de notas circulares enxuta */
         .scores-grid {
-            gap: 10px !important;
-            margin-bottom: 12px !important;
+            display: flex !important;
+            gap: 12px !important;
+            margin-bottom: 14px !important;
         }
 
         .score-card {
             border: 1px solid #e2e8f0 !important;
-            padding: 10px 8px !important;
+            padding: 12px 10px !important;
             margin-bottom: 0 !important;
             border-radius: 10px !important;
             break-inside: avoid !important;
@@ -527,13 +542,13 @@
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 18px;">
             <div style="display: flex; align-items: center; gap: 8px;">
                 @if(file_exists(public_path('images/logo-talentipro.png')))
-                    <img src="{{ asset('images/logo-talentipro.png') }}" alt="TalentiPro" style="height: 26px; width: auto; display: inline-block;">
+                    <img src="{{ asset('images/logo-talentipro.png') }}" alt="TalentiPro" style="height: 24px; width: auto; display: inline-block;">
                 @elseif(file_exists(public_path('images/logo-talentipro.jpg')))
-                    <img src="{{ asset('images/logo-talentipro.jpg') }}" alt="TalentiPro" style="height: 26px; width: auto; display: inline-block;">
+                    <img src="{{ asset('images/logo-talentipro.jpg') }}" alt="TalentiPro" style="height: 24px; width: auto; display: inline-block;">
                 @else
-                    <span style="font-size: 1.15rem; font-weight: 800; color: #0f172a; display: inline-flex; align-items: center; gap: 7px; letter-spacing: -0.3px;">
-                        <i class="fa-solid fa-brain" style="color: #f39c12; font-size: 1.25rem;"></i>
-                        Talenti<span style="color: #4f46e5;">Pro</span>
+                    <span style="font-size: 1.1rem; font-weight: 800; color: #0f172a; display: inline-flex; align-items: center; gap: 7px; letter-spacing: -0.3px;">
+                        <i class="fa-solid fa-brain" style="color: var(--empresa-cor-primaria, var(--primary-color, #4f46e5)); font-size: 1.15rem;"></i>
+                        Talenti<span style="color: var(--empresa-cor-primaria, var(--primary-color, #4f46e5));">Pro</span>
                     </span>
                 @endif
                 <span style="color: #cbd5e1; font-size: 0.85rem; margin: 0 4px;">|</span>
@@ -545,7 +560,7 @@
             <div>
                 @if(auth()->user()->perfil_acesso->value !== 'colaborador')
                     <a href="#" id="btnExportPdf" onclick="imprimirRelatorioPdf(); return false;" class="btn no-print"
-                        style="background: linear-gradient(135deg, #4f46e5, #4338ca); color: white; border: none; padding: 8px 18px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; text-decoration: none; box-shadow: 0 4px 12px -2px rgba(79, 70, 229, 0.35); transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px;">
+                        style="background: linear-gradient(135deg, var(--empresa-cor-primaria, #4f46e5), var(--empresa-cor-secundaria, #4338ca)); color: white; border: none; padding: 8px 18px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; text-decoration: none; box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.2); transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px;">
                         <i class="fa-solid fa-print"></i> Salvar Relatório
                     </a>
                 @endif
@@ -555,47 +570,47 @@
             </div>
         </div>
 
-        <!-- Linha Principal: Empresa Cliente (Esquerda) e Colaborador (Direita) -->
-        <div class="header-main-grid" style="display: flex; gap: 24px; align-items: center; justify-content: space-between;">
+        <!-- Linha Principal: Empresa Cliente (Esquerda) e Colaborador (Direita) - 50% / 50% Perfeitamente Simétrico -->
+        <div class="header-main-grid" style="display: flex; gap: 20px; align-items: center; justify-content: space-between;">
             
-            <!-- Coluna 1: Empresa Cliente & Logotipo -->
-            <div class="header-col-empresa" style="flex: 1; max-width: 45%; display: flex; align-items: center; gap: 16px;">
-                <div id="reportEmpresaLogoWrapper" style="display: flex; align-items: center; justify-content: center; min-width: 60px; max-width: 140px;">
-                    <img id="reportEmpresaLogo" src="" alt="Logotipo da Empresa" style="display: none; max-height: 52px; max-width: 140px; object-fit: contain; border-radius: 8px;">
-                    <div id="reportEmpresaIcon" style="display: flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 12px; background: linear-gradient(135deg, #1e293b, #334155); color: white; box-shadow: 0 6px 14px rgba(15, 23, 42, 0.15);">
+            <!-- Coluna 1: Empresa Cliente & Logotipo (50%) -->
+            <div class="header-col-empresa" style="flex: 1; width: 50%; display: flex; align-items: center; gap: 16px;">
+                <div id="reportEmpresaLogoWrapper" style="display: flex; align-items: center; justify-content: center; min-width: 64px; max-width: 140px; height: 56px;">
+                    <img id="reportEmpresaLogo" src="" alt="Logotipo da Empresa" style="display: none; max-height: 52px; max-width: 135px; width: auto; height: auto; object-fit: contain; border-radius: 6px;">
+                    <div id="reportEmpresaIcon" style="display: flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 12px; background: linear-gradient(135deg, var(--empresa-cor-primaria, #1e293b), var(--empresa-cor-secundaria, #334155)); color: white; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);">
                         <i class="fa-solid fa-building" style="font-size: 1.3rem;"></i>
                     </div>
                 </div>
-                <div>
-                    <span style="display: inline-block; text-transform: uppercase; letter-spacing: 1px; color: #64748b; font-size: 0.68rem; font-weight: 800; margin-bottom: 2px;">
+                <div style="flex: 1; min-width: 0;">
+                    <span style="display: inline-block; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; font-size: 0.68rem; font-weight: 800; margin-bottom: 2px;">
                         Empresa Avaliadora
                     </span>
-                    <h2 id="reportEmpresaNome" style="color: #0f172a; margin: 0; font-size: 1.25rem; font-weight: 800; line-height: 1.2; letter-spacing: -0.3px;">
+                    <h2 id="reportEmpresaNome" style="color: #0f172a; margin: 0; font-size: 1.22rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.3px; word-break: break-word;">
                         Empresa Cliente
                     </h2>
-                    <span id="reportEmpresaCnpj" style="display: inline-block; margin-top: 3px; font-size: 0.75rem; color: #475569; background: #f1f5f9; padding: 2px 7px; border-radius: 6px; font-weight: 600;"></span>
+                    <span id="reportEmpresaCnpj" style="display: inline-block; margin-top: 4px; font-size: 0.73rem; color: #475569; background: #f1f5f9; padding: 2px 8px; border-radius: 6px; font-weight: 600;"></span>
                 </div>
             </div>
 
-            <!-- Coluna 2: Colaborador e Metadados -->
-            <div class="header-col-colab" style="flex: 1.2; border-left: 2px solid #f1f5f9; padding-left: 20px;">
-                <span style="display: inline-block; text-transform: uppercase; letter-spacing: 1px; color: #4f46e5; font-size: 0.68rem; font-weight: 800; margin-bottom: 2px;">
+            <!-- Coluna 2: Colaborador e Metadados (50%) -->
+            <div class="header-col-colab" style="flex: 1; width: 50%; border-left: 2px solid #f1f5f9; padding-left: 20px;">
+                <span id="lblColabHeader" style="display: inline-block; text-transform: uppercase; letter-spacing: 0.8px; color: var(--empresa-cor-primaria, #4f46e5); font-size: 0.68rem; font-weight: 800; margin-bottom: 2px;">
                     Colaborador Avaliado
                 </span>
-                <h3 style="color: #0f172a; margin: 0 0 6px 0; font-size: 1.45rem; font-weight: 800; line-height: 1.2; letter-spacing: -0.4px;">
+                <h3 style="color: #0f172a; margin: 0 0 6px 0; font-size: 1.35rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.4px; word-break: break-word;">
                     <span id="reportTitle">Resultados da Avaliação</span>
                 </h3>
-                <div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 0.78rem;">
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 0.76rem;">
                     <span style="background: #f8fafc; border: 1px solid #e2e8f0; color: #334155; padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;">
-                        <i class="fa-solid fa-briefcase" style="color: #6366f1;"></i>
+                        <i class="fa-solid fa-briefcase" style="color: var(--empresa-cor-primaria, #6366f1);"></i>
                         <span style="color: #64748b;">Cargo:</span> <strong id="reportColabCargo" style="color: #0f172a;">—</strong>
                     </span>
                     <span style="background: #f8fafc; border: 1px solid #e2e8f0; color: #334155; padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;">
-                        <i class="fa-solid fa-sitemap" style="color: #0ea5e9;"></i>
+                        <i class="fa-solid fa-sitemap" style="color: var(--empresa-cor-secundaria, #0ea5e9);"></i>
                         <span style="color: #64748b;">Setor:</span> <strong id="reportColabSetor" style="color: #0f172a;">—</strong>
                     </span>
                     <span style="background: #f8fafc; border: 1px solid #e2e8f0; color: #334155; padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;">
-                        <i class="fa-solid fa-clipboard-list" style="color: #8b5cf6;"></i>
+                        <i class="fa-solid fa-clipboard-list" style="color: var(--empresa-cor-primaria, #8b5cf6);"></i>
                         <span style="color: #64748b;">Campanha:</span> <strong id="reportCampanhaTitulo" style="color: #0f172a;">—</strong>
                     </span>
                 </div>
@@ -606,17 +621,17 @@
 
     <!-- Caixa de Conformidade LGPD & Confidencialidade (Visual Executivo & Discreto) -->
     <div class="termo-lgpd-box"
-        style="background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); border: 1px solid #e2e8f0; border-left: 4px solid #6366f1; border-radius: 14px; padding: 12px 18px; margin-bottom: 26px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);">
+        style="background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); border: 1px solid #e2e8f0; border-left: 4px solid var(--empresa-cor-primaria, #4f46e5); border-radius: 12px; padding: 12px 18px; margin-bottom: 24px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);">
         <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 5px;">
             <div style="display: flex; align-items: center; gap: 8px; color: #1e293b; font-weight: 800; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.6px;">
-                <i class="fa-solid fa-shield-halved" style="color: #6366f1; font-size: 0.95rem;"></i>
+                <i class="fa-solid fa-shield-halved" style="color: var(--empresa-cor-primaria, #4f46e5); font-size: 0.95rem;"></i>
                 <span>Documento Confidencial • Proteção de Dados (LGPD)</span>
             </div>
-            <span style="font-size: 0.7rem; font-weight: 700; color: #4338ca; background: #e0e7ff; padding: 2px 8px; border-radius: 10px;">
+            <span style="font-size: 0.7rem; font-weight: 700; color: var(--empresa-cor-primaria, #4338ca); background: #f1f5f9; padding: 2px 8px; border-radius: 10px; border: 1px solid #e2e8f0;">
                 Lei Federal nº 13.709/2018
             </span>
         </div>
-        <p style="margin: 0; font-size: 0.77rem; line-height: 1.5; color: #64748b;">
+        <p style="margin: 0; font-size: 0.77rem; line-height: 1.5; color: #64748b; text-align: justify;">
             Este relatório contém dados pessoais e avaliações de desempenho de caráter estritamente confidencial, de propriedade e interesse exclusivo do colaborador avaliado e da liderança/RH autorizados. São vedados a divulgação, compartilhamento ou envio a terceiros sem prévia autorização formal, sob pena das sanções civis, penais e trabalhistas cabíveis (LGPD - Lei 13.709/2018, Art. 5º, X da CF/88, Arts. 153 e 154 do Código Penal e Art. 482, &ldquo;g&rdquo; da CLT).
         </p>
     </div>
@@ -630,8 +645,8 @@
                         class="fa-solid fa-ranking-star"></i></div>
                 Médias Comparativas Globais
             </h3>
-            <div style="display: flex; gap: 24px; flex-wrap: wrap; justify-content: center;">
-                <div class="comparative-box" style="max-width: 250px;">
+            <div class="comparative-grid-container" style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+                <div class="comparative-box" style="flex: 1; min-width: 140px; max-width: 250px;">
                     <p
                         style="margin: 0 0 10px 0; color: #64748b; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
                         Indivíduo</p>
@@ -639,8 +654,8 @@
                         id="txtMediaInd">0.0</div>
                 </div>
 
-                @if(in_array(auth()->user()->perfil_acesso->value, ['master', 'admin']))
-                    <div class="comparative-box" style="max-width: 250px;">
+                @if(in_array(auth()->user()->perfil_acesso->value, ['master', 'admin', 'consultor']))
+                    <div class="comparative-box" style="flex: 1; min-width: 140px; max-width: 250px;">
                         <p
                             style="margin: 0 0 10px 0; color: #64748b; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
                             Cargo</p>
@@ -648,8 +663,8 @@
                     </div>
                 @endif
 
-                @if(in_array(auth()->user()->perfil_acesso->value, ['master', 'admin', 'gestor']))
-                    <div class="comparative-box" style="max-width: 250px;">
+                @if(in_array(auth()->user()->perfil_acesso->value, ['master', 'admin', 'gestor', 'consultor']))
+                    <div class="comparative-box" style="flex: 1; min-width: 140px; max-width: 250px;">
                         <p
                             style="margin: 0 0 10px 0; color: #64748b; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
                             Setor</p>
@@ -657,8 +672,8 @@
                     </div>
                 @endif
 
-                @if(in_array(auth()->user()->perfil_acesso->value, ['master', 'admin']))
-                    <div class="comparative-box" style="max-width: 250px;">
+                @if(in_array(auth()->user()->perfil_acesso->value, ['master', 'admin', 'consultor']))
+                    <div class="comparative-box" style="flex: 1; min-width: 140px; max-width: 250px;">
                         <p
                             style="margin: 0 0 10px 0; color: #64748b; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
                             Empresa</p>
@@ -789,6 +804,16 @@
 <script>
     window.isColaboradorProfile = {{ auth()->user()->perfil_acesso->value === 'colaborador' ? 'true' : 'false' }};
 
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
     function updateCircle(elemId, textId, score, colorHex) {
         const elem = document.getElementById(elemId);
         const text = document.getElementById(textId);
@@ -898,9 +923,32 @@
             document.getElementById('subAvaliadoresCard').innerText = 'Média das avaliações recebidas';
         }
 
-        // Cores do novo sistema
-        updateCircle('circleAuto', 'scoreAuto', sAuto, '#8b5cf6');
-        updateCircle('circleGestor', 'scoreGestor', sGestor, '#3b82f6');
+        // Injeta Variáveis de Cores da Empresa no Relatório
+        const corPrimaria = (data.empresa && data.empresa.cor_primaria) ? data.empresa.cor_primaria : '#4f46e5';
+        const corSecundaria = (data.empresa && data.empresa.cor_secundaria) ? data.empresa.cor_secundaria : '#7c3aed';
+        const corTerciaria = (data.empresa && data.empresa.cor_terciaria) ? data.empresa.cor_terciaria : '#1e1b4b';
+
+        const reportElem = document.getElementById('reportContent');
+        reportElem.style.setProperty('--empresa-cor-primaria', corPrimaria);
+        reportElem.style.setProperty('--empresa-cor-secundaria', corSecundaria);
+        reportElem.style.setProperty('--empresa-cor-terciaria', corTerciaria);
+
+        // Atualiza gradiente da Média do Indivíduo para refletir as cores da empresa
+        const txtMediaInd = document.getElementById('txtMediaInd');
+        if (txtMediaInd) {
+            txtMediaInd.style.background = `linear-gradient(135deg, ${corPrimaria}, ${corSecundaria})`;
+            txtMediaInd.style.webkitBackgroundClip = 'text';
+            txtMediaInd.style.webkitTextFillColor = 'transparent';
+        }
+
+        // Cores do novo sistema com base na identidade visual da empresa
+        const cardAuto = document.getElementById('cardAuto');
+        if (cardAuto) cardAuto.style.setProperty('--card-color', corSecundaria);
+        updateCircle('circleAuto', 'scoreAuto', sAuto, corSecundaria);
+
+        const cardAvaliadores = document.querySelector('#lblAvaliadoresCard')?.closest('.score-card');
+        if (cardAvaliadores) cardAvaliadores.style.setProperty('--card-color', corPrimaria);
+        updateCircle('circleGestor', 'scoreGestor', sGestor, corPrimaria);
 
         if (isNaN(sFinal)) {
             document.getElementById('cardMediacao').style.display = 'none';
@@ -957,7 +1005,7 @@
         if (data.scores.colab && data.scores.colab.detalhes) {
             data.scores.colab.detalhes.forEach(d => {
                 let comp = d.competencia || 'Geral';
-                if (!competencias[comp]) competencias[comp] = { skills: {}, notasColab: [], notasAval: [] };
+                if (!competencias[comp]) competencias[comp] = { peso: d.peso || 1, skills: {}, notasColab: [], notasAval: [] };
                 if (!competencias[comp].skills[d.pergunta]) competencias[comp].skills[d.pergunta] = { colab: null, aval: null };
 
                 competencias[comp].skills[d.pergunta].colab = d;
@@ -970,7 +1018,7 @@
         if (data.scores.aval && data.scores.aval.detalhes) {
             data.scores.aval.detalhes.forEach(d => {
                 let comp = d.competencia || 'Geral';
-                if (!competencias[comp]) competencias[comp] = { skills: {}, notasColab: [], notasAval: [] };
+                if (!competencias[comp]) competencias[comp] = { tipo: d.tipo_competencia || 'comportamental', peso: d.peso || 1, skills: {}, notasColab: [], notasAval: [] };
                 if (!competencias[comp].skills[d.pergunta]) competencias[comp].skills[d.pergunta] = { colab: null, aval: null };
 
                 competencias[comp].skills[d.pergunta].aval = d;
@@ -990,14 +1038,26 @@
             if (avgAval !== '-') partsForFinal.push(parseFloat(avgAval));
             let avgFinalComp = partsForFinal.length > 0 ? (partsForFinal.reduce((a, b) => a + b, 0) / partsForFinal.length).toFixed(1) : '-';
 
+            let isTecnica = (dados.tipo === 'tecnica');
+            let iconComp = isTecnica ? 'fa-solid fa-code' : 'fa-solid fa-star';
+            let iconBg = isTecnica ? '#e0e7ff' : '#fef3c7';
+            let iconColor = isTecnica ? '#4338ca' : '#f59e0b';
+            let badgeTipo = isTecnica 
+                ? '<span style="background: #e0e7ff; color: #4338ca; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px; text-transform: uppercase; margin-left: 8px;">Técnica</span>'
+                : '<span style="background: #fef3c7; color: #b45309; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px; text-transform: uppercase; margin-left: 8px;">Comportamental</span>';
+
+            let badgePeso = `<span style="background: #f1f5f9; color: #475569; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px; border: 1px solid #e2e8f0; margin-left: 6px;"><i class="fa-solid fa-weight-hanging" style="margin-right: 3px; font-size: 0.65rem;"></i>Peso: ${dados.peso || 1}%</span>`;
+
             let card = document.createElement('div');
             card.className = "table-card";
 
             let html = `
                 <div class="table-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                    <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; font-weight: 800; display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 auto;">
-                        <div class="icon-wrapper" style="width: 32px; height: 32px; min-width: 32px; background: #fef3c7; color: #f59e0b; font-size: 0.8rem;"><i class="fa-solid fa-star"></i></div> 
+                    <h3 style="margin: 0; font-size: 1.15rem; color: #0f172a; font-weight: 800; display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1 1 auto; flex-wrap: wrap;">
+                        <div class="icon-wrapper" style="width: 32px; height: 32px; min-width: 32px; background: ${iconBg}; color: ${iconColor}; font-size: 0.8rem;"><i class="${iconComp}"></i></div> 
                         <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${compName}</span>
+                        ${badgeTipo}
+                        ${badgePeso}
                     </h3>
             `;
             if (is90) {
@@ -1094,10 +1154,39 @@
                         `;
                     }
 
+                    // Evidências registradas para este critério (auto e avaliadores)
+                    let evidenciasBloco = '';
+                    let evidenciasItens = [];
+
+                    if (skillData.colab && skillData.colab.evidencia) {
+                        evidenciasItens.push(`
+                            <div style="font-size: 0.78rem; background: #faf5ff; border: 1px solid #e9d5ff; border-left: 3px solid #a855f7; border-radius: 6px; padding: 4px 8px; margin-top: 4px; color: #581c87; line-height: 1.35;">
+                                <strong>Autoavaliação:</strong> ${escapeHtml(skillData.colab.evidencia)}
+                            </div>
+                        `);
+                    }
+
+                    if (skillData.aval && skillData.aval.evidencias && skillData.aval.evidencias.length > 0) {
+                        skillData.aval.evidencias.forEach(ev => {
+                            evidenciasItens.push(`
+                                <div style="font-size: 0.78rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 3px solid #10b981; border-radius: 6px; padding: 4px 8px; margin-top: 4px; color: #064e3b; line-height: 1.35;">
+                                    <strong>Evidência do Avaliador${ev.avaliador && ev.avaliador !== 'Avaliador' ? ' (' + escapeHtml(ev.avaliador) + ')' : ''}:</strong> ${escapeHtml(ev.texto)}
+                                </div>
+                            `);
+                        });
+                    }
+
+                    if (evidenciasItens.length > 0) {
+                        evidenciasBloco = `<div style="margin-top: 6px;">${evidenciasItens.join('')}</div>`;
+                    }
+
                     if (is90) {
                         html += `
                             <tr>
-                                <td data-label="Critério Avaliado" style="font-weight: 600; color: #0f172a;">${skillName}</td>
+                                <td data-label="Critério Avaliado" style="font-weight: 600; color: #0f172a;">
+                                    <div>${skillName}</div>
+                                    ${evidenciasBloco}
+                                </td>
                                 <td data-label="${is360 ? 'Média Pares' : 'Avaliador'}" style="text-align: center;">
                                     <span>${badgeAval}${breakdownHtml}</span>
                                 </td>
@@ -1107,7 +1196,10 @@
                     } else {
                         html += `
                             <tr>
-                                <td data-label="Critério Avaliado" style="font-weight: 600; color: #0f172a;">${skillName}</td>
+                                <td data-label="Critério Avaliado" style="font-weight: 600; color: #0f172a;">
+                                    <div>${skillName}</div>
+                                    ${evidenciasBloco}
+                                </td>
                                 <td data-label="Autoavaliação" style="text-align: center;">${badgeColab}</td>
                                 <td data-label="${is360 ? 'Média Pares' : 'Avaliadores'}" style="text-align: center;">
                                     <span>${badgeAval}${breakdownHtml}</span>

@@ -10,6 +10,102 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    @php
+        $empresaAtiva = auth()->check() ? auth()->user()->empresa : null;
+        $corPrimaria = $empresaAtiva->cor_primaria ?? '#6a4c7c';
+        $corSecundaria = $empresaAtiva->cor_secundaria ?? '#8b5cf6';
+        $corTerciaria = $empresaAtiva->cor_terciaria ?? '#1e1b4b';
+        $corFundo = $empresaAtiva->cor_fundo ?? '#f4f6fa';
+        $marcaDagua = $empresaAtiva && $empresaAtiva->marca_dagua ? asset('storage/' . ltrim($empresaAtiva->marca_dagua, '/')) : null;
+    @endphp
+    <style>
+        :root {
+            --primary-color: {{ $corPrimaria }};
+            --primary-color-rgb: {{ implode(',', sscanf($corPrimaria, "#%02x%02x%02x")) }};
+            --primary-dark: {{ $corTerciaria }};
+            --primary-light: {{ $corSecundaria }};
+            --bg-color-system: {{ $corFundo }};
+            --brand-topbar: linear-gradient(135deg, {{ $corPrimaria }} 0%, {{ $corSecundaria }} 100%);
+            --brand-sidebar-gradient: linear-gradient(180deg, {{ $corPrimaria }} 0%, {{ $corSecundaria }} 50%, {{ $corTerciaria }} 100%);
+        }
+
+        /* Força a aplicação das cores customizadas da empresa sobre os estilos estáticos */
+        .sidebar {
+            background: linear-gradient(180deg, {{ $corPrimaria }} 0%, {{ $corSecundaria }} 50%, {{ $corTerciaria }} 100%) !important;
+        }
+
+        .top-bar {
+            background: linear-gradient(135deg, {{ $corPrimaria }} 0%, {{ $corSecundaria }} 100%) !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, {{ $corPrimaria }}, {{ $corSecundaria }}) !important;
+            border: none !important;
+        }
+
+        /* Destaques e títulos da sidebar (substituindo o laranja estático) */
+        .menu-header {
+            color: rgba(255, 255, 255, 0.75) !important;
+            letter-spacing: 0.08em !important;
+        }
+
+        .menu-link.active {
+            border-left: 4px solid #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.22) !important;
+        }
+
+        .menu-link:hover {
+            background-color: rgba(255, 255, 255, 0.14) !important;
+        }
+
+        /* Harmonização dos elementos de destaque com a cor primária da empresa */
+        .tab-btn.active {
+            color: {{ $corPrimaria }} !important;
+            border-bottom-color: {{ $corPrimaria }} !important;
+        }
+
+        .tab-btn:hover {
+            color: {{ $corPrimaria }} !important;
+        }
+
+        /* Fundo do sistema: aplica a cor de fundo escolhida no perfil */
+        body, .main-content {
+            background-color: {{ $corFundo }} !important;
+            background-attachment: fixed !important;
+        }
+
+        /* Adaptação dos cards e painéis para não ficarem com branco puro chapado */
+        .unified-card, .form-card, .metadata-card, .card-profile, .card-panel, .kpi-card {
+            background: rgba(255, 255, 255, 0.90) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border-color: rgba({{ implode(',', sscanf($corPrimaria, "#%02x%02x%02x")) }}, 0.18) !important;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba({{ implode(',', sscanf($corPrimaria, "#%02x%02x%02x")) }}, 0.05) !important;
+        }
+
+        @if($marcaDagua)
+        .page-content, main.main-content {
+            position: relative;
+        }
+        .page-content::before {
+            content: "";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 480px;
+            height: 480px;
+            background-image: url('{{ $marcaDagua }}');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @endif
+    </style>
+
     @stack('styles')
 </head>
 
@@ -33,7 +129,25 @@
                             <i class="fa-solid fa-bars"></i>
                         </button>
                         <div class="top-logo">
-                            <i class="fa-solid fa-brain"></i> TALENTIPRO
+                            @if(auth()->check() && auth()->user()->empresa)
+                                @if(auth()->user()->empresa->logo)
+                                    <div style="background: rgba(255, 255, 255, 0.95); border-radius: 8px; padding: 3px 10px; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.1); max-height: 38px;">
+                                        <img src="{{ asset('storage/' . auth()->user()->empresa->logo) }}" 
+                                             alt="{{ auth()->user()->empresa->nome }}" 
+                                             style="max-height: 28px; max-width: 130px; width: auto; height: auto; object-fit: contain;"
+                                             onerror="this.parentElement.style.display='none'; this.parentElement.nextElementSibling.style.display='inline-flex';">
+                                    </div>
+                                    <span style="display: none; align-items: center; gap: 8px;">
+                                        <i class="fa-solid fa-shapes"></i> {{ strtoupper(auth()->user()->empresa->nome) }}
+                                    </span>
+                                @else
+                                    <span style="display: inline-flex; align-items: center; gap: 8px;">
+                                        <i class="fa-solid fa-shapes"></i> {{ strtoupper(auth()->user()->empresa->nome) }}
+                                    </span>
+                                @endif
+                            @else
+                                <i class="fa-solid fa-brain"></i> TALENTIPRO
+                            @endif
                         </div>
                     </div>
 

@@ -66,9 +66,9 @@ class DiscEquipeGestorTest extends TestCase
     }
 
     /**
-     * Gestor deve ver colaboradores sem departamento (null).
+     * Gestor NÃO deve ver colaboradores sem departamento (null).
      */
-    public function test_gestor_ve_colaboradores_sem_departamento(): void
+    public function test_gestor_nao_ve_colaboradores_sem_departamento(): void
     {
         $colabSemDepto = User::factory()->create([
             'empresa_id' => $this->empresa->id,
@@ -80,7 +80,31 @@ class DiscEquipeGestorTest extends TestCase
         $response = $this->get(route('disc.equipe'));
 
         $response->assertStatus(200);
-        $response->assertSee('Colaborador Sem Depto');
+        $response->assertDontSee('Colaborador Sem Depto');
+    }
+
+    /**
+     * Gestor deve ver colaboradores de departamento onde ele é o gestor responsável.
+     */
+    public function test_gestor_ve_colaboradores_de_departamento_onde_e_responsavel(): void
+    {
+        $segundoDepto = Departamento::create([
+            'nome' => 'Operações',
+            'empresa_id' => $this->empresa->id,
+            'gestor_id' => $this->gestor->id,
+        ]);
+
+        $colabOperacoes = User::factory()->create([
+            'empresa_id' => $this->empresa->id,
+            'departamento_id' => $segundoDepto->id,
+            'name' => 'Colaborador Operacoes',
+        ]);
+
+        $this->actingAs($this->gestor);
+        $response = $this->get(route('disc.equipe'));
+
+        $response->assertStatus(200);
+        $response->assertSee('Colaborador Operacoes');
     }
 
     /**

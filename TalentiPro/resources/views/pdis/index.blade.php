@@ -10,27 +10,27 @@
 @section('content')
 <style>
     :root {
-        --color-primary: #4f46e5;
-        --color-primary-hover: #3730a3;
-        --color-accent: #6d28d9;
-        --color-slate-50: #f8fafc;
+        --color-primary: var(--primary-color, #4f46e5);
+        --color-primary-hover: var(--primary-dark, #3730a3);
+        --color-accent: var(--primary-light, #6d28d9);
+        --color-slate-50: transparent;
         --color-slate-100: #f1f5f9;
         --color-slate-500: #64748b;
         --color-slate-900: #0f172a;
         --radius-card: 16px;
         --radius-element: 10px;
         --radius-pill: 99px;
-        --shadow-card: 0 4px 16px rgba(0,0,0,.08);
-        --shadow-hover: 0 10px 40px rgba(0,0,0,.14);
-        --border-soft: 1px solid #e9eaf0;
+        --shadow-card: 0 4px 16px rgba(0,0,0,.04);
+        --shadow-hover: 0 10px 40px rgba(0,0,0,.08);
+        --border-soft: 1px solid rgba(226, 232, 240, 0.8);
         --font-main: 'Inter', system-ui, sans-serif;
     }
 
     .pdi-page {
         font-family: var(--font-main);
-        background: var(--color-slate-50);
+        background: transparent;
         min-height: 100vh;
-        padding: 24px;
+        padding: 0;
     }
 
     /* ── Responsividade Mobile & Zoom ── */
@@ -202,11 +202,12 @@
     }
 
     .kpi-card {
-        background: #fff;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(8px);
         border-radius: var(--radius-card);
         padding: 22px 24px;
-        box-shadow: var(--shadow-card);
-        border: var(--border-soft);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(226, 232, 240, 0.9);
         display: flex;
         align-items: center;
         gap: 18px;
@@ -214,8 +215,9 @@
     }
 
     .kpi-card:hover {
-        box-shadow: var(--shadow-hover);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
         transform: translateY(-3px);
+        border-color: rgba(36, 169, 214, 0.3);
     }
 
     .kpi-icon {
@@ -250,7 +252,7 @@
         display: flex;
         gap: 4px;
         margin-bottom: 20px;
-        border-bottom: 2px solid #e9eaf0;
+        border-bottom: 2px solid rgba(226, 232, 240, 0.9);
         padding-bottom: 0;
     }
 
@@ -271,7 +273,7 @@
 
     .tab-btn:hover {
         color: var(--color-primary);
-        background: rgba(79, 70, 229, 0.05);
+        background: rgba(36, 169, 214, 0.06);
     }
 
     .tab-btn.active {
@@ -284,9 +286,10 @@
     .card-panel {
         background: #fff;
         border-radius: var(--radius-card);
-        box-shadow: var(--shadow-card);
-        border: var(--border-soft);
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
+        border: 1px solid #e2e8f0;
         overflow: hidden;
+        margin-top: 15px;
     }
 
     /* Wrapper para scroll horizontal da tabela em telas médias */
@@ -294,10 +297,10 @@
         width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        padding-bottom: 4px;
+        padding: 8px 12px;
     }
 
-    /* Scrollbar Estilizado Roxo */
+    /* Scrollbar Estilizado */
     .table-scroll-wrap::-webkit-scrollbar {
         height: 8px;
     }
@@ -306,11 +309,11 @@
         border-radius: 8px;
     }
     .table-scroll-wrap::-webkit-scrollbar-thumb {
-        background: rgba(79, 70, 229, 0.6); /* primary com opacidade */
+        background: rgba(100, 116, 139, 0.3);
         border-radius: 8px;
     }
     .table-scroll-wrap::-webkit-scrollbar-thumb:hover {
-        background: rgba(79, 70, 229, 1);
+        background: rgba(100, 116, 139, 0.5);
     }
 
     @media (max-width: 768px) {
@@ -320,41 +323,54 @@
             border: none;
             border-radius: 0;
             overflow: visible;
+            margin-top: 0;
         }
 
         .table-scroll-wrap {
             overflow: visible;
+            padding: 0;
         }
     }
 
     /* Modern Table */
     .modern-table {
         width: 100%;
-        min-width: unset; /* Permite espremer a tabela sem scroll horizontal no zoom */
+        min-width: unset;
         border-collapse: separate;
         border-spacing: 0;
     }
 
     .modern-table th {
-        padding: 12px 10px;
+        padding: 16px 18px;
         font-size: 0.82rem;
         font-weight: 700;
-        color: var(--color-slate-500);
+        color: #64748b;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        border-bottom: 2px solid #edf2f7;
-        background: var(--color-slate-50);
+        border-bottom: 2px solid #e2e8f0;
+        background: #f8fafc;
         white-space: nowrap;
-        }
+    }
+
+    .modern-table th:first-child {
+        border-top-left-radius: 8px;
+        border-bottom-left-radius: 8px;
+    }
+
+    .modern-table th:last-child {
+        border-top-right-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
 
     .modern-table td {
-        padding: 14px 10px;
-        border-bottom: 1px solid #edf2f7;  /* divisória mais visível */
+        padding: 18px;
+        border-bottom: 1px solid #f1f5f9;
         vertical-align: middle;
-        }
+        background: #ffffff;
+    }
 
     .modern-table tbody tr {
-        transition: background 0.15s;
+        transition: background 0.15s ease;
     }
 
     .modern-table tr:last-child td {
@@ -362,7 +378,7 @@
     }
 
     .modern-table tbody tr:hover td {
-        background: rgba(79, 70, 229, 0.03);
+        background: #f8fafc;
     }
 
     /* Buttons */
@@ -383,15 +399,15 @@
     }
 
     .btn-primary {
-        background: var(--color-primary);
-        color: #fff;
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-light)) !important;
+        color: #fff !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15) !important;
     }
 
     .btn-primary:hover {
-        background: var(--color-primary-hover);
+        opacity: 0.92;
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2) !important;
     }
 
     .btn-secondary {
@@ -455,7 +471,7 @@
     <!-- KPIs Rápidos -->
     <div class="kpi-grid">
         <div class="kpi-card">
-            <div class="kpi-icon" style="background: rgba(79, 70, 229, 0.1); color: var(--color-primary);">
+            <div class="kpi-icon" style="background: rgba(var(--primary-color-rgb, 106, 76, 124), 0.12); color: var(--primary-color);">
                 <i class="fa-solid fa-graduation-cap"></i>
             </div>
             <div>

@@ -181,13 +181,13 @@ class AuthorizationTest extends TestCase
         $this->get('/avaliacoes')->assertStatus(200);
     }
 
-    public function test_gestor_acessa_rotas_de_rh(): void
+    public function test_gestor_nao_acessa_cadastros_mas_acessa_avaliacoes(): void
     {
         $this->actingAs($this->gestor);
 
-        $this->get('/departamentos')->assertStatus(200);
-        $this->get('/cargos')->assertStatus(200);
-        $this->get('/colaboradores')->assertStatus(200);
+        $this->get('/departamentos')->assertForbidden();
+        $this->get('/cargos')->assertForbidden();
+        $this->get('/colaboradores')->assertForbidden();
         $this->get('/avaliacoes')->assertStatus(200);
     }
 

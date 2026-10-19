@@ -16,6 +16,7 @@ class AvaliacaoResposta extends Model
         'avaliacao_participante_id',
         'skill_id',
         'nota',
+        'evidencia',
     ];
 
     public function participante(): BelongsTo

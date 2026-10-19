@@ -23,11 +23,10 @@ class AvaliacaoRelatorioController extends Controller
     {
         $user = auth()->user();
         
-        // Regra do index: Admin e Master veem tudo. 
+        // Regra do index: Admin, Master e Consultor veem todas as avaliações (da empresa ativa ou todas se admin). 
         // Gestor vê as avaliações que ele criou ou onde ele é o gestor responsável.
         // Mediador vê onde ele é o mediador.
-        // A lógica do sistema antigo trazia TODAS as avaliações para o dropdown, vamos manter.
-        if (in_array($user->perfil_acesso->value, ['admin', 'master'])) {
+        if (in_array($user->perfil_acesso->value, ['admin', 'master', 'consultor'])) {
             $avaliacoes = Avaliacao::where('is_template', false)->orderBy('created_at', 'desc')->get();
         } else {
             // Se for gestor, filtra as que importam para ele
@@ -118,10 +117,35 @@ class AvaliacaoRelatorioController extends Controller
             ->first();
 
         // === CÁLCULOS ===
+        $avaliacao->load('competencias');
+        $pesosCompetenciasMap = $avaliacao->competencias->pluck('pivot.peso', 'nome')->toArray();
+        $pesosPorIdMap = $avaliacao->competencias->pluck('pivot.peso', 'id')->toArray();
 
-        // A. Média Individual (Geral recebida por todos nesta avaliação)
+        // Função para calcular média ponderada por competência
+        $calcularMediaPonderadaRespostas = function($respostasColecao) use ($pesosPorIdMap) {
+            if ($respostasColecao->isEmpty()) return 0;
+
+            $porCompetencia = $respostasColecao->groupBy(function($r) {
+                return $r->skill?->competencia_id ?? 0;
+            });
+
+            $somaPonderada = 0;
+            $somaPesos = 0;
+
+            foreach ($porCompetencia as $compId => $respsComp) {
+                $mediaComp = $respsComp->avg('nota') ?? 0;
+                $peso = $pesosPorIdMap[$compId] ?? 1;
+
+                $somaPonderada += ($mediaComp * $peso);
+                $somaPesos += $peso;
+            }
+
+            return $somaPesos > 0 ? ($somaPonderada / $somaPesos) : 0;
+        };
+
+        // A. Média Individual (Ponderada pelas competências)
         $todasRespostas = $participacoes->pluck('respostas')->flatten();
-        $mediaIndividual = $todasRespostas->avg('nota') ?? 0;
+        $mediaIndividual = $calcularMediaPonderadaRespostas($todasRespostas);
 
         // B. Médias de Comparação (Cargo, Setor, Empresa)
         $empresaId = $avaliacao->empresa_id ?? $colaborador->empresa_id;
@@ -223,18 +247,29 @@ class AvaliacaoRelatorioController extends Controller
             'cnpj' => $cnpjFormatado,
             'logo_url' => $logoUrl,
             'logo_path' => $logoPath,
+            'cor_primaria' => $empresa?->cor_primaria ?? '#4f46e5',
+            'cor_secundaria' => $empresa?->cor_secundaria ?? '#7c3aed',
+            'cor_terciaria' => $empresa?->cor_terciaria ?? '#1e1b4b',
         ];
+
+        // Carrega competências vinculadas com seus respectivos pesos configurados no modelo
+        $avaliacao->load('competencias');
+        $pesosCompetenciasMap = $avaliacao->competencias->pluck('pivot.peso', 'nome')->toArray();
 
         // C. Detalhamento
         
         // Grupo 1: "Colaboradores" -> AUTOAVALIAÇÃO
         $partAuto = $participacoes->where('tipo', \App\Enums\TipoAvaliacao::AUTOAVALIACAO)->first();
-        $mediaColab = $partAuto ? $partAuto->respostas->avg('nota') : 0;
-        $detalhesColab = $partAuto ? $partAuto->respostas->map(function($r){
+        $mediaColab = $partAuto ? $calcularMediaPonderadaRespostas($partAuto->respostas) : 0;
+        $detalhesColab = $partAuto ? $partAuto->respostas->map(function($r) use ($pesosCompetenciasMap) {
+            $compNome = $r->skill->competencia->nome ?? 'Geral';
             return [
-                'competencia' => $r->skill->competencia->nome ?? 'Geral',
+                'competencia' => $compNome,
+                'tipo_competencia' => $r->skill->competencia->tipo ?? 'comportamental',
+                'peso' => $pesosCompetenciasMap[$compNome] ?? 1,
                 'pergunta' => $r->skill->nome, 
-                'nota' => $r->nota
+                'nota' => $r->nota,
+                'evidencia' => $r->evidencia ?? null
             ];
         }) : [];
 
@@ -245,31 +280,44 @@ class AvaliacaoRelatorioController extends Controller
             \App\Enums\TipoAvaliacao::SUBORDINADO
         ]); 
         $respostasAval = $partsAval->pluck('respostas')->flatten();
-        $mediaAval = $respostasAval->avg('nota') ?? 0;
+        $mediaAval = $calcularMediaPonderadaRespostas($respostasAval);
         $isOwnReport = (auth()->id() == $colaboradorId);
 
         $detalhesAval = [];
         $respostasPorSkill = $respostasAval->groupBy('skill_id');
         
         foreach($respostasPorSkill as $skillId => $resps) {
-            $nomeSkill = $resps->first()->skill->nome ?? 'Pergunta';
+            $primeiraResp = $resps->first();
+            $nomeSkill = $primeiraResp->skill->nome ?? 'Pergunta';
+            $tipoComp = $primeiraResp->skill->competencia->tipo ?? 'comportamental';
+            $compNome = $primeiraResp->skill->competencia->nome ?? 'Geral';
             $avgSkill = $resps->avg('nota');
             
             $breakdown = [];
-            if (!$isOwnReport) {
-                foreach($resps as $resp) {
+            $evidenciasList = [];
+            foreach($resps as $resp) {
+                if (!$isOwnReport) {
                     $breakdown[] = [
                         'nome' => $resp->participante->avaliador->name ?? 'Avaliador',
                         'nota' => $resp->nota
                     ];
                 }
+                if (!empty($resp->evidencia)) {
+                    $evidenciasList[] = [
+                        'avaliador' => (!$isOwnReport) ? ($resp->participante->avaliador->name ?? 'Avaliador') : 'Avaliador',
+                        'texto' => $resp->evidencia
+                    ];
+                }
             }
             
             $detalhesAval[] = [
-                'competencia' => $resps->first()->skill->competencia->nome ?? 'Geral',
+                'competencia' => $compNome,
+                'tipo_competencia' => $tipoComp,
+                'peso' => $pesosCompetenciasMap[$compNome] ?? 1,
                 'pergunta' => $nomeSkill,
                 'nota' => number_format($avgSkill, 2),
-                'breakdown' => $breakdown
+                'breakdown' => $breakdown,
+                'evidencias' => $evidenciasList
             ];
         }
 
@@ -304,9 +352,9 @@ class AvaliacaoRelatorioController extends Controller
         $minhaPart = $participacoes->where('avaliador_id', auth()->id())->where('tipo', \App\Enums\TipoAvaliacao::MEDIADOR)->first();
         $minhaNotaMediacao = $minhaPart ? ($minhaPart->respostas->avg('nota') ?? 0) : null;
 
-        // 4. Histórico de Avaliações deste Colaborador (Exclusivo para Gestores, Masters e Admins)
+        // 4. Histórico de Avaliações deste Colaborador (Exclusivo para Gestores, Masters, Admins e Consultores)
         $historico = [];
-        if (!$isOwnReport && in_array(auth()->user()->perfil_acesso->value, ['admin', 'master', 'gestor'])) {
+        if (!$isOwnReport && in_array(auth()->user()->perfil_acesso->value, ['admin', 'master', 'gestor', 'consultor'])) {
             $outrasAvaliacoes = Avaliacao::where('is_template', false)
                 ->whereHas('participantes', function($q) use ($colaboradorId) {
                     $q->where('avaliado_id', $colaboradorId);

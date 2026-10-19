@@ -33,6 +33,88 @@ class GeminiTextService
     }
 
     /**
+     * Sugere perguntas técnicas baseadas no cargo e descrição, com cache estrito no banco
+     * para respeitar o teto orçamentário de R$ 600/mês.
+     */
+    public function sugerirPerguntasTecnicasPorCargo(\App\Models\Cargo $cargo): array
+    {
+        $hashDescricao = hash('sha256', ($cargo->nome ?? '') . '|' . ($cargo->cbo ?? '') . '|' . ($cargo->senioridade ?? '') . '|' . ($cargo->descricao ?? ''));
+
+        // 1. Verifica cache no banco de dados
+        $cacheExistente = \App\Models\CargoQuestaoIa::where('empresa_id', $cargo->empresa_id)
+            ->where('cargo_id', $cargo->id)
+            ->where('hash_descricao', $hashDescricao)
+            ->first();
+
+        if ($cacheExistente && !empty($cacheExistente->questoes_sugeridas)) {
+            Log::info("[GeminiTextService] Cache HIT para perguntas do cargo: {$cargo->nome} (ID: {$cargo->id})");
+            return [
+                'success' => true,
+                'cached' => true,
+                'questoes' => $cacheExistente->questoes_sugeridas,
+            ];
+        }
+
+        if (empty($this->apiKey)) {
+            Log::error('[GeminiTextService] GEMINI_API_KEY não configurada no .env.');
+            return ['success' => false, 'error' => 'Chave da API não configurada.'];
+        }
+
+        // 2. Monta prompt econômico e direto
+        $prompt = "Você é um especialista em avaliação de competências técnicas corporativas.\n"
+                . "Cargo: {$cargo->nome}\n"
+                . "Senioridade: {$cargo->senioridade}\n"
+                . "CBO: {$cargo->cbo}\n"
+                . "Descrição das atividades: {$cargo->descricao}\n\n"
+                . "Gere entre 3 e 5 perguntas/critérios técnicos objetivos de proficiência para avaliar esse colaborador.\n"
+                . "Retorne ESTRITAMENTE um JSON com esta estrutura (sem formatações markdown extras):\n"
+                . "{\n"
+                . "  \"competencia\": \"Competência Técnica - {$cargo->nome}\",\n"
+                . "  \"descricao\": \"Avaliação de conhecimentos e habilidades técnicas inerentes ao cargo\",\n"
+                . "  \"perguntas\": [\n"
+                . "    \"Pergunta/critério prático 1\",\n"
+                . "    \"Pergunta/critério prático 2\",\n"
+                . "    \"Pergunta/critério prático 3\"\n"
+                . "  ]\n"
+                . "}";
+
+        $resultado = $this->executarRequisicaoJsonComFallback($prompt, 30);
+
+        if (!$resultado['success']) {
+            return $resultado;
+        }
+
+        $jsonLimpo = trim($resultado['text']);
+        $jsonLimpo = preg_replace('/^```json\s*/', '', $jsonLimpo);
+        $jsonLimpo = preg_replace('/\s*```$/', '', $jsonLimpo);
+
+        $parsed = json_decode($jsonLimpo, true);
+
+        if (!$parsed || !isset($parsed['perguntas']) || !is_array($parsed['perguntas'])) {
+            return ['success' => false, 'error' => 'Formato de resposta inválido retornado pela IA.'];
+        }
+
+        // 3. Salva no banco para reutilização instantânea e custo zero em consultas futuras
+        \App\Models\CargoQuestaoIa::updateOrCreate(
+            [
+                'empresa_id' => $cargo->empresa_id,
+                'cargo_id' => $cargo->id,
+                'hash_descricao' => $hashDescricao,
+            ],
+            [
+                'questoes_sugeridas' => $parsed,
+                'modelo_ia' => 'gemini-2.5-flash',
+            ]
+        );
+
+        return [
+            'success' => true,
+            'cached' => false,
+            'questoes' => $parsed,
+        ];
+    }
+
+    /**
      * Gera um PDI para um colaborador com base nas notas (<=3) de sua Avaliação.
      */
     public function gerarPdiAvaliacao(string $dadosCompilados, string $nomeColaborador): array

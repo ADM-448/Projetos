@@ -14,11 +14,13 @@
             <p style="color: #666; font-size: 0.95rem;">Defina a estrutura de cargos da empresa, associe-os a departamentos e defina a hierarquia de liderança.</p>
         </div>
 
+        @if(!auth()->user()->isConsultor())
         <div>
             <button onclick="openCreateModal()" class="btn-primary">
                 <i class="fa-solid fa-plus"></i> Novo Cargo
             </button>
         </div>
+        @endif
     </div>
 
     {{-- LISTAGEM DE CARGOS --}}
@@ -30,9 +32,11 @@
                 </div>
                 <h3 style="font-size: 1.2rem; color: #475569; margin-bottom: 5px; font-weight: bold;">Nenhum cargo cadastrado</h3>
                 <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Cadastre os cargos da empresa para alocar seus colaboradores.</p>
+                @if(!auth()->user()->isConsultor())
                 <button onclick="openCreateModal()" class="btn-primary">
                     <i class="fa-solid fa-plus"></i> Cadastrar Primeiro
                 </button>
+                @endif
             </div>
         @else
             <div class="table-responsive">
@@ -45,7 +49,9 @@
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: center;">Senioridade</th>
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">Líder Superior</th>
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: center;">Colaboradores</th>
+                            @if(!auth()->user()->isConsultor())
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: right;">Ações</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -101,6 +107,7 @@
                                         {{ $cargo->colaboradores_count }} {{ Str::plural('colaborador', $cargo->colaboradores_count) }}
                                     </span>
                                 </td>
+                                @if(!auth()->user()->isConsultor())
                                 <td style="padding: 15px; text-align: right;" data-label="Ações">
                                     <div style="display: inline-flex; gap: 10px;">
                                         <button
@@ -129,6 +136,7 @@
                                         </button>
                                     </div>
                                 </td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>

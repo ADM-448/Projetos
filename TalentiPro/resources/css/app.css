@@ -77,7 +77,7 @@ body.has-sidebar {
 .sidebar {
     width: 260px;
     min-width: 260px;
-    background: linear-gradient(180deg, #6a4c7c 0%, #4a3b55 100%);
+    background: var(--brand-sidebar-gradient, linear-gradient(180deg, #6a4c7c 0%, #4a3b55 100%));
     color: white;
     display: flex;
     flex-direction: column;
@@ -168,7 +168,7 @@ body.has-sidebar {
 .top-bar {
     height: 70px;
     min-height: 70px;
-    background-color: #6a4c7c;
+    background: var(--brand-topbar, #6a4c7c);
     display: flex;
     align-items: center;
     justify-content: space-between;

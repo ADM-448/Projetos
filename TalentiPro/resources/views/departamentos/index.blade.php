@@ -15,11 +15,13 @@
                 gestores responsáveis.</p>
         </div>
 
+        @if(!auth()->user()->isConsultor())
         <div>
             <button onclick="openCreateModal()" class="btn-primary">
                 <i class="fa-solid fa-plus"></i> Novo Departamento
             </button>
         </div>
+        @endif
     </div>
 
     {{-- LISTAGEM DE DEPARTAMENTOS --}}
@@ -33,9 +35,11 @@
                     cadastrado</h3>
                 <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Cadastre os setores da empresa para poder
                     alocar cargos e colaboradores.</p>
+                @if(!auth()->user()->isConsultor())
                 <button onclick="openCreateModal()" class="btn-primary">
                     <i class="fa-solid fa-plus"></i> Cadastrar Primeiro
                 </button>
+                @endif
             </div>
         @else
             <div class="table-responsive">
@@ -47,7 +51,9 @@
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">Gestor Responsável
                             </th>
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: center;">Colaboradores</th>
+                            @if(!auth()->user()->isConsultor())
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: right;">Ações</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -85,6 +91,7 @@
                                         {{ $dept->colaboradores_count }} {{ Str::plural('colaborador', $dept->colaboradores_count) }}
                                     </span>
                                 </td>
+                                @if(!auth()->user()->isConsultor())
                                 <td style="padding: 15px; text-align: right;" data-label="Ações">
                                     <div style="display: inline-flex; gap: 10px;">
                                         <button
@@ -108,6 +115,7 @@
                                         </button>
                                     </div>
                                 </td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>

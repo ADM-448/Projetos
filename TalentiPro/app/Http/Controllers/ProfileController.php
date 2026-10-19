@@ -33,10 +33,14 @@ class ProfileController extends Controller
             'telefone' => 'nullable|string|max:25',
         ];
 
-        // Se for Master, pode enviar ou remover o logotipo da empresa
+        // Se for Master, pode enviar ou remover o logotipo da empresa e editar as cores do tema
         if ($isMaster) {
             $rules['empresa_logo'] = 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:3072';
             $rules['remover_logo'] = 'nullable|boolean';
+            $rules['cor_primaria'] = ['nullable', 'string', 'max:7', 'regex:/^#[0-9A-Fa-f]{6}$/'];
+            $rules['cor_secundaria'] = ['nullable', 'string', 'max:7', 'regex:/^#[0-9A-Fa-f]{6}$/'];
+            $rules['cor_terciaria'] = ['nullable', 'string', 'max:7', 'regex:/^#[0-9A-Fa-f]{6}$/'];
+            $rules['cor_fundo'] = ['nullable', 'string', 'max:7', 'regex:/^#[0-9A-Fa-f]{6}$/'];
         }
 
         // Apenas Master pode alterar a senha no perfil
@@ -53,7 +57,7 @@ class ProfileController extends Controller
         // Normaliza telefone (apenas números)
         $user->telefone = $request->telefone ? preg_replace('/\D/', '', $request->telefone) : null;
 
-        // Se for Master e enviou logotipo da empresa
+        // Se for Master e enviou logotipo ou cores da empresa
         if ($isMaster && $user->empresa_id) {
             $empresa = \App\Models\Empresa::find($user->empresa_id);
             if ($empresa) {
@@ -62,14 +66,27 @@ class ProfileController extends Controller
                         \Illuminate\Support\Facades\Storage::disk('public')->delete($empresa->logo);
                     }
                     $empresa->logo = $request->file('empresa_logo')->store('empresas/logos', 'public');
-                    $empresa->save();
                 } elseif ($request->boolean('remover_logo')) {
                     if ($empresa->logo && \Illuminate\Support\Facades\Storage::disk('public')->exists($empresa->logo)) {
                         \Illuminate\Support\Facades\Storage::disk('public')->delete($empresa->logo);
                     }
                     $empresa->logo = null;
-                    $empresa->save();
                 }
+
+                if ($request->filled('cor_primaria')) {
+                    $empresa->cor_primaria = $request->cor_primaria;
+                }
+                if ($request->filled('cor_secundaria')) {
+                    $empresa->cor_secundaria = $request->cor_secundaria;
+                }
+                if ($request->filled('cor_terciaria')) {
+                    $empresa->cor_terciaria = $request->cor_terciaria;
+                }
+                if ($request->filled('cor_fundo')) {
+                    $empresa->cor_fundo = $request->cor_fundo;
+                }
+
+                $empresa->save();
             }
         }
 

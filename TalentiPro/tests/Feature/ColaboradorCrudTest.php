@@ -93,7 +93,7 @@ class ColaboradorCrudTest extends TestCase
         ]);
     }
 
-    public function test_gestor_pode_criar_colaborador(): void
+    public function test_gestor_nao_pode_criar_colaborador(): void
     {
         $payload = [
             'name'          => 'Colaborador do Gestor',
@@ -107,9 +107,9 @@ class ColaboradorCrudTest extends TestCase
 
         $this->actingAs($this->gestor)
              ->post(route('colaboradores.store'), $payload)
-             ->assertRedirect(route('colaboradores.index'));
+             ->assertForbidden();
 
-        $this->assertDatabaseHas('users', ['email' => 'colabgestor@empresa.com']);
+        $this->assertDatabaseMissing('users', ['email' => 'colabgestor@empresa.com']);
     }
 
     public function test_colaborador_comum_nao_pode_criar_colaborador(): void

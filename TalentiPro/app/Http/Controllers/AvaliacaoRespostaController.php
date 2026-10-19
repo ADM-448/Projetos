@@ -58,8 +58,9 @@ class AvaliacaoRespostaController extends Controller
         $participante->load('avaliacao.competencias.skills', 'respostas');
 
         $respostasSalvas = $participante->respostas->pluck('nota', 'skill_id')->toArray();
+        $evidenciasSalvas = $participante->respostas->pluck('evidencia', 'skill_id')->toArray();
 
-        return view('avaliacoes.responder', compact('participante', 'respostasSalvas'));
+        return view('avaliacoes.responder', compact('participante', 'respostasSalvas', 'evidenciasSalvas'));
     }
 
     public function store(StoreRespostaAvaliacaoRequest $request, AvaliacaoParticipante $participante)
@@ -94,7 +95,11 @@ class AvaliacaoRespostaController extends Controller
             }
         }
 
-        $this->avaliacaoService->salvarRespostas($participante, $request->validated('respostas'));
+        $this->avaliacaoService->salvarRespostas(
+            $participante,
+            $request->validated('respostas'),
+            $request->validated('evidencias', [])
+        );
 
         $participante->update([
             'status' => 'respondido',

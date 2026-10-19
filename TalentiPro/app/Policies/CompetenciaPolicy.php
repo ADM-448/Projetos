@@ -14,7 +14,7 @@ class CompetenciaPolicy
      */
     public function viewAny(User $user): bool
     {
-        return in_array($user->perfil_acesso, [UserRole::MASTER, UserRole::GESTOR, UserRole::CONSULTOR]);
+        return in_array($user->perfil_acesso, [UserRole::MASTER, UserRole::CONSULTOR]);
     }
 
     /**
@@ -30,7 +30,7 @@ class CompetenciaPolicy
      */
     public function create(User $user): bool
     {
-        return in_array($user->perfil_acesso, [UserRole::MASTER, UserRole::GESTOR]);
+        return $user->perfil_acesso === UserRole::MASTER;
     }
 
     /**

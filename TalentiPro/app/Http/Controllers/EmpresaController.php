@@ -92,10 +92,22 @@ class EmpresaController extends Controller
             $dados['logo'] = null;
         }
 
+        if ($request->hasFile('marca_dagua')) {
+            if ($empresa->marca_dagua && \Illuminate\Support\Facades\Storage::disk('public')->exists($empresa->marca_dagua)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($empresa->marca_dagua);
+            }
+            $dados['marca_dagua'] = $request->file('marca_dagua')->store('empresas/watermarks', 'public');
+        } elseif ($request->boolean('remover_marca_dagua')) {
+            if ($empresa->marca_dagua && \Illuminate\Support\Facades\Storage::disk('public')->exists($empresa->marca_dagua)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($empresa->marca_dagua);
+            }
+            $dados['marca_dagua'] = null;
+        }
+
         $this->empresaService->atualizar($empresa, $dados);
 
         return redirect()->route('admin.empresas.index')
-                         ->with('success', 'Dados da empresa e logotipo atualizados com sucesso.');
+                         ->with('success', 'Dados da empresa e personalização visual atualizados com sucesso.');
     }
 
     /**

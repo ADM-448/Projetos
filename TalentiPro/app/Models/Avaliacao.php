@@ -19,6 +19,8 @@ class Avaliacao extends Model
     protected $fillable = [
         'empresa_id',
         'grau',
+        'peso_tecnico',
+        'peso_comportamental',
         'titulo',
         'descricao',
         'filtros_aplicados',
@@ -59,6 +61,7 @@ class Avaliacao extends Model
     public function competencias(): BelongsToMany
     {
         return $this->belongsToMany(Competencia::class, 'avaliacao_competencias', 'avaliacao_id', 'competencia_id')
+                    ->withPivot('peso')
                     ->withTimestamps();
     }
 

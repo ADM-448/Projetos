@@ -46,11 +46,12 @@
     }
 
     .card-profile {
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(226, 232, 240, 0.8);
         border-radius: 16px;
         padding: 30px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     }
 
     .form-group {
@@ -220,11 +221,16 @@
                         <i class="fa-solid fa-lock" style="color: #dd6b20;"></i> Segurança & Senha
                     </h3>
 
+                    {{-- Dummys para desarmar o preenchimento automático agressivo do Google Chrome --}}
+                    <input type="text" style="display:none" aria-hidden="true">
+                    <input type="password" style="display:none" aria-hidden="true">
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                         <div class="form-group">
                             <label for="password">Nova Senha <span style="font-weight: normal; color: #718096;">(deixe em branco para manter)</span></label>
                             <div class="password-wrapper">
-                                <input type="password" id="password" name="password" class="form-control" placeholder="Mínimo 6 caracteres" style="padding-right: 40px;">
+                                <input type="password" id="password" name="password" class="form-control" placeholder="Mínimo 6 caracteres" 
+                                       autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" style="padding-right: 40px;">
                                 <button type="button" onclick="togglePasswordVisibility('password', 'password-icon')" class="password-toggle-btn">
                                     <i class="fa-solid fa-eye" id="password-icon"></i>
                                 </button>
@@ -234,7 +240,8 @@
                         <div class="form-group">
                             <label for="password_confirmation">Confirmar Nova Senha</label>
                             <div class="password-wrapper">
-                                <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" placeholder="Repita a nova senha" style="padding-right: 40px;">
+                                <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" placeholder="Repita a nova senha" 
+                                       autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" style="padding-right: 40px;">
                                 <button type="button" onclick="togglePasswordVisibility('password_confirmation', 'password-conf-icon')" class="password-toggle-btn">
                                     <i class="fa-solid fa-eye" id="password-conf-icon"></i>
                                 </button>
@@ -247,25 +254,93 @@
             @if($user->perfil_acesso->value === 'master' && $user->empresa)
                 <div style="margin-top: 30px; border-top: 1px solid #edf2f7; padding-top: 25px;">
                     <h3 style="font-size: 1.15rem; font-weight: 800; color: #2d3748; margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
-                        <i class="fa-solid fa-building" style="color: #6a4c7c;"></i> Logotipo da Empresa
+                        <i class="fa-solid fa-palette" style="color: #6a4c7c;"></i> Identidade Visual da Empresa
                     </h3>
                     <p style="color: #718096; font-size: 0.85rem; margin-top: 0; margin-bottom: 16px;">
-                        O logotipo da sua empresa (<strong>{{ $user->empresa->nome }}</strong>) será exibido no topo dos relatórios de avaliação impressos e em PDF.
+                        Personalize as cores do menu lateral e o logotipo da sua empresa (<strong>{{ $user->empresa->nome }}</strong>).
                     </p>
 
-                    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 18px;">
-                        @if($user->empresa->logo)
-                            <div style="display: flex; align-items: center; gap: 12px; background: white; padding: 8px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                                <img src="{{ asset('storage/' . $user->empresa->logo) }}" alt="Logo {{ $user->empresa->nome }}" style="max-height: 45px; max-width: 140px; object-fit: contain;">
-                                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: #dc2626; cursor: pointer; font-weight: 600;">
-                                    <input type="checkbox" name="remover_logo" value="1"> Remover
-                                </label>
-                            </div>
-                        @endif
+                    {{-- Logotipo --}}
+                    <div style="margin-bottom: 20px;">
+                        <label style="font-weight: 700; font-size: 0.9rem; color: #4a5568; display: block; margin-bottom: 8px;">
+                            <i class="fa-solid fa-image"></i> Logotipo da Empresa
+                        </label>
+                        <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 18px;">
+                            @if($user->empresa->logo)
+                                <div id="profileLogoPreview" style="display: flex; align-items: center; gap: 12px; background: white; padding: 8px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                    <img src="{{ asset('storage/' . $user->empresa->logo) }}" alt="Logo {{ $user->empresa->nome }}" 
+                                         onerror="this.onerror=null; document.getElementById('profileLogoPreview').style.display='none';"
+                                         style="max-height: 45px; max-width: 140px; object-fit: contain;">
+                                    <label style="display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: #dc2626; cursor: pointer; font-weight: 600;">
+                                        <input type="checkbox" name="remover_logo" value="1"> Remover
+                                    </label>
+                                </div>
+                            @endif
 
-                        <div style="flex: 1; min-width: 220px;">
-                            <input type="file" id="empresa_logo" name="empresa_logo" class="form-control" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="padding: 8px 12px;">
-                            <small style="color: #718096; font-size: 0.78rem; display: block; margin-top: 4px;">PNG, JPG, WEBP ou SVG (Máx: 3MB)</small>
+                            <div style="flex: 1; min-width: 220px;">
+                                <input type="file" id="empresa_logo" name="empresa_logo" class="form-control" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="padding: 8px 12px;">
+                                <small style="color: #718096; font-size: 0.78rem; display: block; margin-top: 4px;">PNG, JPG, WEBP ou SVG (Máx: 3MB)</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Cores do Tema (Degradê do Menu / Topo) --}}
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px;">
+                        <label style="font-weight: 700; font-size: 0.9rem; color: #4a5568; display: block; margin-bottom: 6px;">
+                            <i class="fa-solid fa-brush"></i> Cores do Sistema (Degradê de 3 Tons da Sidebar e Topo)
+                        </label>
+                        <p style="font-size: 0.82rem; color: #718096; margin-top: 0; margin-bottom: 14px;">
+                            Escolha as 3 cores da sua marca para uma transição elegante e profissional em todo o visual do TalentiPro.
+                        </p>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="cor_primaria" style="font-weight: 600; font-size: 0.82rem; color: #4a5568;">1. Cor Topo (Início)</label>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="color" id="cor_primaria_picker" value="{{ old('cor_primaria', $user->empresa->cor_primaria ?? '#24a9d6') }}" 
+                                           style="width: 40px; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer;"
+                                           onchange="document.getElementById('cor_primaria').value = this.value">
+                                    <input type="text" id="cor_primaria" name="cor_primaria" class="form-control" 
+                                           value="{{ old('cor_primaria', $user->empresa->cor_primaria ?? '#24a9d6') }}" 
+                                           placeholder="#24a9d6" onchange="document.getElementById('cor_primaria_picker').value = this.value">
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="cor_secundaria" style="font-weight: 600; font-size: 0.82rem; color: #4a5568;">2. Cor Meio (Transição)</label>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="color" id="cor_secundaria_picker" value="{{ old('cor_secundaria', $user->empresa->cor_secundaria ?? '#5ff771') }}" 
+                                           style="width: 40px; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer;"
+                                           onchange="document.getElementById('cor_secundaria').value = this.value">
+                                    <input type="text" id="cor_secundaria" name="cor_secundaria" class="form-control" 
+                                           value="{{ old('cor_secundaria', $user->empresa->cor_secundaria ?? '#5ff771') }}" 
+                                           placeholder="#5ff771" onchange="document.getElementById('cor_secundaria_picker').value = this.value">
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="cor_terciaria" style="font-weight: 600; font-size: 0.82rem; color: #4a5568;">3. Cor Base (Sidebar)</label>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="color" id="cor_terciaria_picker" value="{{ old('cor_terciaria', $user->empresa->cor_terciaria ?? '#1e1b4b') }}" 
+                                           style="width: 40px; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer;"
+                                           onchange="document.getElementById('cor_terciaria').value = this.value">
+                                    <input type="text" id="cor_terciaria" name="cor_terciaria" class="form-control" 
+                                           value="{{ old('cor_terciaria', $user->empresa->cor_terciaria ?? '#1e1b4b') }}" 
+                                           placeholder="#1e1b4b" onchange="document.getElementById('cor_terciaria_picker').value = this.value">
+                                </div>
+                            </div>
+
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="cor_fundo" style="font-weight: 600; font-size: 0.82rem; color: #4a5568;">4. Cor Fundo Geral (Body)</label>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="color" id="cor_fundo_picker" value="{{ old('cor_fundo', $user->empresa->cor_fundo ?? '#f4f6fa') }}" 
+                                           style="width: 40px; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer;"
+                                           onchange="document.getElementById('cor_fundo').value = this.value">
+                                    <input type="text" id="cor_fundo" name="cor_fundo" class="form-control" 
+                                           value="{{ old('cor_fundo', $user->empresa->cor_fundo ?? '#f4f6fa') }}" 
+                                           placeholder="#f4f6fa" onchange="document.getElementById('cor_fundo_picker').value = this.value">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

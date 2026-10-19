@@ -19,6 +19,13 @@ class PdiService implements PdiServiceContract
     public function criarPdi(array $dados, array $acoes, int $empresaId, int $gestorId): Pdi
     {
         return DB::transaction(function () use ($dados, $acoes, $empresaId, $gestorId) {
+            $geradoIa = !empty($dados['gerado_ia']);
+
+            // Mantém apenas o último PDI gerado por IA (concluídos e manuais são preservados)
+            if ($geradoIa) {
+                Pdi::removerPdisIaAnteriores((int) $dados['colaborador_id']);
+            }
+
             $pdi = Pdi::create([
                 'empresa_id' => $empresaId,
                 'colaborador_id' => $dados['colaborador_id'],
@@ -30,6 +37,7 @@ class PdiService implements PdiServiceContract
                 'data_fim' => $dados['data_fim'] ?? null,
                 'status' => StatusPdi::NAO_INICIADO,
                 'progresso' => 0,
+                'gerado_ia' => $geradoIa,
             ]);
 
             foreach ($acoes as $acaoDados) {

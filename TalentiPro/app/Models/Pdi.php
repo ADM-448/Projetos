@@ -26,6 +26,7 @@ class Pdi extends Model
         'status',
         'progresso',
         'comprovante',
+        'gerado_ia',
     ];
 
     protected $casts = [
@@ -34,7 +35,28 @@ class Pdi extends Model
         'data_fim' => 'date',
         'data_conclusao' => 'date',
         'progresso' => 'integer',
+        'gerado_ia' => 'boolean',
     ];
+
+    /**
+     * Remove os PDIs gerados por IA anteriores do colaborador, preservando
+     * os concluídos e todos os criados manualmente (gerado_ia = false).
+     */
+    public static function removerPdisIaAnteriores(int $colaboradorId): int
+    {
+        $total = 0;
+
+        static::where('colaborador_id', $colaboradorId)
+            ->where('gerado_ia', true)
+            ->where('status', '!=', StatusPdi::CONCLUIDO)
+            ->get()
+            ->each(function (self $pdi) use (&$total) {
+                $pdi->delete();
+                $total++;
+            });
+
+        return $total;
+    }
 
     /**
      * O PDI pertence a um colaborador.

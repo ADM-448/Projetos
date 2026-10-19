@@ -13,6 +13,7 @@
         <h1 class="page-title">Competências</h1>
         <p style="color: #666; font-size: 0.95rem;">Gerencie as competências e suas respectivas skills de avaliação.</p>
     </div>
+    @if(!auth()->user()->isConsultor())
     <div style="display: flex; gap: 10px;">
         <button onclick="abrirModalImportar()" class="btn-secondary" style="background-color: #27ae60; color: white; border-color: #27ae60;">
             <i class="fa-solid fa-file-excel"></i> Importar via Planilha
@@ -21,6 +22,7 @@
             <i class="fa-solid fa-plus"></i> Nova Competência
         </button>
     </div>
+    @endif
 </div>
 
 @if (session('success'))
@@ -47,7 +49,9 @@
                     <th style="width: 25%; padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">Competência</th>
                     <th style="width: 30%; padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">Descrição</th>
                     <th style="width: 30%; padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">Skills</th>
+                    @if(!auth()->user()->isConsultor())
                     <th style="width: 15%; padding: 12px 15px; font-weight: bold; color: #333; text-align: right;">Ações</th>
+                    @endif
                 </tr>
             </thead>
         <tbody>
@@ -73,6 +77,7 @@
                         @endif
                     </div>
                 </td>
+                @if(!auth()->user()->isConsultor())
                 <td style="padding: 15px; text-align: right;" data-label="Ações">
                     <div style="display: inline-flex; gap: 8px;">
                         <button onclick="abrirModalEditar({{ $competencia->id }}, '{{ addslashes($competencia->nome) }}', '{{ addslashes($competencia->descricao) }}', {{ json_encode($competencia->skills) }})" class="btn-secondary" style="padding: 8px 12px; font-size: 0.9rem;" title="Editar">
@@ -84,12 +89,15 @@
                         </button>
                     </div>
                 </td>
+                @endif
             </tr>
             @empty
             <tr>
                 <td colspan="4" style="text-align:center; padding: 30px; color:#666;">
                     Nenhuma competência cadastrada. <br>
+                    @if(!auth()->user()->isConsultor())
                     <button class="btn-primary" style="margin-top: 15px;" onclick="abrirModalNova()">Criar a primeira</button>
+                    @endif
                 </td>
             </tr>
             @endforelse

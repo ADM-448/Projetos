@@ -157,10 +157,10 @@ class SecurityMiddlewareTest extends TestCase
         $this->get('/cargos')->assertStatus(200);
         $this->get('/colaboradores')->assertStatus(200);
 
-        // Acessa como Gestor
+        // Acessa como Gestor (bloqueado das rotas de cadastros de RH)
         $this->actingAs($gestor);
-        $this->get('/departamentos')->assertStatus(200);
-        $this->get('/cargos')->assertStatus(200);
-        $this->get('/colaboradores')->assertStatus(200);
+        $this->get('/departamentos')->assertStatus(403);
+        $this->get('/cargos')->assertStatus(403);
+        $this->get('/colaboradores')->assertStatus(403);
     }
 }

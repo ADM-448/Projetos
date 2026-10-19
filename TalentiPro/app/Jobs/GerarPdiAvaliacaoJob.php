@@ -79,6 +79,9 @@ class GerarPdiAvaliacaoJob implements ShouldQueue
         // e colocaremos "[Rascunho IA]" no título para o gestor identificar facilmente.
         $titulo = "[Rascunho IA] " . ($dadosPdi['titulo'] ?? 'Plano de Desenvolvimento');
 
+        // Mantém só o último PDI de IA do colaborador (concluídos e manuais são preservados)
+        Pdi::removerPdisIaAnteriores($this->colaboradorId);
+
         $pdi = Pdi::create([
             'empresa_id' => $this->empresaId,
             'colaborador_id' => $this->colaboradorId,
@@ -89,6 +92,7 @@ class GerarPdiAvaliacaoJob implements ShouldQueue
             'data_fim' => $dadosPdi['prazo'] ?? null,
             'status' => StatusPdi::NAO_INICIADO,
             'progresso' => 0,
+            'gerado_ia' => true,
         ]);
 
         // 4. Salvar as ações vinculadas

@@ -95,8 +95,8 @@ Route::middleware(['auth', 'empresa.ativa'])->group(function () {
     Route::get('api/relatorios/dados', [\App\Http\Controllers\AvaliacaoRelatorioController::class, 'getDadosRelatorio'])->name('relatorios.dados');
     Route::get('avaliacoes/relatorios/pdf', [\App\Http\Controllers\AvaliacaoRelatorioController::class, 'exportarPdf'])->name('relatorios.exportar.pdf');
 
-    // Rotas de LEITURA de RH e Relatórios (Master, Gestor e Consultor)
-    Route::middleware(['role:master,gestor,consultor'])->group(function () {
+    // Rotas de LEITURA de Cadastros (Apenas Master e Consultor)
+    Route::middleware(['role:master,consultor'])->group(function () {
         Route::middleware('throttle:120,1')->group(function () {
             Route::get('departamentos', [DepartamentoController::class, 'index'])->name('departamentos.index');
             Route::get('cargos', [CargoController::class, 'index'])->name('cargos.index');
@@ -104,20 +104,26 @@ Route::middleware(['auth', 'empresa.ativa'])->group(function () {
             Route::get('competencias', [CompetenciaController::class, 'index'])->name('competencias.index');
             Route::get('competencias/{competencia}/skills', [SkillController::class, 'index'])->name('skills.index');
         });
+    });
 
+    // Rotas de LEITURA de Relatórios e Avaliações (Master, Gestor e Consultor)
+    Route::middleware(['role:master,gestor,consultor'])->group(function () {
         // Relatórios de Avaliações da Equipe
         Route::get('avaliacoes/relatorios', [\App\Http\Controllers\AvaliacaoRelatorioController::class, 'index'])->name('avaliacoes.relatorios');
         
         // Modelos de Avaliação (Visualização)
         Route::get('avaliacoes/templates', [\App\Http\Controllers\AvaliacaoTemplateController::class, 'index'])->name('avaliacoes.templates.index');
-        Route::get('avaliacoes/templates/{template}', [\App\Http\Controllers\AvaliacaoTemplateController::class, 'show'])->name('avaliacoes.templates.show');
+        Route::get('avaliacoes/templates/{template}', [\App\Http\Controllers\AvaliacaoTemplateController::class, 'show'])->name('avaliacoes.templates.show')->whereNumber('template');
         
         // Mediação (Visualização dos dados de fechamento)
         Route::get('avaliacoes/{avaliacao}/mediar/{avaliado}', [AvaliacaoController::class, 'mediar'])->name('avaliacoes.mediar');
+
+        // Visualização / Painel da Avaliação (whereNumber evita que capture /avaliacoes/create)
+        Route::get('avaliacoes/{avaliacao}', [AvaliacaoController::class, 'show'])->name('avaliacoes.show')->whereNumber('avaliacao');
     });
 
-    // Rotas de ESCRITA de RH (Apenas Master e Gestor)
-    Route::middleware(['role:master,gestor'])->group(function () {
+    // Rotas de ESCRITA de Cadastros Estruturais (Apenas Master)
+    Route::middleware(['role:master'])->group(function () {
 
         // Rotas de ESCRITA — throttle restritivo (30 req/min)
         Route::middleware('throttle:30,1')->group(function () {
@@ -135,7 +141,10 @@ Route::middleware(['auth', 'empresa.ativa'])->group(function () {
         Route::delete('competencias/{competencia}', [CompetenciaController::class, 'destroy'])->name('competencias.destroy');
         Route::post('competencias/{competencia}/skills', [SkillController::class, 'store'])->name('skills.store');
         Route::delete('competencias/{competencia}/skills/{skill}', [SkillController::class, 'destroy'])->name('skills.destroy');
-        
+    });
+
+    // Rotas de Gestão e Delegação de Avaliações (Master e Gestor)
+    Route::middleware(['role:master,gestor'])->group(function () {
         // Modelos de Avaliação (Escrita)
         Route::get('avaliacoes/templates/create', [\App\Http\Controllers\AvaliacaoTemplateController::class, 'create'])->name('avaliacoes.templates.create');
         Route::post('avaliacoes/templates', [\App\Http\Controllers\AvaliacaoTemplateController::class, 'store'])->name('avaliacoes.templates.store');
@@ -146,7 +155,7 @@ Route::middleware(['auth', 'empresa.ativa'])->group(function () {
         // Avaliações (Gestão e Escrita)
         Route::resource('avaliacoes', AvaliacaoController::class)->parameters([
             'avaliacoes' => 'avaliacao'
-        ])->except(['index']);
+        ])->except(['index', 'show']);
         Route::post('avaliacoes/{avaliacao}/mediar/{avaliado}', [AvaliacaoController::class, 'salvarFechamento'])->name('avaliacoes.salvar-fechamento');
         
         // IA para Relatórios

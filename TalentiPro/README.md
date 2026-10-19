@@ -1,59 +1,133 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+﻿# 🏢 TalentiPro - SaaS de Gestão Estratégica de Talentos, DISC & Avaliação 360° com IA
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+[![Laravel Version](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
+[![Google Gemini](https://img.shields.io/badge/Google%20Gemini-AI%20Powered-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.x-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![License](https://img.shields.io/badge/License-Proprietary-blue?style=for-the-badge)](#)
 
-## About Laravel
+O **TalentiPro** é uma plataforma SaaS empresarial de alta performance projetada para revolucionar a Gestão Estratégica de Recursos Humanos e Desenvolvimento Organizacional. O sistema centraliza Avaliações de Desempenho (90°, 180°, 360° e Competências com Pesos Customizados), Mapeamento Comportamental DISC, Planos de Desenvolvimento Individual (PDI) automatizados com IA, Gestão de Feedbacks/Reuniões com Transcrição de Áudio Inteligente e Pesquisa de Clima Organizacional anônima e auditada.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Arquitetura & Principais Funcionalidades
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 1. Avaliações de Desempenho & Competências
+- **Modelos Flexíveis:** Suporte a autoavaliação, avaliação de líderes, pares e liderados com cálculo ponderado automático por tipo de competência (Técnicas, Comportamentais, Liderança).
+- **Templates Reutilizáveis & Recorrência:** Criação de matrizes globais de avaliação com agendamento automático de ciclos periódicos.
+- **Evidências Comportamentais:** Registro de fatos observados e justificativas com upload e histórico durante o processo de resposta.
+- **Relatórios Analíticos:** Gráficos radar, gap analysis comparativo (Autoavaliação vs Gestor), cálculo de aderência a cargo e exportação em PDF executivo.
 
-## Learning Laravel
+### 2. Mapeamento de Perfil Comportamental DISC
+- **Questionário Parametrizado:** Algoritmo proprietário para identificação de perfis D (Dominância), I (Influência), S (Estabilidade) e C (Conformidade).
+- **Links Externos & Convites:** Disparo automatizado de testes por e-mail/WhatsApp para candidatos externos ou colaboradores sem necessidade de login prévio.
+- **Mapa de Equipe (Team Grid):** Visão macro da distribuição comportamental do departamento para tomada de decisão estratégica de liderança.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 3. Inteligência Artificial com Google Gemini
+- **Transcrição de Áudios de Reunião:** Gravação ou upload direto de áudios de 1:1 e reuniões de feedback com transcrição e sumarização de tópicos chave via `GeminiAudioService`.
+- **Geração de PDI Inteligente:** Análise preditiva dos gaps da avaliação de desempenho para sugestão automática de ações práticas de desenvolvimento, prazos e metas via `GeminiTextService`.
+- **Perguntas Situacionais:** Geração contextual de questões comportamentais baseadas na descrição do cargo (`CargoQuestaoIa`).
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 4. Gestão Multi-Tenant & Painel do Consultor
+- **Multi-Tenant Seguro:** Isolamento estrito por `empresa_id` em queries via Traits e Global Scopes Laravel, com suporte a White-label (cores customizadas e logotipo da empresa contratante).
+- **Portal de Consultoria:** Usuários com perfil `consultor` podem alternar dinamicamente entre múltiplas empresas clientes sem trocar de conta.
 
-## Laravel Sponsors
+### 5. Pesquisa de Clima Organizacional
+- Questionários anônimos por categoria com controle antifraude via hash criptográfico de participação e auditoria de respostas agregadas por departamento.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+## 📈 Histórico de Evolução do Projeto (Changelog)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+O projeto foi construído e versionado de maneira incremental, refletindo cada marco de maturidade técnica e entrega de valor:
 
-## Contributing
+| Release | Marco Cronológico | Principais Entregas Técnicas |
+| :---: | :---: | :--- |
+| **`v1.0.0`** | Julho/2026 | **MVP Completo da Plataforma:**<br>• Gestão de Usuários, Cargos, Departamentos e Competências.<br>• Avaliações de Desempenho estruturadas e conciliação de notas.<br>• Módulo inicial de PDI (Planos de Ação) e Reuniões de Feedback.<br>• Módulo de Pesquisa de Clima Organizacional e notificações WhatsApp. |
+| **`v2.0.0`** | Setembro/2026 | **Módulo DISC & Refatoração de Controladores:**<br>• Implementação completa da Avaliação Comportamental DISC (Matriz e Algoritmo de cálculo).<br>• Mapeamento de Skills associadas a competências organizacionais.<br>• Refatoração e unificação dos controladores monolíticos.<br>• Introdução de sistema de Lembretes agendados e Telescope para telemetria. |
+| **`v3.0.0`** | Outubro/2026 | **Módulo Consultor Multi-Tenant & Templates de Avaliação:**<br>• Arquitetura Multi-Tenant para Consultores de RH alternarem entre diferentes empresas.<br>• Suporte a Templates reutilizáveis de avaliação com motor de agendamento (`AvaliacaoSchedule`).<br>• Módulo de gravação de reuniões em segundo plano com widget flutuante.<br>• Integração com deep providers de IA (`AiManager`, Gemini, OpenAI, DeepSeek). |
+| **`v4.0.0`** | Outubro/2026 | **IA Gemini, Modern UI/UX e Pronto para Produção:**<br>• Transcrição de áudio via `GeminiAudioService` e análise semântica de feedbacks.<br>• Geração automática de planos PDI a partir de deficiências de competências via IA.<br>• Ponderação de notas por peso em competências e inclusão de evidências anexadas.<br>• Redesign responsivo com TailwindCSS, Blade Components e White-label completo de marcas. |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 🛠️ Stack Tecnológica
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- **Backend:** PHP 8.2+, Laravel 11.x, Eloquent ORM, Gates/Policies, Queues & Cron Jobs
+- **Frontend:** Blade Templates, TailwindCSS, Alpine.js / Vanilla JS, Chart.js
+- **Banco de Dados:** MySQL 8.0+ / MariaDB / PostgreSQL
+- **Inteligência Artificial:** Google Gemini Pro & Gemini Flash (Text & Audio APIs)
+- **Integrações Externas:** Google Calendar API, WhatsApp API Gateway, SMTP Mailers
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## ⚙️ Guia de Instalação e Execução Local
 
-## License
+### Pré-requisitos
+- PHP 8.2 ou superior com extensões `pdo_mysql`, `mbstring`, `openssl`, `curl`, `gd`, `fileinfo` ativas.
+- Composer 2.x
+- Node.js 18+ e NPM
+- MySQL / MariaDB em execução
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Passo a Passo
+
+1. **Acessar a pasta do projeto:**
+   ```bash
+   cd TalentiPro
+   ```
+
+2. **Instalar dependências do PHP:**
+   ```bash
+   composer install
+   ```
+
+3. **Configurar as Variáveis de Ambiente:**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+4. **Configurar o banco de dados no `.env`:**
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=talentipro
+   DB_USERNAME=root
+   DB_PASSWORD=
+   
+   # Configurações de IA (Google Gemini)
+   GEMINI_API_KEY=sua_chave_gemini_aqui
+   ```
+
+5. **Executar Migrations e Seeders:**
+   ```bash
+   php artisan migrate --seed
+   ```
+
+6. **Criar link simbólico do storage:**
+   ```bash
+   php artisan storage:link
+   ```
+
+7. **Instalar e compilar os assets de frontend:**
+   ```bash
+   npm install
+   npm run build # ou npm run dev para desenvolvimento
+   ```
+
+8. **Iniciar o servidor de desenvolvimento:**
+   ```bash
+   php artisan serve
+   ```
+   Acesse a aplicação em `http://localhost:8000`.
+
+---
+
+## 🔐 Segurança e Boas Práticas
+- **Tenant Isolation:** Validação rigorosa em todas as rotas e queries garantindo que nenhum usuário acesse dados de outra organização.
+- **RBAC (Role Based Access Control):** Papéis bem definidos para Administrador SaaS, Gestor de Empresa, Consultor Externo e Colaborador.
+- **Sanitização de Dados:** Proteção nativa contra CSRF, XSS e SQL Injection em todos os formulários e rotas da API.
+
+---
+
+Desenvolvido por **ADM-448**.

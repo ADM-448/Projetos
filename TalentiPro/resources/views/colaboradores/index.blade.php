@@ -14,6 +14,7 @@
             <p style="color: #666; font-size: 0.95rem;">Gerencie o quadro de colaboradores da empresa, atribua cargos, setores e defina as permissões de acesso.</p>
         </div>
 
+        @if(!auth()->user()->isConsultor())
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <button type="button" id="btnBulkDelete" onclick="confirmBulkDelete()" class="btn-danger" style="display: none; align-items: center; gap: 8px; white-space: nowrap; padding: 10px 15px; font-size: 0.95rem; border-radius: 8px;">
                 <i class="fa-solid fa-trash"></i> Excluir (<span id="bulkDeleteCount">0</span>)
@@ -25,6 +26,7 @@
                 <i class="fa-solid fa-user-plus"></i> Novo Colaborador
             </button>
         </div>
+        @endif
     </div>
 
     @php
@@ -87,20 +89,25 @@
                 <table class="custom-table table-cards-mobile" id="colaboradoresTable" style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead>
                         <tr style="background-color: #f8fafc; border-bottom: 2px solid #6a4c7c;">
+                            @if(!auth()->user()->isConsultor())
                             <th style="padding: 12px 15px; width: 40px; text-align: center;">
                                 <input type="checkbox" id="selectAllColabs" onclick="toggleAllColabs(this)" style="cursor: pointer; width: 16px; height: 16px;">
                             </th>
+                            @endif
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">Nome</th>
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">E-mail</th>
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: left;">Estrutura (Setor/Cargo)</th>
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: center;">Perfil</th>
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: center;">Status</th>
+                            @if(!auth()->user()->isConsultor())
                             <th style="padding: 12px 15px; font-weight: bold; color: #333; text-align: right;">Ações</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($colaboradores as $colab)
                             <tr style="border-bottom: 1px solid #eee;">
+                                @if(!auth()->user()->isConsultor())
                                 <td style="padding: 15px; text-align: center;">
                                     @if($colab->id !== auth()->id())
                                         <input type="checkbox" name="ids[]" value="{{ $colab->id }}" class="colab-checkbox" onchange="updateBulkDeleteButton()" style="cursor: pointer; width: 16px; height: 16px;">
@@ -110,6 +117,7 @@
                                         </div>
                                     @endif
                                 </td>
+                                @endif
                                 <td style="padding: 15px; font-weight: bold; color: #2d3748; text-align: left;" data-label="Nome">
                                     <div style="display: flex; align-items: center; gap: 10px;">
                                         <div style="background-color: #f3e5f5; color: #6a4c7c; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">
@@ -178,6 +186,7 @@
                                         {{ $statusLabel }}
                                     </span>
                                 </td>
+                                @if(!auth()->user()->isConsultor())
                                 <td style="padding: 15px; text-align: right;" data-label="Ações">
                                     <div style="display: inline-flex; gap: 10px;">
                                         <button
@@ -219,6 +228,7 @@
                                         @endif
                                     </div>
                                 </td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody>

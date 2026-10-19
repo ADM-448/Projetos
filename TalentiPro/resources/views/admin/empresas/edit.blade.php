@@ -34,27 +34,92 @@
         @csrf
         @method('PUT')
 
-        {{-- Logotipo da Empresa --}}
-        <div class="form-group" style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
-            <label class="form-label" style="font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-image" style="color: #4f46e5;"></i> Logotipo da Empresa
-            </label>
-            <p style="font-size: 0.85rem; color: #64748b; margin-top: 2px; margin-bottom: 12px;">
-                Esta imagem será exibida nos relatórios de avaliação impressos e em PDF. (Formatos: PNG, JPG, WEBP, SVG • Máx: 3MB)
-            </p>
+        {{-- Logotipo e Identidade Visual (White-Label) --}}
+        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+            <h3 style="font-size: 1.1rem; color: #1e293b; margin-top: 0; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-palette" style="color: #6366f1;"></i> Identidade Visual & White-Label
+            </h3>
 
-            <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
-                @if($empresa->logo)
-                    <div id="currentLogoContainer" style="display: flex; align-items: center; gap: 15px; background: white; padding: 10px 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
-                        <img src="{{ asset('storage/' . $empresa->logo) }}" alt="Logo {{ $empresa->nome }}" style="max-height: 50px; max-width: 140px; object-fit: contain;">
-                        <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #dc2626; cursor: pointer; font-weight: 600;">
-                            <input type="checkbox" name="remover_logo" value="1"> Remover logo atual
-                        </label>
+            {{-- Logotipo --}}
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label class="form-label" style="font-weight: 600; color: #334155;">
+                    <i class="fa-solid fa-image"></i> Logotipo da Empresa
+                </label>
+                <p style="font-size: 0.85rem; color: #64748b; margin-top: 2px; margin-bottom: 10px;">
+                    Exibido no topo do menu lateral e nos relatórios de avaliação impressos e em PDF. (Máx: 3MB)
+                </p>
+
+                <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                    @if($empresa->logo)
+                        <div id="currentLogoContainer" style="display: flex; align-items: center; gap: 15px; background: white; padding: 10px 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                            <img src="{{ asset('storage/' . $empresa->logo) }}" alt="Logo {{ $empresa->nome }}" 
+                                 onerror="this.onerror=null; document.getElementById('currentLogoContainer').style.display='none';"
+                                 style="max-height: 50px; max-width: 140px; object-fit: contain;">
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #dc2626; cursor: pointer; font-weight: 600;">
+                                <input type="checkbox" name="remover_logo" value="1"> Remover logo atual
+                            </label>
+                        </div>
+                    @endif
+
+                    <div style="flex: 1; min-width: 240px;">
+                        <input type="file" id="logo" name="logo" class="form-control" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="padding: 9px 12px;">
                     </div>
-                @endif
+                </div>
+            </div>
 
-                <div style="flex: 1; min-width: 240px;">
-                    <input type="file" id="logo" name="logo" class="form-control" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="padding: 9px 12px;">
+            {{-- Cores do Sistema (Degradê do Tema) --}}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div class="form-group">
+                    <label class="form-label" for="cor_primaria" style="font-weight: 600; color: #334155;">
+                        Cor Primária (Início do degradê da sidebar / topo)
+                    </label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="color" id="cor_primaria_picker" value="{{ old('cor_primaria', $empresa->cor_primaria ?? '#6a4c7c') }}" style="width: 45px; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer;" onchange="document.getElementById('cor_primaria').value = this.value">
+                        <input type="text" id="cor_primaria" name="cor_primaria" class="form-control" value="{{ old('cor_primaria', $empresa->cor_primaria ?? '#6a4c7c') }}" placeholder="#6a4c7c" onchange="document.getElementById('cor_primaria_picker').value = this.value">
+                    </div>
+                    <small style="color: #64748b;">Ex: #e67e22 (Fielmart - Laranja), #800020 (Intalenti - Bordô), #6a4c7c (TalentiPro)</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="cor_secundaria" style="font-weight: 600; color: #334155;">
+                        Cor Secundária (Fim do degradê)
+                    </label>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="color" id="cor_secundaria_picker" value="{{ old('cor_secundaria', $empresa->cor_secundaria ?? '#8b5cf6') }}" style="width: 45px; height: 38px; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer;" onchange="document.getElementById('cor_secundaria').value = this.value">
+                        <input type="text" id="cor_secundaria" name="cor_secundaria" class="form-control" value="{{ old('cor_secundaria', $empresa->cor_secundaria ?? '#8b5cf6') }}" placeholder="#8b5cf6" onchange="document.getElementById('cor_secundaria_picker').value = this.value">
+                    </div>
+                    <small style="color: #64748b;">Tom secundário para transição suave no menu.</small>
+                </div>
+            </div>
+
+            {{-- Marca D'água Personalizada --}}
+            <div style="border-top: 1px dashed #cbd5e1; padding-top: 15px;">
+                <label class="form-label" style="font-weight: 600; color: #334155;">
+                    <i class="fa-solid fa-stamp"></i> Marca d'água no Fundo do Ecrã
+                </label>
+                <p style="font-size: 0.85rem; color: #64748b; margin-top: 2px; margin-bottom: 10px;">
+                    Imagem ou texto sutil aplicado como marca d'água de fundo em todo o sistema para reforçar a identidade visual do cliente.
+                </p>
+
+                <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-bottom: 15px;">
+                    @if($empresa->marca_dagua)
+                        <div style="display: flex; align-items: center; gap: 15px; background: white; padding: 10px 15px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                            <img src="{{ asset('storage/' . $empresa->marca_dagua) }}" alt="Marca d'água" style="max-height: 40px; max-width: 100px; object-fit: contain; opacity: 0.6;">
+                            <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #dc2626; cursor: pointer; font-weight: 600;">
+                                <input type="checkbox" name="remover_marca_dagua" value="1"> Remover imagem de marca d'água
+                            </label>
+                        </div>
+                    @endif
+
+                    <div style="flex: 1; min-width: 240px;">
+                        <input type="file" id="marca_dagua" name="marca_dagua" class="form-control" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="padding: 9px 12px;">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="texto_marca_dagua" style="font-weight: 600; color: #334155;">Texto Alternativo de Marca d'água (opcional)</label>
+                    <input type="text" id="texto_marca_dagua" name="texto_marca_dagua" class="form-control" value="{{ old('texto_marca_dagua', $empresa->texto_marca_dagua) }}" placeholder="Ex: FIELMART - CONFIDENCIAL">
+                    <small style="color: #64748b;">Utilizado caso não haja imagem de marca d'água cadastrada.</small>
                 </div>
             </div>
         </div>

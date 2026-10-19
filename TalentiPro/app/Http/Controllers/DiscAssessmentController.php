@@ -151,6 +151,31 @@ class DiscAssessmentController extends Controller
             if ($testEmpresaId !== $user->empresa_id) {
                 abort(403);
             }
+
+            if ($role === 'gestor') {
+                $avaliado = $assessment->user;
+                if (!$avaliado) {
+                    abort(403, 'Acesso não autorizado.');
+                }
+
+                $gestorDeptoIds = Departamento::where('empresa_id', $user->empresa_id)
+                    ->where(function ($q) use ($user) {
+                        $q->where('gestor_id', $user->id);
+                        if ($user->departamento_id) {
+                            $q->orWhere('id', $user->departamento_id);
+                        }
+                    })
+                    ->pluck('id')
+                    ->toArray();
+
+                if ($user->departamento_id && !in_array($user->departamento_id, $gestorDeptoIds)) {
+                    $gestorDeptoIds[] = $user->departamento_id;
+                }
+
+                if (!$avaliado->departamento_id || !in_array($avaliado->departamento_id, $gestorDeptoIds)) {
+                    abort(403, 'Você só pode visualizar testes do seu setor ou dos setores pelos quais é responsável.');
+                }
+            }
         }
 
         // Carregar histórico do dono deste teste (se houver dono)
@@ -268,11 +293,25 @@ class DiscAssessmentController extends Controller
         $query = User::with(['discAssessment', 'departamento', 'cargo'])
             ->where('empresa_id', $user->empresa_id);
 
+        $gestorDeptoIds = [];
         if ($role === 'gestor') {
-            $query->where(function ($q) use ($user) {
-                $q->where('departamento_id', $user->departamento_id)
-                  ->orWhereNull('departamento_id');
-            })->where('id', '!=', $user->id);
+            $gestorDeptoIds = Departamento::where('empresa_id', $user->empresa_id)
+                ->where(function ($q) use ($user) {
+                    $q->where('gestor_id', $user->id);
+                    if ($user->departamento_id) {
+                        $q->orWhere('id', $user->departamento_id);
+                    }
+                })
+                ->pluck('id')
+                ->toArray();
+
+            if ($user->departamento_id && !in_array($user->departamento_id, $gestorDeptoIds)) {
+                $gestorDeptoIds[] = $user->departamento_id;
+            }
+
+            // Exibe apenas quem pertence ao setor onde o gestor está ou pelo qual ele é responsável
+            $query->whereIn('departamento_id', $gestorDeptoIds)
+                  ->where('id', '!=', $user->id);
         }
 
         // Filtro por Nome ou Email
@@ -312,40 +351,40 @@ class DiscAssessmentController extends Controller
             });
         }
 
-        // Buscar avaliações externas que ainda não têm usuário
-        $externalAssessments = DiscAssessment::where('empresa_id', $user->empresa_id)
-            ->whereNull('user_id')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // Avaliações externas: apenas para master/admin/consultor
+        if ($role === 'gestor') {
+            $externalAssessments = collect();
+        } else {
+            $externalAssessments = DiscAssessment::where('empresa_id', $user->empresa_id)
+                ->whereNull('user_id')
+                ->orderBy('created_at', 'desc')
+                ->get();
 
-        // Para os externos, os filtros de busca e perfil também se aplicam
-        if ($request->filled('search')) {
-            $search = strtolower(trim($request->search));
-            $externalAssessments = $externalAssessments->filter(function($a) use ($search) {
-                return str_contains(strtolower($a->respondent_name), $search) || str_contains(strtolower($a->respondent_email), $search);
-            });
-        }
-        if ($request->filled('perfil')) {
-            $perfilFiltro = strtoupper($request->perfil);
-            $externalAssessments = $externalAssessments->filter(function($a) use ($perfilFiltro) {
-                return strtoupper($a->primary_profile) === $perfilFiltro;
-            });
-        }
-        if ($request->filled('status') && $request->status === 'pendente') {
-            $externalAssessments = collect(); // Externos por definição já responderam
+            // Para os externos, os filtros de busca e perfil também se aplicam
+            if ($request->filled('search')) {
+                $search = strtolower(trim($request->search));
+                $externalAssessments = $externalAssessments->filter(function($a) use ($search) {
+                    return str_contains(strtolower($a->respondent_name), $search) || str_contains(strtolower($a->respondent_email), $search);
+                });
+            }
+            if ($request->filled('perfil')) {
+                $perfilFiltro = strtoupper($request->perfil);
+                $externalAssessments = $externalAssessments->filter(function($a) use ($perfilFiltro) {
+                    return strtoupper($a->primary_profile) === $perfilFiltro;
+                });
+            }
+            if ($request->filled('status') && $request->status === 'pendente') {
+                $externalAssessments = collect(); // Externos por definição já responderam
+            }
         }
 
         $colaboradores = $colaboradoresRaw;
-        // Não vamos misturar os modelos de User e DiscAssessment no mesmo array de forma bruta
-        // Vamos passar os externos separados ou transformá-los num wrapper. Para manter simples, passaremos separados.
 
         // Dados estatísticos da empresa / equipe
         $baseUsersQuery = User::with('discAssessment')->where('empresa_id', $user->empresa_id);
         if ($role === 'gestor') {
-            $baseUsersQuery->where(function ($q) use ($user) {
-                $q->where('departamento_id', $user->departamento_id)
-                  ->orWhereNull('departamento_id');
-            })->where('id', '!=', $user->id);
+            $baseUsersQuery->whereIn('departamento_id', $gestorDeptoIds)
+                           ->where('id', '!=', $user->id);
         }
         $allTeamUsers = $baseUsersQuery->get();
 
@@ -366,19 +405,23 @@ class DiscAssessmentController extends Controller
             }
         }
 
-        // Somar os perfis dos externos nas estatísticas
-        $todasExternas = DiscAssessment::where('empresa_id', $user->empresa_id)->whereNull('user_id')->get();
-        foreach ($todasExternas as $ext) {
-            if (isset($statsPerfis[$ext->primary_profile])) {
-                $statsPerfis[$ext->primary_profile]++;
+        // Somar os perfis dos externos nas estatísticas apenas para master/admin/consultor
+        if ($role !== 'gestor') {
+            $todasExternas = DiscAssessment::where('empresa_id', $user->empresa_id)->whereNull('user_id')->get();
+            foreach ($todasExternas as $ext) {
+                if (isset($statsPerfis[$ext->primary_profile])) {
+                    $statsPerfis[$ext->primary_profile]++;
+                }
             }
+            $totalConcluidos += $todasExternas->count();
+            $totalColaboradores += $todasExternas->count();
         }
-        $totalConcluidos += $todasExternas->count();
-        // O total de colaboradores não inclui externos na porcentagem pendente, pois não sabemos quem são.
-        // Ou você pode somar ao totalColaboradores.
-        $totalColaboradores += $todasExternas->count();
 
-        $departamentos = Departamento::where('empresa_id', $user->empresa_id)->orderBy('nome')->get();
+        $departamentosQuery = Departamento::where('empresa_id', $user->empresa_id);
+        if ($role === 'gestor') {
+            $departamentosQuery->whereIn('id', $gestorDeptoIds);
+        }
+        $departamentos = $departamentosQuery->orderBy('nome')->get();
 
         return view('disc.equipe', compact(
             'colaboradores',

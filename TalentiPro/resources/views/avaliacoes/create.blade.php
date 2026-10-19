@@ -147,6 +147,8 @@
             </div>
         </div>
 
+
+
         <!-- 3. PARTICIPANTES (DELEGAÇÃO) -->
         <div class="table-container" style="padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0; background: #fff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);">
             <h2 style="font-size: 1.15rem; font-weight: 700; color: #1e293b; margin-bottom: 18px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; display: flex; align-items: center; gap: 10px;">
@@ -205,19 +207,68 @@
                         $selectedAvaliadores = old('avaliadores', $avaliacao->participantes->where('tipo', 'gestor')->pluck('avaliador_id')->unique()->toArray());
                         $selectedAvaliados = old('avaliados', $avaliacao->participantes->pluck('avaliado_id')->unique()->toArray());
                         $selectedMediadores = old('mediadores', $avaliacao->mediadores ?? []);
+
+                        $currentUserId = auth()->id();
+                        $eu = $gestores->firstWhere('id', $currentUserId);
+                        $lideres = $gestores->filter(fn($u) => $u->id !== $currentUserId && in_array($u->perfil_acesso->value, ['master', 'admin', 'gestor']));
+                        $demais = $gestores->filter(fn($u) => $u->id !== $currentUserId && !in_array($u->perfil_acesso->value, ['master', 'admin', 'gestor']));
+
+                        $todosGestoresIds = $gestores->filter(fn($u) => in_array($u->perfil_acesso->value, ['master', 'admin', 'gestor']))->pluck('id')->values();
                     @endphp
 
                     <div class="form-group" style="margin-bottom: 0; width: 100%;">
-                        <label class="form-label" style="font-weight: 700; color: #1e293b; white-space: normal;">
-                            1. Avaliadores (Líderes que vão atribuir notas) <span style="color: red;">*</span>
-                        </label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 8px;">
+                            <label class="form-label" style="font-weight: 700; color: #1e293b; margin-bottom: 0;">
+                                1. Avaliadores (Líderes que vão atribuir notas) <span style="color: red;">*</span>
+                            </label>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                @if($eu)
+                                    <button type="button" onclick="selecionarAvaliadorEu()" class="btn-secondary" style="padding: 4px 10px; font-size: 0.76rem; border-radius: 6px; background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; cursor: pointer; font-weight: 600;">
+                                        <i class="fa-solid fa-user-check"></i> + Adicionar a mim mesmo
+                                    </button>
+                                @endif
+                                @if($todosGestoresIds->isNotEmpty())
+                                    <button type="button" onclick="selecionarTodosGestores()" class="btn-secondary" style="padding: 4px 10px; font-size: 0.76rem; border-radius: 6px; background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; cursor: pointer; font-weight: 600;">
+                                        <i class="fa-solid fa-users"></i> + Adicionar Masters e Gestores
+                                    </button>
+                                @endif
+                                <button type="button" onclick="limparAvaliadores()" class="btn-secondary" style="padding: 4px 8px; font-size: 0.76rem; border-radius: 6px; background: #fff; color: #64748b; border: 1px solid #cbd5e1; cursor: pointer;">
+                                    <i class="fa-solid fa-xmark"></i> Limpar
+                                </button>
+                            </div>
+                        </div>
                         <select name="avaliadores[]" id="avaliadores" class="form-control" multiple required>
-                            @foreach($gestores as $gestor)
-                                <option value="{{ $gestor->id }}" {{ in_array($gestor->id, $selectedAvaliadores) ? 'selected' : '' }}>
-                                    {{ $gestor->name }} ({{ $gestor->cargo->nome ?? 'Sem Cargo' }})
-                                </option>
-                            @endforeach
+                            @if($eu)
+                                <optgroup label="⭐ Sua Conta (Você)">
+                                    <option value="{{ $eu->id }}" {{ in_array($eu->id, $selectedAvaliadores) ? 'selected' : '' }}>
+                                        ⭐ [Você] {{ $eu->name }} ({{ $eu->cargo->nome ?? $eu->perfil_acesso->label() }})
+                                    </option>
+                                </optgroup>
+                            @endif
+
+                            @if($lideres->isNotEmpty())
+                                <optgroup label="👔 Masters e Gestores">
+                                    @foreach($lideres as $gestor)
+                                        <option value="{{ $gestor->id }}" {{ in_array($gestor->id, $selectedAvaliadores) ? 'selected' : '' }}>
+                                            [{{ $gestor->perfil_acesso->label() }}] {{ $gestor->name }} ({{ $gestor->cargo->nome ?? 'Sem Cargo' }})
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+
+                            @if($demais->isNotEmpty())
+                                <optgroup label="👥 Demais Colaboradores">
+                                    @foreach($demais as $gestor)
+                                        <option value="{{ $gestor->id }}" {{ in_array($gestor->id, $selectedAvaliadores) ? 'selected' : '' }}>
+                                            {{ $gestor->name }} ({{ $gestor->cargo->nome ?? 'Sem Cargo' }})
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
                         </select>
+                        <div style="font-size: 0.78rem; color: #64748b; margin-top: 4px;">
+                            <i class="fa-solid fa-circle-info"></i> O seu usuário e os líderes da empresa aparecem priorizados no topo para facilitar a seleção.
+                        </div>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 0; width: 100%;">
@@ -239,15 +290,49 @@
                     </div>
 
                     <div class="form-group" style="margin-bottom: 0; width: 100%;">
-                        <label class="form-label" style="font-weight: 700; color: #1e293b; white-space: normal;">
-                            3. Mediadores (Opcional - RH ou Diretor que acompanha e fecha mediações)
-                        </label>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 8px;">
+                            <label class="form-label" style="font-weight: 700; color: #1e293b; margin-bottom: 0;">
+                                3. Mediadores (Opcional - RH ou Diretor que acompanha e fecha mediações)
+                            </label>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                @if($eu)
+                                    <button type="button" onclick="selecionarMediadorEu()" class="btn-secondary" style="padding: 4px 10px; font-size: 0.76rem; border-radius: 6px; background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; cursor: pointer; font-weight: 600;">
+                                        <i class="fa-solid fa-user-check"></i> + Adicionar a mim mesmo
+                                    </button>
+                                @endif
+                                <button type="button" onclick="limparMediadores()" class="btn-secondary" style="padding: 4px 8px; font-size: 0.76rem; border-radius: 6px; background: #fff; color: #64748b; border: 1px solid #cbd5e1; cursor: pointer;">
+                                    <i class="fa-solid fa-xmark"></i> Limpar
+                                </button>
+                            </div>
+                        </div>
                         <select name="mediadores[]" id="mediadores" class="form-control" multiple>
-                            @foreach($gestores as $gestor)
-                                <option value="{{ $gestor->id }}" {{ in_array($gestor->id, $selectedMediadores) ? 'selected' : '' }}>
-                                    {{ $gestor->name }} ({{ $gestor->cargo->nome ?? 'Sem Cargo' }})
-                                </option>
-                            @endforeach
+                            @if($eu)
+                                <optgroup label="⭐ Sua Conta (Você)">
+                                    <option value="{{ $eu->id }}" {{ in_array($eu->id, $selectedMediadores) ? 'selected' : '' }}>
+                                        ⭐ [Você] {{ $eu->name }} ({{ $eu->cargo->nome ?? $eu->perfil_acesso->label() }})
+                                    </option>
+                                </optgroup>
+                            @endif
+
+                            @if($lideres->isNotEmpty())
+                                <optgroup label="👔 Masters e Gestores">
+                                    @foreach($lideres as $gestor)
+                                        <option value="{{ $gestor->id }}" {{ in_array($gestor->id, $selectedMediadores) ? 'selected' : '' }}>
+                                            [{{ $gestor->perfil_acesso->label() }}] {{ $gestor->name }} ({{ $gestor->cargo->nome ?? 'Sem Cargo' }})
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+
+                            @if($demais->isNotEmpty())
+                                <optgroup label="👥 Demais Colaboradores">
+                                    @foreach($demais as $gestor)
+                                        <option value="{{ $gestor->id }}" {{ in_array($gestor->id, $selectedMediadores) ? 'selected' : '' }}>
+                                            {{ $gestor->name }} ({{ $gestor->cargo->nome ?? 'Sem Cargo' }})
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
                         </select>
                     </div>
 
@@ -289,10 +374,33 @@
     let choicesAvaliadores, choicesAvaliados, choicesMediadores;
     let filtroDep, filtroCargo, filtroVinculo;
 
+    const currentUserId = '{{ auth()->id() }}';
+    const lideresIds = @json($todosGestoresIds->map(fn($id) => (string)$id));
+
     document.addEventListener('DOMContentLoaded', function() {
-        choicesAvaliadores = new Choices('#avaliadores', { removeItemButton: true, searchEnabled: true, itemSelectText: '', placeholderValue: 'Pesquise e selecione os avaliadores...', searchPlaceholderValue: 'Digite o nome ou cargo...' });
-        choicesAvaliados = new Choices('#avaliados', { removeItemButton: true, searchEnabled: true, itemSelectText: '', placeholderValue: 'Pesquise e selecione os avaliados...', searchPlaceholderValue: 'Digite o nome ou cargo...' });
-        choicesMediadores = new Choices('#mediadores', { removeItemButton: true, searchEnabled: true, itemSelectText: '', placeholderValue: 'Selecione mediadores (opcional)...', searchPlaceholderValue: 'Digite o nome ou cargo...' });
+        choicesAvaliadores = new Choices('#avaliadores', { 
+            removeItemButton: true, 
+            searchEnabled: true, 
+            itemSelectText: '', 
+            shouldSort: false,
+            placeholderValue: 'Pesquise e selecione os avaliadores...', 
+            searchPlaceholderValue: 'Digite o nome, cargo ou perfil...' 
+        });
+        choicesAvaliados = new Choices('#avaliados', { 
+            removeItemButton: true, 
+            searchEnabled: true, 
+            itemSelectText: '', 
+            placeholderValue: 'Pesquise e selecione os avaliados...', 
+            searchPlaceholderValue: 'Digite o nome ou cargo...' 
+        });
+        choicesMediadores = new Choices('#mediadores', { 
+            removeItemButton: true, 
+            searchEnabled: true, 
+            itemSelectText: '', 
+            shouldSort: false,
+            placeholderValue: 'Selecione mediadores (opcional)...', 
+            searchPlaceholderValue: 'Digite o nome, cargo ou perfil...' 
+        });
         
         filtroDep = new Choices('#filtro_departamento', { removeItemButton: true, searchEnabled: true, itemSelectText: '', placeholderValue: 'Departamentos...' });
         filtroCargo = new Choices('#filtro_cargo', { removeItemButton: true, searchEnabled: true, itemSelectText: '', placeholderValue: 'Cargos...' });
@@ -342,6 +450,38 @@
     function getSelectedValues(selectElement) {
         if (!selectElement) return [];
         return Array.from(selectElement.selectedOptions).map(opt => opt.value);
+    }
+
+    function selecionarAvaliadorEu() {
+        if (choicesAvaliadores && currentUserId) {
+            choicesAvaliadores.setChoiceByValue(String(currentUserId));
+        }
+    }
+
+    function selecionarTodosGestores() {
+        if (choicesAvaliadores && lideresIds && lideresIds.length) {
+            lideresIds.forEach(id => {
+                choicesAvaliadores.setChoiceByValue(String(id));
+            });
+        }
+    }
+
+    function limparAvaliadores() {
+        if (choicesAvaliadores) {
+            choicesAvaliadores.removeActiveItems();
+        }
+    }
+
+    function selecionarMediadorEu() {
+        if (choicesMediadores && currentUserId) {
+            choicesMediadores.setChoiceByValue(String(currentUserId));
+        }
+    }
+
+    function limparMediadores() {
+        if (choicesMediadores) {
+            choicesMediadores.removeActiveItems();
+        }
     }
 
     function aplicarFiltros() {
