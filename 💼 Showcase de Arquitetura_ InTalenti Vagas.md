@@ -1,101 +1,71 @@
-# **💼 Plataforma de Recrutamento Corporativo (Architecture Showcase)**
+﻿# **💼 Plataforma de Recrutamento & Gestão de Vagas — InTalenti Vagas (PHP MVC Multi-Tenant)**
 
-> **⚠️ Nota de Confidencialidade:** Este repositório é uma demonstração de arquitetura e boas práticas aplicadas na construção de um ecossistema real de vagas e recrutamento. Regras de negócio exclusivas, nomes de tabelas proprietárias e dados reais da empresa foram rigorosamente anonimizados e abstraídos. O sistema em produção pode ser acessado em [intalenti.com.br/vagas/IntalenTIVagasMVC/](https://intalenti.com.br/vagas/IntalenTIVagasMVC/auth/login).
+Bem-vindo ao **Showcase de Engenharia de Software** do **InTalenti Vagas**, uma plataforma corporativa multi-tenant para divulgação de vagas, triagem de candidatos e gestão de empregabilidade regional desenvolvida em **PHP Puro com Arquitetura MVC (Model-View-Controller)**.
 
-## **🚀 Sobre a Engenharia do Projeto**
+> **🌐 Projeto em Produção:** Acesse o portal em **[https://intalenti.com.br/vagas/](https://intalenti.com.br/vagas/)**  
+> **📂 Código no Repositório:** Disponível neste monorepo na pasta **[`PHP - INTALENTI VAGAS MVC/`](./PHP%20-%20INTALENTI%20VAGAS%20MVC)**.
 
-Este estudo de caso documenta a estruturação de um sistema robusto de gerenciamento de vagas e filtragem de candidatos, desenvolvido com **PHP 8 e Laravel**. O foco central da arquitetura apresentada aqui é a **manutenibilidade do código**, **segurança contra injeções de dados** e **alta performance em buscas no banco de dados**.
+---
 
-## **🏛️ Arquitetura e Segurança (Padrões MVC)**
+## **🏛️ 1. Filosofia de Arquitetura: MVC Puro & Domínio Profundo de PHP**
 
-O sistema foi desenhado respeitando rigorosamente o padrão **MVC (Model-View-Controller)**, garantindo que o acoplamento seja mínimo:
+Diferente de sistemas construídos sobre frameworks prontos, o **InTalenti Vagas** demonstra a capacidade de construir uma aplicação escalável, modular e robusta utilizando os **fundamentos da engenharia de software em PHP**:
 
-* **Controllers:** Focados inteiramente no fluxo HTTP (Clean Controllers).  
-* **Form Requests:** Utilizados como a primeira barreira de defesa do sistema. Eles encapsulam regras complexas de autorização e validação de dados dinâmicos, garantindo que lixo ou tentativas de injeção nunca cheguem ao Controller.  
-* **Models:** Encarregados da variações e abstração de dados via Eloquent ORM, implementando *Eager Loading* para performance e Escopos (Scopes) para consultas padronizadas.
+- **Roteamento & Dispatcher Proprietário:** Sistema central de rotas (`src/Core/Core.php`) que intercepta URLs amigáveis, mapeia parâmetros via regex e despacha para o controlador correspondente.
+- **Autoloading PSR-4:** Estrutura orientada a namespaces gerenciada pelo Composer.
+- **Camada de Dados Segura (Singleton PDO):** Conexão única via design pattern Singleton (`src/Config/Database.php`), consultas 100% preparadas (*Prepared Statements*) e sanitização contra SQL Injection e XSS.
+- **Camada de Apresentação Modular:** Views em PHP nativo desacopladas com layouts mestres reutilizáveis (`src/Views/layouts/master.php`).
 
-### **🛡️ Exemplo Prático: Segurança e Validação Profunda**
+### **🌳 Estrutura Real de Diretórios**
 
-Abaixo, um exemplo abstrato de como protegi as rotas de criação de vagas. A validação não checa apenas strings básicas, mas também condicionais (como salários) e arrays dinâmicos de perguntas.
+```
+PHP - INTALENTI VAGAS MVC/
+├── public/
+│   ├── index.php                  # Front Controller único da aplicação
+│   ├── assets/ (css, js, img)
+│   └── uploads/                   # Upload seguro de currículos (PDF) e logos
+│
+├── src/
+│   ├── Config/
+│   │   └── Database.php           # Singleton PDO com conexão persistente
+│   ├── Core/
+│   │   ├── Core.php               # Motor de roteamento e dispatching
+│   │   ├── Controller.php         # Base Controller com helpers de renderização
+│   │   └── Cache.php              # Cache local de queries frequentes
+│   │
+│   ├── Controllers/
+│   │   ├── VagasController.php    # Gestão de vagas, filtros e detalhes
+│   │   ├── CandidaturaController.php # Fluxo de inscrição e upload de CV
+│   │   ├── DashboardController.php   # Métricas de recrutadores com Chart.js
+│   │   └── PrefeituraController.php  # Portal regional da cidade/tenant
+│   │
+│   ├── Models/
+│   │   ├── Vaga.php               # Consultas com índices Full-Text
+│   │   ├── CandidatoProfile.php
+│   │   └── Candidatura.php
+│   │
+│   └── Utils/
+│       ├── GeoUtils.php           # Cálculo de proximidade geográfica
+│       ├── Validator.php          # Motor de validação e sanitização
+│       └── Mailer.php             # Disparador de notificações
+│
+└── migrations/                    # Scripts SQL de schema e índices
+```
 
-\<?php
+---
 
-namespace App\\Http\\Requests;
+## **🎯 2. Diferenciais Técnicos de Destaque**
 
-use Illuminate\\Foundation\\Http\\FormRequest;
+### **A. Multi-Tenancy para Prefeituras e Parceiros**
+- Capacidade de segmentar vagas, candidatos e identidades visuais por município contratante.
+- Cada prefeitura ou entidade possui seu subdomínio ou portal exclusivo, garantindo personalização de marca e isolamento institucional.
 
-class StoreVagaRequest extends FormRequest  
-{  
-    public function authorize()  
-    {  
-        // Camada de Segurança: Apenas perfis Recrutadores podem prosseguir  
-        return $this-\>user()-\>tipo\_usuario \=== 2;  
-    }
+### **B. Mapas com Leaflet.js & Busca por Geolocalização**
+- Cálculo de distância e mapeamento visual de polos de emprego na cidade utilizando a biblioteca open-source **Leaflet.js** e o módulo utilitário `GeoUtils.php`.
 
-    public function rules()  
-    {  
-        return \[  
-            'titulo'             \=\> 'required|string|max:255',  
-            'empresa\_id'         \=\> 'required|exists:empresas,id', // Proteção de integridade referencial  
-            'descricao'          \=\> 'required|string',  
-              
-            // Validação lógica de valores salariais  
-            'faixa\_salarial\_min' \=\> 'nullable|numeric|min:0',  
-            'faixa\_salarial\_max' \=\> 'nullable|numeric|gte:faixa\_salarial\_min', // MAX deve ser \>= MIN  
-              
-            // Validação profunda de arrays dinâmicos enviados pelo front-end  
-            'perguntas'                \=\> 'nullable|array',  
-            'perguntas.\*.texto'        \=\> 'required\_with:perguntas|string',  
-            'perguntas.\*.eliminatoria' \=\> 'boolean',  
-        \];  
-    }  
-}
+### **C. Painel de Analytics com Chart.js**
+- Visualização em tempo real de acessos, taxas de conversão de vagas e distribuição de candidatos por senioridade e área de atuação.
 
-## **⚡ Performance: Modelagem de Dados e Otimização de Buscas**
+---
 
-Uma plataforma de vagas recebe milhares de consultas textuais (ex: buscar por "Desenvolvedor PHP Laravel"). Utilizar o padrão SQL %LIKE% nesses casos obriga o banco a ler todas as linhas da tabela (*Full Table Scan*), degradando a performance e sobrecarregando a CPU do servidor.
-
-Para resolver esse gargalo arquitetural e escalar o sistema, implementei **Full-Text Search em Boolean Mode** no MySQL. Com índices invertidos, o banco de dados retorna resultados complexos em milissegundos.
-
-### **🔍 Exemplo Prático: Busca Otimizada e Eager Loading**
-
-Abaixo, um excerto do Model demonstrando como a query foi estruturada no Laravel para evitar lentidão e o clássico problema de *"N+1 queries"*.
-
-\<?php
-
-namespace App\\Models;
-
-use Illuminate\\Database\\Eloquent\\Model;  
-use Illuminate\\Database\\Eloquent\\Builder;
-
-class Vaga extends Model  
-{  
-    // Eager Loading automático para relacionamentos frequentemente usados  
-    protected $with \= \['empresa'\];
-
-    /\*\*  
-     \* Scope de Busca Avançada utilizando Índices Full-Text no banco.  
-     \*/  
-    public function scopeBuscaOtimizada(Builder $query, string $busca, ?string $localizacao, ?string $ramo)  
-    {  
-        // Sanitização e formatação da string de busca para o Boolean Mode do MySQL  
-        $termo \= str\_replace(' ', '\* ', trim(preg\_replace('/\[+\\-\>\<()\~\\"@\]+/', ' ', $busca))) . '\*';
-
-        return $query-\>where('status', 'ativa')  
-            \-\>when($busca, function ($q) use ($termo) {  
-                // Executa a busca em milissegundos graças ao índice Full-Text  
-                $q-\>whereRaw('MATCH(titulo, descricao) AGAINST(? IN BOOLEAN MODE)', \[$termo\])  
-                  \-\>orWhereHas('empresa', function ($qEmpresa) use ($termo) {  
-                        
-                      // Filtra o nome da empresa, mas garante a segurança da privacidade  
-                      $qEmpresa-\>whereRaw('MATCH(nome\_empresa) AGAINST(? IN BOOLEAN MODE)', \[$termo\]);  
-                        
-                  }, '\>=', 1, 'and', function($qCond) {  
-                      $qCond-\>where('vagas.confidencial', 0); // Vagas sigilosas não expõem a empresa  
-                  });  
-            })  
-            \-\>when($localizacao, fn($q) \=\> $q-\>where('localizacao', 'LIKE', "%{$localizacao}%"))  
-            \-\>when($ramo, fn($q) \=\> $q-\>where('ramo\_atividade', 'LIKE', "%{$ramo}%"))  
-            \-\>latest(); // Ordena pelas mais recentes  
-    }  
-}  
+Desenvolvido por **ADM-448** • [intalenti.com.br/vagas](https://intalenti.com.br/vagas/)
