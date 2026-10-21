@@ -1,5 +1,0 @@
-Nome;Email;CPF;Perfil;Cargo;Departamento;Senha;Telefone
-Exemplo Correto 1;exemplo@empresa.com;000.000.000-00;colaborador;Analista;TI;123456;(11) 99999-9999
-Exemplo Correto 2 (Sem Email);;000.000.000-01;gestor;Coordenador;RH;123456;(11) 98888-7777
-Exemplo Correto 3 (Sem CPF);exemplo3@empresa.com;;colaborador;Assistente;Financeiro;123456;
-Exemplo Errado (Falta CPF e Email);;;colaborador;Assistente;Financeiro;123456;
