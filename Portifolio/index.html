@@ -290,8 +290,8 @@
                         </div>
                         <div class="mockup-code">
                             <span class="code-cyan">// Execução assíncrona com IA Gemini & Horizon</span><br>
-                            <span class="code-accent">$analise</span> = <span class="code-cyan">$this</span>-&gt;geminiAudioService-&gt;transcreverFeedback1a1(<span class="code-accent">$audioStream</span>);<br>
-                            <span class="code-accent">GerarPdiAvaliacaoJob</span>::dispatch(<span class="code-accent">$colaborador</span>, <span class="code-accent">$analise</span>)-&gt;onQueue(<span class="code-green">'ai-heavy'</span>);
+                            <span class="code-accent">$analise</span> = <span class="code-cyan">$this</span>-&gt;geminiAudioService<br>&nbsp;&nbsp;-&gt;transcreverFeedback1a1(<span class="code-accent">$audioStream</span>);<br>
+                            <span class="code-accent">GerarPdiJob</span>::dispatch(<span class="code-accent">$colab</span>, <span class="code-accent">$analise</span>)<br>&nbsp;&nbsp;-&gt;onQueue(<span class="code-green">'ai-heavy'</span>);
                         </div>
                     </div>
 
@@ -434,12 +434,12 @@
                             <span class="mockup-dot dot-red"></span>
                             <span class="mockup-dot dot-yellow"></span>
                             <span class="mockup-dot dot-green"></span>
-                            <span class="mockup-title">Services/GeoService.php &bull; Haversine Distance Calculation</span>
+                            <span class="mockup-title">Services/GeoService.php &bull; Haversine Distance</span>
                         </div>
                         <div class="mockup-code">
-                            <span class="code-cyan">// Cálculo de distância geodésica candidato vs vaga</span><br>
-                            <span class="code-accent">$distanciaKm</span> = GeoService::calcularDistancia(<span class="code-accent">$candidato</span>-&gt;cep, <span class="code-accent">$vaga</span>-&gt;cep);<br>
-                            <span class="code-cyan">return</span> <span class="code-accent">$vagasQuery</span>-&gt;whereProximity(<span class="code-accent">$distanciaKm</span>, <span class="code-green">'&lt;='</span>, <span class="code-accent">25</span>);
+                            <span class="code-cyan">// Cálculo de distância geodésica</span><br>
+                            <span class="code-accent">$distKm</span> = GeoService::calcular(<span class="code-accent">$candidato</span>-&gt;cep, <span class="code-accent">$vaga</span>-&gt;cep);<br>
+                            <span class="code-cyan">return</span> <span class="code-accent">$vagas</span>-&gt;whereProximity(<span class="code-accent">$distKm</span>, <span class="code-green">'&lt;='</span>, <span class="code-accent">25</span>);
                         </div>
                     </div>
 

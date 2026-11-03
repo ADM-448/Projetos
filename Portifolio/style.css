@@ -769,12 +769,14 @@ ul {
     background: #0B0B18;
     border: 1px solid rgba(139, 92, 246, 0.25);
     border-radius: 12px;
-    padding: 1rem 1.25rem;
+    padding: 0.9rem 1.15rem;
     margin-bottom: 1.5rem;
     font-family: var(--font-mono);
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: #94A3B8;
     position: relative;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 .mockup-header {
@@ -784,12 +786,14 @@ ul {
     margin-bottom: 0.75rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     padding-bottom: 0.5rem;
+    overflow: hidden;
 }
 
 .mockup-dot {
-    width: 10px;
-    height: 10px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
+    flex-shrink: 0;
 }
 
 .dot-red { background: #EF4444; }
@@ -797,13 +801,21 @@ ul {
 .dot-green { background: #10B981; }
 
 .mockup-title {
-    margin-left: 8px;
-    font-size: 0.75rem;
+    margin-left: 6px;
+    font-size: 0.72rem;
     color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 45px);
 }
 
 .mockup-code {
-    line-height: 1.5;
+    line-height: 1.6;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 .code-accent { color: var(--neon-magenta); }
@@ -1076,26 +1088,31 @@ ul {
 }
 
 /* ==========================================================================
-   RESPONSIVIDADE (MOBILE & TABLET)
+   RESPONSIVIDADE (TABLET & MOBILE)
+   Otimizado para todos os dispositivos, incluindo telas estreitas (360px+)
    ========================================================================== */
 @media (max-width: 992px) {
-    .hero h1 { font-size: 3rem; }
+    .container { padding: 0 20px; }
+    .hero h1 { font-size: 3.2rem; }
     .bento-projects-grid { grid-template-columns: 1fr; }
     .bento-col-span-2 { grid-column: span 1; }
-    .companies-grid-layout { grid-template-columns: 1fr; }
-    .bilateral-cards-row { grid-template-columns: 1fr; gap: 30px; }
-    .conduit-spine::before { left: 24px; }
-    .spine-node-marker { align-items: flex-start; padding-left: 60px; }
-    .node-number-badge { position: absolute; left: 0; }
+    .companies-grid-layout { grid-template-columns: 1fr; gap: 2rem; }
+    .bilateral-cards-row { grid-template-columns: 1fr; gap: 24px; }
+    .conduit-spine::before { display: none; }
+    .spine-node-marker { align-items: center; padding-left: 0; text-align: center; }
+    .node-number-badge { position: static; margin-bottom: 0.5rem; }
 }
 
 @media (max-width: 768px) {
+    .navbar { height: 68px; }
+    .nav-container { height: 68px; padding: 0 16px; }
+
     .menu {
         position: fixed;
-        top: 76px;
+        top: 68px;
         left: -100%;
         width: 100%;
-        height: calc(100vh - 76px);
+        height: calc(100vh - 68px);
         background: rgba(5, 5, 12, 0.98);
         backdrop-filter: blur(25px);
         transition: var(--transition);
@@ -1103,16 +1120,20 @@ ul {
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        z-index: 999;
     }
 
     .menu ul {
         flex-direction: column;
-        gap: 2rem;
+        gap: 1.5rem;
+        text-align: center;
     }
+
+    .menu a { font-size: 1.15rem; }
 
     .menu-icon {
         display: block;
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         color: var(--text-primary);
         cursor: pointer;
     }
@@ -1122,8 +1143,113 @@ ul {
     }
 
     .nav-actions { display: none; }
-    .hero h1 { font-size: 2.3rem; }
+
+    /* Hero */
+    .hero { padding: 100px 0 50px; }
+    .hero-subtitle { font-size: 0.9rem; letter-spacing: 2px; }
+    .hero h1 { font-size: 2.4rem; letter-spacing: -0.5px; }
+    .hero-desc { font-size: 1rem; line-height: 1.6; margin-bottom: 2rem; }
+    .hero-actions { flex-direction: column; width: 100%; gap: 12px; }
+    .hero-actions .btn { width: 100%; justify-content: center; }
+
+    /* Containers & Cards */
+    .container { padding: 0 16px; }
+    .cyber-card { padding: 1.5rem 1.25rem; border-radius: 16px; }
     .section-title { font-size: 2rem; }
-    .companies-mosaic { grid-template-columns: repeat(2, 1fr); }
+    .section-desc { font-size: 0.95rem; }
+    .node-title { font-size: 1.5rem; }
+
+    /* Projects */
+    .projects-section { padding: 60px 0; }
+    .project-card-cyber h3 { font-size: 1.4rem; line-height: 1.3; }
+    .cyber-mockup-window { padding: 0.85rem 1rem; font-size: 0.78rem; margin-bottom: 1.25rem; }
+    .narrative-item { font-size: 0.9rem; }
+    .project-links-row { flex-direction: column; align-items: stretch; gap: 0.75rem; }
+    .project-link-btn { justify-content: center; padding: 10px 16px; background: rgba(255, 255, 255, 0.04); border-radius: 10px; border: 1px solid var(--border-subtle); }
+
+    /* Companies */
+    .companies-section { padding: 50px 0; }
+    .companies-mosaic { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+    /* Tech Stack */
+    .tech-stack-section { padding: 60px 0; }
+    .tech-icons-cloud { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 12px; }
+    .tech-icon-pill { padding: 1rem 0.5rem; }
+
+    /* Career */
+    .trajectory-section { padding: 60px 0; }
+    .career-timeline-grid { grid-template-columns: 1fr; gap: 20px; }
+    .education-grid { grid-template-columns: 1fr; gap: 16px; }
+
+    /* CTA */
+    .cta-banner-section { padding: 40px 0 70px; }
+    .cta-banner-box { padding: 2.75rem 1.25rem; }
     .cta-banner-box h2 { font-size: 2rem; }
+    .cta-banner-box p { font-size: 1rem; margin-bottom: 2rem; }
+    .cta-banner-box .btn { width: 100%; }
+
+    /* Footer */
+    .footer-top { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+    .footer-nav ul { flex-direction: column; gap: 0.85rem; }
+    .footer-bottom { flex-direction: column; align-items: flex-start; gap: 1rem; }
+}
+
+@media (max-width: 480px) {
+    .container { padding: 0 12px; }
+
+    /* Header & Logo */
+    .logo { font-size: 1.05rem; }
+    .logo-badge { width: 32px; height: 32px; font-size: 1.15rem; }
+
+    /* Hero */
+    .hero-chip { font-size: 0.75rem; padding: 6px 14px; margin-bottom: 1.25rem; }
+    .hero-subtitle { font-size: 0.8rem; letter-spacing: 1.5px; }
+    .hero h1 { font-size: 2.1rem; }
+    .hero .section-tag { font-size: 0.72rem; padding: 5px 12px; line-height: 1.4; text-align: center; }
+    .hero-desc { font-size: 0.9rem; line-height: 1.6; }
+
+    /* Cards */
+    .cyber-card { padding: 1.2rem 1rem; border-radius: 14px; }
+    .section-title { font-size: 1.65rem; }
+    .section-tag { font-size: 0.72rem; }
+    .node-title { font-size: 1.3rem; }
+    .node-number-badge { width: 40px; height: 40px; font-size: 0.95rem; }
+
+    /* Projects */
+    .project-card-cyber h3 { font-size: 1.25rem; line-height: 1.3; }
+    .cyber-tag { font-size: 0.65rem; padding: 3px 8px; }
+    .cyber-mockup-window { padding: 0.75rem 0.85rem; font-size: 0.72rem; border-radius: 10px; }
+    .mockup-header { margin-bottom: 0.5rem; padding-bottom: 0.4rem; }
+    .mockup-title { font-size: 0.66rem; }
+    .narrative-item { font-size: 0.86rem; }
+
+    /* Companies */
+    .companies-intro h3 { font-size: 1.65rem; }
+    .companies-mosaic { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .company-tile { padding: 0.85rem 0.4rem; border-radius: 10px; }
+    .company-tile i { font-size: 1.3rem; }
+    .company-tile strong { font-size: 0.8rem; }
+    .company-tile span { font-size: 0.65rem; }
+
+    /* Tech Stack */
+    .tech-icons-cloud { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .tech-icon-pill { padding: 0.75rem 0.25rem; border-radius: 10px; }
+    .tech-icon-pill i { font-size: 1.5rem; }
+    .tech-icon-pill span { font-size: 0.68rem; }
+
+    /* Career */
+    .career-card h4 { font-size: 1.1rem; }
+    .career-company { font-size: 0.85rem; }
+    .career-card ul li { font-size: 0.82rem; }
+
+    /* Education */
+    .education-grid { grid-template-columns: 1fr; gap: 10px; }
+    .education-card h5 { font-size: 0.9rem; }
+    .education-card p { font-size: 0.78rem; }
+
+    /* CTA */
+    .cta-banner-box { padding: 2.25rem 1rem; border-radius: 20px; }
+    .cta-banner-box h2 { font-size: 1.65rem; }
+    .cta-banner-box p { font-size: 0.9rem; }
+    .btn { padding: 11px 20px; font-size: 0.9rem; }
 }
