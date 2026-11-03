@@ -490,7 +490,7 @@ ul {
         content: '';
         position: absolute;
         top: 24px;
-        bottom: 85px; /* Para no nó 03 sem atravessar os cards abaixo */
+        bottom: 40px; /* Termina sob o título do nó 03 sem atravessar os cards de serviços */
         left: 50%;
         transform: translateX(-50%);
         width: 3px;
@@ -522,16 +522,17 @@ ul {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: 4rem auto 2.5rem;
-    z-index: 2;
+    margin: 4.5rem auto 2.5rem;
+    z-index: 5;
     text-align: center;
+    width: 100%;
 }
 
 .node-number-badge {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: var(--bg-deep);
+    background: #05050C;
     border: 2px solid var(--neon-cyan);
     display: flex;
     align-items: center;
@@ -540,23 +541,60 @@ ul {
     font-size: 1.1rem;
     color: #FFFFFF;
     box-shadow: 0 0 25px rgba(6, 182, 212, 0.8), inset 0 0 10px rgba(139, 92, 246, 0.5);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.85rem;
+    position: relative;
+    z-index: 6;
 }
 
 .node-meta-tag {
-    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto 0.65rem;
+    position: relative;
+    z-index: 6;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 2px;
-    font-weight: 700;
-    color: var(--neon-cyan);
-    margin-bottom: 0.25rem;
-    font-family: var(--font-mono);
+}
+
+.node-meta-tag .meta-word {
+    flex: 1;
+    color: #C084FC; /* Roxo neon vibrante solicitado pelo usuário */
+    text-shadow: 0 0 14px rgba(192, 132, 252, 0.7);
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.node-meta-tag .meta-left {
+    text-align: right;
+    padding-right: 24px; /* Espaço exato e generoso à esquerda da linha vertical central */
+}
+
+.node-meta-tag .meta-right {
+    text-align: left;
+    padding-left: 24px; /* Espaço exato e generoso à direita da linha vertical central */
+}
+
+.node-meta-tag:hover .meta-word {
+    color: #E879F9;
+    text-shadow: 0 0 20px rgba(232, 121, 249, 0.85);
 }
 
 .node-title {
     font-size: 1.85rem;
     font-weight: 800;
     color: var(--text-primary);
+    position: relative;
+    z-index: 6;
+    background: #05050C;
+    padding: 2px 24px;
+    border-radius: 12px;
+    display: inline-block;
+    box-shadow: 0 0 24px 10px #05050C; /* Máscara para a linha passar por trás sem cortar as letras do título */
 }
 
 /* Linhas / Cards Bilaterais ao redor da espinha */
@@ -1112,8 +1150,11 @@ ul {
     .bilateral-cards-row { grid-template-columns: 1fr; gap: 24px; }
     .conduit-spine::before,
     .conduit-spine-track::before { display: none !important; }
-    .spine-node-marker { align-items: center; padding-left: 0; text-align: center; }
+    .spine-node-marker { align-items: center; padding: 0 16px; text-align: center; width: 100%; }
     .node-number-badge { position: static; margin-bottom: 0.5rem; }
+    .node-meta-tag { max-width: 100%; }
+    .node-meta-tag .meta-left { padding-right: 12px; }
+    .node-meta-tag .meta-right { padding-left: 12px; }
 }
 
 @media (max-width: 768px) {
@@ -1225,7 +1266,10 @@ ul {
     .cyber-card { padding: 1.2rem 1rem; border-radius: 14px; }
     .section-title { font-size: 1.65rem; }
     .section-tag { font-size: 0.72rem; }
-    .node-title { font-size: 1.3rem; }
+    .node-title { font-size: 1.3rem; padding: 0 10px; }
+    .node-meta-tag { font-size: 0.72rem; letter-spacing: 1px; }
+    .node-meta-tag .meta-left { padding-right: 8px; }
+    .node-meta-tag .meta-right { padding-left: 8px; }
     .node-number-badge { width: 40px; height: 40px; font-size: 0.95rem; }
 
     /* Projects */
