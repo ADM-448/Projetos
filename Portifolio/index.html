@@ -5,11 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ademar Teisen | Engenheiro de Software & Desenvolvedor Full Stack Laravel</title>
-    
+    <meta name="description" content="Engenheiro de Software e Desenvolvedor Full Stack especializado em PHP, ecossistema Laravel e arquiteturas SaaS multi-tenant escaláveis.">
+
+    <!-- Open Graph / Meta Compartilhamento -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Ademar Teisen | Engenheiro de Software & Desenvolvedor Full Stack Laravel">
+    <meta property="og:description" content="Especialista em PHP, Laravel e arquiteturas SaaS multi-tenant escaláveis. Confira projetos reais e estudos de caso.">
+    <meta property="og:image" content="img/minhafoto.jpeg">
+
+    <!-- Favicon SVG Laravel -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ef4444'><path d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/></svg>">
+
     <!-- CSS & Fonts -->
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
     <!-- FontAwesome & Devicon Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
@@ -17,29 +29,24 @@
 
 <body>
 
-    <!-- Ambient Cyber Glows -->
-    <div class="cyber-glow glow-top-left"></div>
-    <div class="cyber-glow glow-mid-right"></div>
-    <div class="cyber-glow glow-bottom"></div>
-
     <!-- A. NAVBAR -->
     <header class="navbar">
         <div class="container nav-container">
             <a href="#home" class="logo">
-                <span class="logo-badge"><i class="fab fa-laravel"></i></span>
-                Ademar Teisen <span class="accent">.dev</span>
+                <span class="logo-icon"><i class="fab fa-laravel"></i></span>
+                <span>Ademar Teisen <span class="logo-sub">/ dev</span></span>
             </a>
-            
+
             <input type="checkbox" id="menu-toggle">
             <label for="menu-toggle" class="menu-icon"><i class="fas fa-bars"></i></label>
-            
+
             <nav class="menu">
                 <ul>
                     <li><a href="#home">Início</a></li>
                     <li><a href="#sobre">Sobre</a></li>
-                    <li><a href="#workflow">Workflow</a></li>
-                    <li><a href="#servicos">Serviços</a></li>
-                    <li><a href="#clientes">Clientes</a></li>
+                    <li><a href="#metodologia">Metodologia</a></li>
+                    <li><a href="#especialidades">Especialidades</a></li>
+                    <li><a href="#ecossistema">Empresas</a></li>
                     <li><a href="#projetos">Projetos</a></li>
                     <li><a href="#stack">Stack</a></li>
                     <li><a href="#trajetoria">Trajetória</a></li>
@@ -47,7 +54,7 @@
             </nav>
 
             <div class="nav-actions">
-                <a href="https://wa.me/5544999640895" target="_blank" class="btn btn-primary" style="padding: 10px 22px; font-size: 0.88rem;">
+                <a href="https://wa.me/5544999640895" target="_blank" class="btn btn-primary" style="padding: 9px 18px; font-size: 0.86rem;">
                     <i class="fab fa-whatsapp"></i> Fale Comigo
                 </a>
             </div>
@@ -56,573 +63,670 @@
 
     <!-- B. HERO SECTION -->
     <section class="hero" id="home">
-        <div class="container hero-content">
-            <div class="hero-chip">
-                <span class="pulse-dot"></span>
-                <span>Engenheiro de Software &bull; Nível Pleno</span>
-            </div>
+        <div class="container">
+            <div class="hero-grid">
+                
+                <div class="hero-content">
+                    <div class="hero-status-pill">
+                        <span class="status-dot"></span>
+                        <span>Disponível para novos projetos e desafios</span>
+                    </div>
 
-            <div class="hero-subtitle">OLÁ, EU SOU</div>
-            <h1 class="text-gradient">ADEMAR TEISEN</h1>
-            
-            <div class="section-tag" style="margin-bottom: 1.75rem;">
-                <i class="fas fa-layer-group"></i> Engenheiro de Software | Desenvolvedor Full Stack Laravel
-            </div>
+                    <h1>Ademar Teisen</h1>
+                    <div class="hero-role">Engenheiro de Software & Desenvolvedor Full Stack Laravel</div>
 
-            <p class="hero-desc">
-                Desenvolvedor Full Stack (PHP / Laravel) focado no planeamento e construção de arquiteturas SaaS multi-tenant escaláveis. Aliando uma base sólida em análise de requisitos corporativos (B2B) à engenharia de software, possuo a rara facilidade de traduzir regras de negócio complexas em código limpo (padrão Service Layer, princípios SOLID) e integrações robustas (APIs RESTful, Webhooks, SOAP). Experiência prática na orquestração de processamento assíncrono (Queues/Horizon) e na criação de interfaces reativas utilizando Vue.js e Inertia.js.
-            </p>
+                    <p class="hero-desc">
+                        Especialista em PHP e no ecossistema Laravel focado na construção de arquiteturas SaaS multi-tenant escaláveis. Uno análise de requisitos corporativos (B2B) à engenharia de software para traduzir regras de negócio complexas em código limpo (Service Layer, princípios SOLID), integrações resilientes (APIs RESTful, Webhooks) e processamento assíncrono de alta performance com Laravel Horizon e Redis.
+                    </p>
 
-            <div class="hero-actions">
-                <a href="#projetos" class="btn btn-primary">
-                    <i class="fas fa-code-branch"></i> Ver Casos de Estudo
-                </a>
-                <a href="Ademar%20de%20Ara%C3%BAjo%20Teisen%20-%20Laravel%20Full%20Stack.pdf" download="Ademar de Araújo Teisen - Laravel Full Stack.pdf" class="btn btn-outline-cyber">
-                    <i class="fas fa-file-download"></i> Baixar Currículo PDF
-                </a>
-            </div>
+                    <div class="hero-actions">
+                        <a href="#projetos" class="btn btn-primary">
+                            <i class="fas fa-layer-group"></i> Ver Casos de Estudo
+                        </a>
+                        <a href="Curriculo_Ademar_Teisen_Desenvolvedor_Laravel.pdf" download="Curriculo_Ademar_Teisen_Desenvolvedor_Laravel.pdf" class="btn btn-secondary">
+                            <i class="fas fa-file-pdf"></i> Baixar Currículo (PDF)
+                        </a>
+                    </div>
 
-            <div class="hero-socials">
-                <a href="https://github.com/ADM-448/Projetos" target="_blank" class="social-circle" title="GitHub"><i class="fab fa-github"></i></a>
-                <a href="https://www.linkedin.com/in/ademar-teisen-38588b334" target="_blank" class="social-circle" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                <a href="mailto:ademarteisen2004@gmail.com" class="social-circle" title="E-mail"><i class="fas fa-envelope"></i></a>
-                <a href="https://wa.me/5544999640895" target="_blank" class="social-circle" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <div class="hero-socials">
+                        <span>Conecte-se:</span>
+                        <a href="https://github.com/ADM-448/Projetos" target="_blank" class="social-link" title="GitHub"><i class="fab fa-github"></i></a>
+                        <a href="https://www.linkedin.com/in/ademar-teisen-38588b334" target="_blank" class="social-link" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="mailto:ademarteisen2004@gmail.com" class="social-link" title="E-mail"><i class="fas fa-envelope"></i></a>
+                        <a href="https://wa.me/5544999640895" target="_blank" class="social-link" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+
+                <div class="hero-visual">
+                    <div class="profile-card-wrapper">
+                        <div class="profile-image-container">
+                            <img src="img/minhafoto.jpeg" alt="Foto profissional de Ademar Teisen" class="profile-photo">
+                        </div>
+                        <div class="profile-badge-overlay">
+                            <i class="fab fa-laravel"></i>
+                            <span>PHP &bull; Laravel &bull; Vue.js</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>
 
-    <!-- C. THE CENTRAL CYBER CONDUIT / SPINE (MILESTONES 01, 02, 03) -->
-    <section class="cyber-conduit-section">
+    <!-- C. FAIXA DE DESTAQUES & MÉTRICAS -->
+    <div class="stats-strip">
         <div class="container">
-
-            <div class="conduit-spine-track">
-                <!-- MILESTONE 01: BIT ABOUT ME -->
-                <div class="spine-node-marker" id="sobre">
-                    <div class="node-number-badge">01</div>
-                    <div class="node-meta-tag">
-                        <span class="meta-word meta-left">Visão</span>
-                        <span class="meta-word meta-right">Diferencial</span>
-                    </div>
-                    <h2 class="node-title">Além do Código: Do Negócio ao Software</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">B2B SaaS</div>
+                    <div class="stat-label">Arquiteturas multi-tenant em produção</div>
                 </div>
-
-                <div class="bilateral-cards-row">
-                    <div class="cyber-card bilateral-card">
-                        <h4><i class="fas fa-brain"></i> Análise de Requisitos Corporativos</h4>
-                        <p>
-                            Forte vivência na condução de reuniões com stakeholders e clientes corporativos. Capacidade de compreender a dor estratégica do negócio, mapear fluxos complexos e estruturar especificações técnicas à prova de retrabalho.
-                        </p>
-                    </div>
-
-                    <div class="cyber-card bilateral-card">
-                        <h4><i class="fas fa-microchip"></i> Engenharia & Autonomia Ponta a Ponta</h4>
-                        <p>
-                            Atuação completa no ciclo de vida de desenvolvimento: desde a modelagem de banco relacional e escrita de código limpo (<strong>Service Layer</strong>, <strong>SOLID</strong>) até a orquestração assíncrona (<strong>Laravel Horizon</strong>) e deploys seguros em produção (Docker/NGINX/Apache).
-                        </p>
-                    </div>
+                <div class="stat-item">
+                    <div class="stat-number">Service Layer</div>
+                    <div class="stat-label">Princípios SOLID e zero Fat Controllers</div>
                 </div>
-
-                <!-- MILESTONE 02: MY WORKFLOW -->
-                <div class="spine-node-marker" id="workflow">
-                    <div class="node-number-badge">02</div>
-                    <div class="node-meta-tag">
-                        <span class="meta-word meta-left">Engenharia</span>
-                        <span class="meta-word meta-right">Arquitetural</span>
-                    </div>
-                    <h2 class="node-title">Meu Workflow de Desenvolvimento</h2>
+                <div class="stat-item">
+                    <div class="stat-number">Filas & Jobs</div>
+                    <div class="stat-label">Orquestração assíncrona com Horizon & Redis</div>
                 </div>
-
-                <div class="bilateral-cards-row">
-                    <div class="cyber-card bilateral-card">
-                        <h4><i class="fas fa-cubes"></i> 1. Service Layer & Princípios SOLID</h4>
-                        <p>
-                            Eliminação completa de Fat Controllers. Regras de negócio desacopladas em camadas de serviço dedicadas, facilitando manutenibilidade, extensibilidade e testes automatizados.
-                        </p>
-                    </div>
-
-                    <div class="cyber-card bilateral-card">
-                        <h4><i class="fas fa-bolt"></i> 2. Filas & Laravel Horizon</h4>
-                        <p>
-                            Isolamento de operações pesadas em background (transcrição de IA, webhooks do WhatsApp, disparos massivos) via filas Redis, garantindo respostas HTTP em milissegundos.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="bilateral-cards-row">
-                    <div class="cyber-card bilateral-card">
-                        <h4><i class="fas fa-laptop-code"></i> 3. Reatividade com Vue.js & Inertia.js</h4>
-                        <p>
-                            Construção de interfaces SPA ricas e dinâmicas com a simplicidade e a segurança do ecossistema Laravel. Experiência de usuário fluida sem a complexidade de autenticação via API duplicada.
-                        </p>
-                    </div>
-
-                    <div class="cyber-card bilateral-card">
-                        <h4><i class="fas fa-database"></i> 4. Modelagem Relacional & Multi-Tenancy</h4>
-                        <p>
-                            Arquiteturas de banco MySQL normalizadas, consultas de alta performance com índices calculados e isolamento estrito de dados entre diferentes empresas através de escopos globais.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- MILESTONE 03: WHAT I OFFER (A LINHA TERMINA NO BADGE 03) -->
-                <div class="spine-node-marker" id="servicos">
-                    <div class="node-number-badge">03</div>
-                    <div class="node-meta-tag">
-                        <span class="meta-word meta-left">Capacidades</span>
-                        <span class="meta-word meta-right">Especialidades</span>
-                    </div>
-                    <h2 class="node-title">O Que Eu Construo & Escalo</h2>
+                <div class="stat-item">
+                    <div class="stat-number">Ponta a Ponta</div>
+                    <div class="stat-label">Da análise de requisitos ao deploy seguro</div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- CARDS DE SERVIÇOS FORA DA LINHA (NENHUMA LINHA ATRAVESSA ESTES CARDS) -->
-            <div class="services-mosaic-grid">
-                <div class="cyber-card">
-                    <h4 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: #FFFFFF;"><i class="fas fa-server text-cyan"></i> Plataformas SaaS Multi-tenant</h4>
-                    <p style="font-size: 0.88rem; color: var(--text-secondary);">Estruturação de softwares como serviço com segregação segura de clientes, controle de planos e permissões corporativas.</p>
-                </div>
-
-                <div class="cyber-card">
-                    <h4 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: #FFFFFF;"><i class="fas fa-plug text-purple"></i> APIs RESTful, Webhooks & SOAP</h4>
-                    <p style="font-size: 0.88rem; color: var(--text-secondary);">Desenvolvimento e integração de endpoints de alta disponibilidade, comunicação orientada a eventos e gateways corporativos.</p>
-                </div>
-
-                <div class="cyber-card">
-                    <h4 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: #FFFFFF;"><i class="fas fa-spider text-cyan"></i> Pipelines de Web Scraping</h4>
-                    <p style="font-size: 0.88rem; color: var(--text-secondary);">Automação de extração massiva de dados com Roach-PHP e Puppeteer, contornando SPAs dinâmicas e rate limits.</p>
-                </div>
-
-                <div class="cyber-card">
-                    <h4 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: #FFFFFF;"><i class="fas fa-tachometer-alt text-purple"></i> Otimização de Performance MySQL</h4>
-                    <p style="font-size: 0.88rem; color: var(--text-secondary);">Análise de slow queries, criação de índices estratégicos, refatoração de relacionamentos e cache com Redis.</p>
-                </div>
-
-                <div class="cyber-card">
-                    <h4 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: #FFFFFF;"><i class="fas fa-desktop text-cyan"></i> SPAs Modernas com Vue & Tailwind</h4>
-                    <p style="font-size: 0.88rem; color: var(--text-secondary);">Desenvolvimento de dashboards administrativos, painéis Kanban e ferramentas reativas com UI refinada.</p>
-                </div>
-
-                <div class="cyber-card">
-                    <h4 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: #FFFFFF;"><i class="fas fa-shield-alt text-purple"></i> Infraestrutura, Docker & Deploys</h4>
-                    <p style="font-size: 0.88rem; color: var(--text-secondary);">Conteinerização de ambientes, configuração de servidores NGINX/Apache, versionamento com Git Flow e CI/CD.</p>
-                </div>
+    <!-- D. SOBRE MIM & ATUAÇÃO ESTRATÉGICA -->
+    <section class="section" id="sobre">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge"><i class="fas fa-compass"></i> Visão & Fundamentos</div>
+                <h2 class="section-title">Além do Código: Do Negócio ao Software</h2>
+                <p class="section-desc">Entender a estratégia corporativa antes de escrever a primeira linha de código é o que separa um executor de um parceiro técnico que gera valor real.</p>
             </div>
 
+            <div class="about-grid">
+                <div class="card about-card">
+                    <div class="about-card-icon"><i class="fas fa-handshake"></i></div>
+                    <h3>Análise de Requisitos Corporativos (B2B)</h3>
+                    <p>
+                        Experiência sólida na condução de reuniões com stakeholders, líderes de produto e clientes corporativos. Facilidade para compreender a dor estratégica do negócio, mapear fluxos de trabalho complexos e estruturar especificações técnicas claras, eliminando retrabalhos e alinhando expectativas.
+                    </p>
+                </div>
+
+                <div class="card about-card">
+                    <div class="about-card-icon"><i class="fas fa-code-branch"></i></div>
+                    <h3>Engenharia e Autonomia Ponta a Ponta</h3>
+                    <p>
+                        Atuação completa no ciclo de vida de desenvolvimento: desde a modelagem de banco relacional e escrita de código limpo (Service Layer, SOLID) até a orquestração de processamento assíncrono (Laravel Horizon) e deploys seguros em produção (Docker, NGINX, Apache, CI/CD).
+                    </p>
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- D. CLIENTS / PARTNERS MOSAIC ("The Companies I'm Working With...") -->
-    <section class="companies-section" id="clientes">
+    <!-- E. METODOLOGIA & WORKFLOW DE DESENVOLVIMENTO -->
+    <section class="section workflow-section" id="metodologia">
         <div class="container">
-            <div class="companies-grid-layout">
-                <div class="companies-intro">
-                    <div class="section-tag"><i class="fas fa-handshake"></i> Experiência B2B</div>
-                    <h3>Produtos & Ecossistema de Atuação</h3>
-                    <p>Plataformas, produtos corporativos e ecossistemas governamentais onde atuei diretamente na arquitetura de software, levantamento de requisitos e engenharia Full Stack.</p>
+            <div class="section-header">
+                <div class="section-badge"><i class="fas fa-cogs"></i> Metodologia & Arquitetura</div>
+                <h2 class="section-title">Como Estruturo Sistemas Escaláveis</h2>
+                <p class="section-desc">Padrões de engenharia consolidados para garantir manutenibilidade, isolamento de responsabilidades e alta vazão sob carga real.</p>
+            </div>
+
+            <div class="workflow-grid">
+                <div class="workflow-card">
+                    <div class="workflow-step-num">01</div>
+                    <div class="workflow-body">
+                        <h4>Service Layer & Princípios SOLID</h4>
+                        <p>Eliminação de Fat Controllers. As regras de negócio são centralizadas em serviços dedicados, facilitando manutenibilidade, extensibilidade e testes automatizados sem acoplamento excessivo.</p>
+                    </div>
                 </div>
 
-                <div class="companies-mosaic">
-                    <!-- 1. TalentiPro -->
-                    <div class="company-tile tile-coral">
+                <div class="workflow-card">
+                    <div class="workflow-step-num">02</div>
+                    <div class="workflow-body">
+                        <h4>Filas & Laravel Horizon</h4>
+                        <p>Isolamento de operações computacionalmente pesadas em background (transcrição de IA, webhooks do WhatsApp, disparos em lote) via filas Redis, mantendo respostas HTTP instantâneas.</p>
+                    </div>
+                </div>
+
+                <div class="workflow-card">
+                    <div class="workflow-step-num">03</div>
+                    <div class="workflow-body">
+                        <h4>Reatividade com Vue.js & Inertia.js</h4>
+                        <p>Construção de interfaces SPA ricas e dinâmicas com toda a segurança e produtividade do ecossistema Laravel. Experiência de usuário fluida sem a sobrecarga de gerenciar APIs redundantes.</p>
+                    </div>
+                </div>
+
+                <div class="workflow-card">
+                    <div class="workflow-step-num">04</div>
+                    <div class="workflow-body">
+                        <h4>Modelagem Relacional & Multi-Tenancy</h4>
+                        <p>Bancos de dados MySQL bem normalizados, consultas otimizadas com índices estratégicos e isolamento estrito de dados entre diferentes empresas através de escopos globais e middlewares.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- F. ESPECIALIDADES / CAPACIDADES TÉCNICAS -->
+    <section class="section" id="especialidades">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge"><i class="fas fa-cubes"></i> Competências Técnicas</div>
+                <h2 class="section-title">O Que Eu Desenvolvo & Entrego</h2>
+                <p class="section-desc">Soluções arquitetadas para estabilidade operacional, segurança de dados e facilidade de evolução contínua.</p>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-server"></i></div>
+                    <h4>Plataformas SaaS Multi-tenant</h4>
+                    <p>Estruturação de softwares como serviço com segregação lógica de clientes corporativos, controle hierárquico de planos e permissões (RBAC).</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-plug"></i></div>
+                    <h4>APIs RESTful, Webhooks & SOAP</h4>
+                    <p>Desenvolvimento e consumo de endpoints de alta disponibilidade, comunicação orientada a eventos, webhooks assíncronos e integrações corporativas.</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-spider"></i></div>
+                    <h4>Pipelines de Web Scraping</h4>
+                    <p>Automação de extração massiva e concorrente de dados com Roach-PHP e Puppeteer, contornando SPAs dinâmicas, paginações e rate limits.</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-database"></i></div>
+                    <h4>Otimização MySQL & Redis</h4>
+                    <p>Diagnóstico de slow queries, modelagem relacional, indexação composta para alta concorrência e estratégias inteligentes de cache em memória.</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-desktop"></i></div>
+                    <h4>Interfaces Reativas com Vue & Tailwind</h4>
+                    <p>Criação de painéis administrativos, quadros Kanban, gráficos analíticos e interfaces dinâmicas com excelente usabilidade e feedback visual.</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-shield-alt"></i></div>
+                    <h4>Infraestrutura & Ambientes Docker</h4>
+                    <p>Conteinerização de stacks, configuração de servidores NGINX/Apache, versionamento com Git Flow e boas práticas para deploy seguro em produção.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- G. CLIENTES & ECOSSISTEMA B2B -->
+    <section class="section clients-section" id="ecossistema">
+        <div class="container">
+            <div class="clients-grid-layout">
+                <div class="clients-intro">
+                    <div class="section-badge"><i class="fas fa-building"></i> Contexto de Atuação</div>
+                    <h3>Produtos & Ecossistemas Reais</h3>
+                    <p>Plataformas corporativas, softwares SaaS e soluções governamentais onde participei diretamente da arquitetura, modelagem e engenharia Full Stack.</p>
+                </div>
+
+                <div class="companies-grid">
+                    <div class="company-item">
                         <i class="fas fa-layer-group"></i>
                         <strong>TalentiPro SaaS</strong>
                         <span>Gestão de RH & Avaliações 360°</span>
                     </div>
 
-                    <!-- 2. SDR JARVIS -->
-                    <div class="company-tile tile-blue">
+                    <div class="company-item">
                         <i class="fas fa-robot"></i>
                         <strong>SDR JARVIS</strong>
                         <span>CRM & Automação de Vendas</span>
                     </div>
 
-                    <!-- 3. IntalenTI Group -->
-                    <div class="company-tile tile-violet">
+                    <div class="company-item">
                         <i class="fas fa-code"></i>
                         <strong>IntalenTI Group</strong>
                         <span>Software House & SaaS B2B</span>
                     </div>
 
-                    <!-- 4. Prefeituras Municipais -->
-                    <div class="company-tile tile-cyan">
+                    <div class="company-item">
                         <i class="fas fa-landmark"></i>
                         <strong>Prefeituras & Governo</strong>
                         <span>Portais de Empregabilidade Municipal</span>
                     </div>
 
-                    <!-- 5. Anjo Nexus -->
-                    <div class="company-tile tile-dark">
-                        <i class="fas fa-spider text-cyan"></i>
+                    <div class="company-item">
+                        <i class="fas fa-file-invoice-dollar"></i>
                         <strong>Anjo Nexus (P&D)</strong>
-                        <span>Editais & Inovação Tecnológica</span>
+                        <span>Análise de Editais de Inovação</span>
                     </div>
 
-                    <!-- 6. Expansão -->
-                    <div class="company-tile tile-dark">
-                        <i class="fas fa-rocket text-purple"></i>
-                        <strong>Projetos SaaS B2B</strong>
-                        <span>Arquiteturas Escaláveis</span>
+                    <div class="company-item">
+                        <i class="fas fa-chart-line"></i>
+                        <strong>IntalenTI BI</strong>
+                        <span>Dashboards & Analytics Gerenciais</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- E. RECENT PROJECTS & CASES (BENTO GRID WITH CODE & UI MOCKUPS) -->
-    <section class="projects-section" id="projetos">
+    <!-- H. PROJETOS & ESTUDOS DE CASO (BENTO GRID) -->
+    <section class="section" id="projetos">
         <div class="container">
             <div class="section-header">
-                <div class="section-tag"><i class="fas fa-laptop-code"></i> Portfólio de Engenharia</div>
-                <h2 class="section-title">Casos de Estudo & <span class="text-gradient">Projetos Recentes</span></h2>
-                <p class="section-desc">Projetos reais com foco na resolução de desafios de negócio através de arquiteturas modernas em PHP, Laravel, processamento assíncrono e banco de dados relacional.</p>
+                <div class="section-badge"><i class="fas fa-laptop-code"></i> Portfólio de Engenharia</div>
+                <h2 class="section-title">Estudos de Caso & Projetos em Destaque</h2>
+                <p class="section-desc">Projetos reais com foco em desafios arquiteturais, concorrência, isolamento de dados e impacto de negócio mensurável.</p>
             </div>
 
-            <div class="bento-projects-grid">
+            <div class="projects-grid">
 
-                <!-- 1. TalentiPro (Destaque - Ocupa 2 colunas) -->
-                <div class="cyber-card project-card-cyber bento-col-span-2">
-                    <div class="project-tags-row">
-                        <span class="cyber-tag tag-purple">SaaS Multi-tenant</span>
-                        <span class="cyber-tag tag-glass">PHP 8.x</span>
-                        <span class="cyber-tag tag-glass">Laravel</span>
-                        <span class="cyber-tag tag-cyan">Vue.js / Inertia.js</span>
-                        <span class="cyber-tag tag-purple">Laravel Horizon</span>
-                        <span class="cyber-tag tag-glass">Google Gemini IA</span>
+                <!-- 1. TalentiPro (Destaque - 2 colunas) -->
+                <div class="project-card project-span-2">
+                    <div class="project-tags">
+                        <span class="tag tag-highlight">SaaS Multi-tenant</span>
+                        <span class="tag">PHP 8.x</span>
+                        <span class="tag">Laravel</span>
+                        <span class="tag tag-blue">Vue.js / Inertia.js</span>
+                        <span class="tag">Laravel Horizon</span>
+                        <span class="tag">Google Gemini API</span>
                     </div>
 
                     <h3>TalentiPro — Plataforma SaaS Multi-tenant & Gestão de PDI</h3>
 
-                    <!-- Code / Architecture Mockup Window -->
-                    <div class="cyber-mockup-window">
-                        <div class="mockup-header">
-                            <span class="mockup-dot dot-red"></span>
-                            <span class="mockup-dot dot-yellow"></span>
-                            <span class="mockup-dot dot-green"></span>
-                            <span class="mockup-title">TalentiPro/app/Services/AvaliacaoService.php &bull; Service Layer Pattern</span>
+                    <div class="code-mockup">
+                        <div class="code-mockup-header">
+                            <span class="dot dot-red"></span>
+                            <span class="dot dot-yellow"></span>
+                            <span class="dot dot-green"></span>
+                            <span class="code-title">TalentiPro/app/Services/AvaliacaoService.php &bull; Service Layer</span>
                         </div>
-                        <div class="mockup-code"><span class="code-cyan">// Execução assíncrona com IA Gemini & Horizon</span><br><span class="code-accent">$analise</span> = <span class="code-cyan">$this</span>-&gt;geminiAudioService<br>&nbsp;&nbsp;-&gt;transcreverFeedback1a1(<span class="code-accent">$audioStream</span>);<br><span class="code-accent">GerarPdiJob</span>::dispatch(<span class="code-accent">$colab</span>, <span class="code-accent">$analise</span>)<br>&nbsp;&nbsp;-&gt;onQueue(<span class="code-green">'ai-heavy'</span>);</div>
+                        <div class="code-content"><span class="code-comment">// Orquestração assíncrona de transcrição e geração de PDI</span>
+<span class="code-var">$analise</span> = <span class="code-call">$this</span>-&gt;geminiAudioService-&gt;transcreverFeedback1a1(<span class="code-var">$audioStream</span>);
+<span class="code-call">GerarPdiJob</span>::dispatch(<span class="code-var">$colaborador</span>, <span class="code-var">$analise</span>)-&gt;onQueue(<span class="code-string">'ai-heavy'</span>);</div>
                     </div>
 
-                    <div class="case-study-narrative">
-                        <div class="narrative-item">
-                            <strong><i class="fas fa-bullseye text-cyan"></i> O Desafio:</strong>
-                            Projetar e construir uma plataforma SaaS B2B escalável para gestão estratégica de pessoas, avaliações 360°, mapeamento comportamental DISC e geração de Planos de Desenvolvimento Individual (PDI), suportando múltiplos clientes corporativos sob rigoroso isolamento lógico.
+                    <div class="project-narrative">
+                        <div class="narrative-row">
+                            <strong><i class="fas fa-crosshairs"></i> O Desafio:</strong>
+                            Construir uma plataforma SaaS B2B escalável para gestão de pessoas, avaliações 360°, mapeamento comportamental DISC e geração automatizada de Planos de Desenvolvimento Individual (PDI), suportando múltiplos clientes corporativos sob rigoroso isolamento lógico.
                         </div>
-                        <div class="narrative-item">
-                            <strong><i class="fas fa-layer-group text-purple"></i> A Arquitetura:</strong>
-                            Desenvolvida sob o padrão Service Layer e princípios SOLID em PHP 8.x e Laravel, desacoplando completamente as regras de negócio dos controllers. Orquestração de tarefas assíncronas em filas Redis gerenciadas pelo Laravel Horizon para transcrição de feedbacks em áudio e geração preditiva de PDI com IA. Frontend moderno e altamente reativo utilizando Vue.js e Inertia.js para uma experiência SPA fluida e segura.
+                        <div class="narrative-row">
+                            <strong><i class="fas fa-cubes"></i> A Arquitetura:</strong>
+                            Desenvolvida sob o padrão Service Layer e princípios SOLID em PHP 8.x e Laravel, desacoplando completamente as regras de negócio dos controllers. Tarefas assíncronas em filas Redis gerenciadas pelo Laravel Horizon para transcrição de áudio e síntese de relatórios. Interface moderna e reativa com Vue.js e Inertia.js.
                         </div>
-                        <div class="narrative-item">
-                            <strong><i class="fas fa-chart-line text-cyan"></i> O Impacto:</strong>
-                            Aplicação em produção (<a href="https://talentipro.com.br" target="_blank" style="color: var(--neon-magenta); text-decoration: underline;">talentipro.com.br</a>) com governança multi-tenant via Global Scopes no MySQL, automatizando ciclos completos de avaliação corporativa e reduzindo drasticamente o tempo operacional de RHs e líderes na síntese de relatórios executivos.
+                        <div class="narrative-row">
+                            <strong><i class="fas fa-chart-line"></i> O Impacto:</strong>
+                            Aplicação em produção (<a href="https://talentipro.com.br" target="_blank">talentipro.com.br</a>) com governança multi-tenant via Global Scopes no MySQL, automatizando ciclos de avaliação corporativa e reduzindo drasticamente o trabalho operacional de equipes de RH.
                         </div>
                     </div>
 
-                    <div class="project-links-row">
-                        <a href="https://talentipro.com.br/" target="_blank" class="project-link-btn">
-                            <i class="fas fa-external-link-alt"></i> Acessar Produto ao Vivo
+                    <div class="project-links">
+                        <a href="https://talentipro.com.br/" target="_blank" class="project-link-main">
+                            <i class="fas fa-external-link-alt"></i> Acessar Plataforma ao Vivo
                         </a>
-                        <a href="https://github.com/ADM-448/Projetos/blob/main/%F0%9F%8F%97%EF%B8%8F%20Showcase%20de%20Arquitetura_%20TalentiPro%20(SaaS).md" target="_blank" class="project-link-btn project-link-subtle">
+                        <a href="https://github.com/ADM-448/Projetos/blob/main/%F0%9F%8F%97%EF%B8%8F%20Showcase%20de%20Arquitetura_%20TalentiPro%20(SaaS).md" target="_blank" class="project-link-secondary">
                             <i class="fab fa-github"></i> Estudo de Caso Completo
                         </a>
                     </div>
                 </div>
 
                 <!-- 2. SDR JARVIS (1 coluna) -->
-                <div class="cyber-card project-card-cyber">
-                    <div class="project-tags-row">
-                        <span class="cyber-tag tag-purple">Multi-tenant CRM</span>
-                        <span class="cyber-tag tag-glass">Laravel 11</span>
-                        <span class="cyber-tag tag-cyan">Webhooks WhatsApp</span>
-                        <span class="cyber-tag tag-glass">Jobs / Queues</span>
+                <div class="project-card">
+                    <div class="project-tags">
+                        <span class="tag tag-highlight">Multi-tenant CRM</span>
+                        <span class="tag">Laravel 11</span>
+                        <span class="tag tag-blue">Webhooks WhatsApp</span>
+                        <span class="tag">Jobs / Filas Redis</span>
                     </div>
 
                     <h3>SDR JARVIS — Automação de Vendas & CRM Omnichannel</h3>
 
-                    <div class="cyber-mockup-window">
-                        <div class="mockup-header">
-                            <span class="mockup-dot dot-red"></span>
-                            <span class="mockup-dot dot-yellow"></span>
-                            <span class="mockup-dot dot-green"></span>
-                            <span class="mockup-title">Events/WhatsAppWebhookReceived.php</span>
+                    <div class="code-mockup">
+                        <div class="code-mockup-header">
+                            <span class="dot dot-red"></span>
+                            <span class="dot dot-yellow"></span>
+                            <span class="dot dot-green"></span>
+                            <span class="code-title">Events/WhatsAppWebhookReceived.php</span>
                         </div>
-                        <div class="mockup-code"><span class="code-cyan">// Ingestão assíncrona orientada a eventos</span><br>ProcessIncomingMessageJob::dispatch(<span class="code-accent">$webhookPayload</span>)<br>&nbsp;&nbsp;-&gt;onQueue(<span class="code-green">'whatsapp-realtime'</span>);</div>
+                        <div class="code-content"><span class="code-comment">// Ingestão assíncrona orientada a eventos</span>
+<span class="code-call">ProcessIncomingMessageJob</span>::dispatch(<span class="code-var">$webhookPayload</span>)
+    -&gt;onQueue(<span class="code-string">'whatsapp-realtime'</span>);</div>
                     </div>
 
-                    <div class="case-study-narrative">
-                        <div class="narrative-item">
-                            <strong><i class="fas fa-bullseye text-cyan"></i> O Desafio:</strong>
-                            Desenvolver uma central de automação comercial e prospecção ativa B2B capaz de qualificar leads de maneira autônoma com IA e gerenciar múltiplos canais de contato com estabilidade sob pico de requisições.
+                    <div class="project-narrative">
+                        <div class="narrative-row">
+                            <strong><i class="fas fa-crosshairs"></i> O Desafio:</strong>
+                            Desenvolver uma central de automação comercial e prospecção ativa B2B capaz de receber webhooks da API do WhatsApp sob alta concorrência e qualificar leads em tempo real.
                         </div>
-                        <div class="narrative-item">
-                            <strong><i class="fas fa-layer-group text-purple"></i> A Arquitetura:</strong>
-                            Engenharia multi-tenant com isolamento estrito via trait <code style="color: var(--neon-cyan);">BelongsToTenant</code>. Ingestão em tempo real de mensagens via Webhooks da API do WhatsApp, delegadas imediatamente para processamento assíncrono em Jobs de background. Modelagem MySQL avançada com índices compostos para visualização e movimentação rápida em quadros Kanban.
+                        <div class="narrative-row">
+                            <strong><i class="fas fa-cubes"></i> A Arquitetura:</strong>
+                            Engenharia multi-tenant com isolamento estrito via trait dedicada. Ingestão assíncrona de webhooks delegada imediatamente para Jobs em filas Redis. Modelagem relacional otimizada com índices compostos para visualização e movimentação rápida em quadros Kanban.
                         </div>
-                        <div class="narrative-item">
-                            <strong><i class="fas fa-chart-line text-cyan"></i> O Impacto:</strong>
-                            Redução a zero do tempo de espera no primeiro atendimento de prospects, orquestração centralizada de conversas sem concorrência entre empresas parceiras e enriquecimento corporativo automático via dados tributários de CNPJ.
+                        <div class="narrative-row">
+                            <strong><i class="fas fa-chart-line"></i> O Impacto:</strong>
+                            Atendimento imediato aos prospects sem retenção de conexões HTTP, gestão centralizada de conversas sem conflito entre empresas e enriquecimento automático via dados públicos de CNPJ.
                         </div>
                     </div>
 
-                    <div class="project-links-row">
-                        <a href="https://github.com/ADM-448/Projetos/blob/main/%F0%9F%A4%96%20Showcase%20de%20Arquitetura_%20SDR%20JARVIS%20(Sales%20AI%20%26%20Omnichannel).md" target="_blank" class="project-link-btn">
+                    <div class="project-links">
+                        <a href="https://github.com/ADM-448/Projetos/blob/main/%F0%9F%A4%96%20Showcase%20de%20Arquitetura_%20SDR%20JARVIS%20(Sales%20AI%20%26%20Omnichannel).md" target="_blank" class="project-link-main">
                             <i class="fas fa-book-open"></i> Estudo de Caso
                         </a>
-                        <a href="https://github.com/ADM-448/Projetos/tree/main/LARAVEL%20-%20SDR%20JARVIS" target="_blank" class="project-link-btn project-link-subtle">
+                        <a href="https://github.com/ADM-448/Projetos/tree/main/LARAVEL%20-%20SDR%20JARVIS" target="_blank" class="project-link-secondary">
                             <i class="fab fa-github"></i> Código no Monorepo
                         </a>
                     </div>
                 </div>
 
                 <!-- 3. Anjo Nexus (1 coluna) -->
-                <div class="cyber-card project-card-cyber">
-                    <div class="project-tags-row">
-                        <span class="cyber-tag tag-cyan">Pipeline P&D</span>
-                        <span class="cyber-tag tag-glass">Laravel</span>
-                        <span class="cyber-tag tag-purple">Roach-PHP</span>
-                        <span class="cyber-tag tag-glass">Puppeteer</span>
+                <div class="project-card">
+                    <div class="project-tags">
+                        <span class="tag tag-highlight">Pipeline P&D</span>
+                        <span class="tag">Laravel</span>
+                        <span class="tag tag-blue">Roach-PHP</span>
+                        <span class="tag">Puppeteer Headless</span>
                     </div>
 
-                    <h3>Anjo Nexus — Pipeline de Web Scraping & Análise de Editais</h3>
+                    <h3>Anjo Nexus — Web Scraping & Análise de Editais</h3>
 
-                    <div class="cyber-mockup-window">
-                        <div class="mockup-header">
-                            <span class="mockup-dot dot-red"></span>
-                            <span class="mockup-dot dot-yellow"></span>
-                            <span class="mockup-dot dot-green"></span>
-                            <span class="mockup-title">Spiders/FomentoGovSpider.php</span>
+                    <div class="code-mockup">
+                        <div class="code-mockup-header">
+                            <span class="dot dot-red"></span>
+                            <span class="dot dot-yellow"></span>
+                            <span class="dot dot-green"></span>
+                            <span class="code-title">Spiders/FomentoGovSpider.php</span>
                         </div>
-                        <div class="mockup-code"><span class="code-cyan">// Crawling concorrente & headless parsing</span><br><span class="code-accent">$spider</span> = <span class="code-cyan">new</span> FomentoGovSpider();<br><span class="code-accent">$spider</span>-&gt;crawlHeadless(<span class="code-green">'puppeteer:scrape'</span>);</div>
+                        <div class="code-content"><span class="code-comment">// Crawling concorrente & headless parsing</span>
+<span class="code-var">$spider</span> = <span class="code-call">new</span> FomentoGovSpider();
+<span class="code-var">$spider</span>-&gt;crawlHeadless(<span class="code-string">'puppeteer:scrape'</span>);</div>
                     </div>
 
-                    <div class="case-study-narrative">
-                        <div class="narrative-item">
-                            <strong><i class="fas fa-bullseye text-cyan"></i> O Desafio:</strong>
-                            Rastrear, capturar e analisar de forma massiva e concorrente dezenas de portais públicos governamentais (FINEP, FAPs, CNPq) contendo editais de fomento à inovação tecnológica com layouts heterogêneos e renderização via JavaScript.
+                    <div class="project-narrative">
+                        <div class="narrative-row">
+                            <strong><i class="fas fa-crosshairs"></i> O Desafio:</strong>
+                            Capturar e analisar de forma concorrente dezenas de portais públicos governamentais (FINEP, FAPs, CNPq) contendo editais de fomento à inovação com páginas dinâmicas e layouts heterogêneos.
                         </div>
-                        <div class="narrative-item">
-                            <strong><i class="fas fa-layer-group text-purple"></i> A Arquitetura:</strong>
-                            Pipeline de extração estruturado em Laravel combinando spiders de alta vazão no framework Roach-PHP para requisições paralelas e Puppeteer (headless browser) para raspagem de SPAs dinâmicas. Sanitização, parsing e análise contextual de requisitos em tempo real com armazenamento relacional normalizado no MySQL.
+                        <div class="narrative-row">
+                            <strong><i class="fas fa-cubes"></i> A Arquitetura:</strong>
+                            Pipeline em Laravel combinando spiders no framework Roach-PHP para requisições paralelas e Puppeteer (headless browser) para raspagem de SPAs dinâmicas. Sanitização, parsing e indexação relacional normalizada no MySQL.
                         </div>
-                        <div class="narrative-item">
-                            <strong><i class="fas fa-chart-line text-cyan"></i> O Impacto:</strong>
-                            Eliminação de centenas de horas de varredura manual de diários oficiais, transformando editais burocráticos em alertas inteligentes de oportunidade de subvenção econômica a fundo perdido para empresas de base tecnológica.
+                        <div class="narrative-row">
+                            <strong><i class="fas fa-chart-line"></i> O Impacto:</strong>
+                            Eliminação de dezenas de horas de busca manual em diários oficiais, transformando editais extensos em oportunidades estruturadas de subvenção econômica para startups.
                         </div>
                     </div>
 
-                    <div class="project-links-row">
-                        <a href="https://github.com/ADM-448/Projetos" target="_blank" class="project-link-btn">
+                    <div class="project-links">
+                        <a href="https://github.com/ADM-448/Projetos" target="_blank" class="project-link-main">
                             <i class="fab fa-github"></i> Repositório no GitHub
                         </a>
                     </div>
                 </div>
 
-                <!-- 4. IntalenTI Vagas (Destaque - Ocupa 2 colunas) -->
-                <div class="cyber-card project-card-cyber bento-col-span-2">
-                    <div class="project-tags-row">
-                        <span class="cyber-tag tag-cyan">Multi-tenant Governamental</span>
-                        <span class="cyber-tag tag-purple">Laravel 12 Enterprise</span>
-                        <span class="cyber-tag tag-glass">Google Maps API</span>
-                        <span class="cyber-tag tag-glass">Haversine Geo</span>
-                        <span class="cyber-tag tag-cyan">Clean Architecture</span>
+                <!-- 4. IntalenTI Vagas (Destaque - 2 colunas) -->
+                <div class="project-card project-span-2">
+                    <div class="project-tags">
+                        <span class="tag tag-highlight">Multi-tenant Governamental</span>
+                        <span class="tag">Laravel 12 Enterprise</span>
+                        <span class="tag tag-blue">Google Maps API</span>
+                        <span class="tag">Fórmula de Haversine</span>
+                        <span class="tag">Clean Architecture</span>
                     </div>
 
                     <h3>IntalenTI Vagas — Portal Multi-tenant para Prefeituras & Recrutamento</h3>
 
-                    <div class="cyber-mockup-window">
-                        <div class="mockup-header">
-                            <span class="mockup-dot dot-red"></span>
-                            <span class="mockup-dot dot-yellow"></span>
-                            <span class="mockup-dot dot-green"></span>
-                            <span class="mockup-title">Services/GeoService.php &bull; Haversine Distance</span>
+                    <div class="code-mockup">
+                        <div class="code-mockup-header">
+                            <span class="dot dot-red"></span>
+                            <span class="dot dot-yellow"></span>
+                            <span class="dot dot-green"></span>
+                            <span class="code-title">Services/GeoService.php &bull; Haversine Distance</span>
                         </div>
-                        <div class="mockup-code"><span class="code-cyan">// Cálculo de distância geodésica</span><br><span class="code-accent">$distKm</span> = GeoService::calcular(<span class="code-accent">$candidato</span>-&gt;cep, <span class="code-accent">$vaga</span>-&gt;cep);<br><span class="code-cyan">return</span> <span class="code-accent">$vagas</span>-&gt;whereProximity(<span class="code-accent">$distKm</span>, <span class="code-green">'&lt;='</span>, <span class="code-accent">25</span>);</div>
+                        <div class="code-content"><span class="code-comment">// Cálculo de distância geodésica entre candidato e oportunidade</span>
+<span class="code-var">$distKm</span> = <span class="code-call">GeoService</span>::calcular(<span class="code-var">$candidato</span>-&gt;cep, <span class="code-var">$vaga</span>-&gt;cep);
+<span class="code-call">return</span> <span class="code-var">$vagas</span>-&gt;whereProximity(<span class="code-var">$distKm</span>, <span class="code-string">'&lt;='</span>, <span class="code-var">25</span>);</div>
                     </div>
 
-                    <div class="case-study-narrative">
-                        <div class="narrative-item">
-                            <strong><i class="fas fa-bullseye text-cyan"></i> O Desafio:</strong>
-                            Modernizar uma aplicação legada de recrutamento e transformá-la em uma solução corporativa multi-tenant de alto nível para secretarias municipais e empresas parceiras, com triagem inteligente, observatório de empregabilidade e compatibilidade geográfica de vagas.
+                    <div class="project-narrative">
+                        <div class="narrative-row">
+                            <strong><i class="fas fa-crosshairs"></i> O Desafio:</strong>
+                            Modernizar uma aplicação de recrutamento e transformá-la em uma plataforma corporativa multi-tenant para prefeituras e secretarias municipais de desenvolvimento, com triagem de currículos e cálculo de compatibilidade territorial.
                         </div>
-                        <div class="narrative-item">
-                            <strong><i class="fas fa-layer-group text-purple"></i> A Arquitetura:</strong>
-                            Reestruturação integral em Laravel 12 Enterprise orientada a Clean Architecture e Service Layer. Implementação de multi-tenancy estrito por domínio e subdomínio via middleware <code style="color: var(--neon-cyan);">IdentifyPortal</code> e escopos globais do Eloquent. Integração de resiliência com a Google Maps API e serviços de geolocalização para geocodificação de CEPs e cálculo de distâncias (fórmula de Haversine) entre o candidato e a vaga, com cache inteligente em memória.
+                        <div class="narrative-row">
+                            <strong><i class="fas fa-cubes"></i> A Arquitetura:</strong>
+                            Reestruturação completa em Laravel 12 orientada a Clean Architecture e Service Layer. Multi-tenancy estrito por domínio e subdomínio via middleware e escopos globais. Integração com a API do Google Maps para geocodificação de CEPs e cálculo de proximidade física (fórmula de Haversine) com cache estratégico.
                         </div>
-                        <div class="narrative-item">
-                            <strong><i class="fas fa-chart-line text-cyan"></i> O Impacto:</strong>
-                            Plataforma em produção (<a href="https://intalenti.com.br/vagas/" target="_blank" style="color: var(--neon-magenta); text-decoration: underline;">intalenti.com.br/vagas/</a>) servindo prefeituras e grandes empresas com matching por proximidade territorial, gestão hierárquica de recrutadores e 100% de taxa de aprovação em testes automatizados.
+                        <div class="narrative-row">
+                            <strong><i class="fas fa-chart-line"></i> O Impacto:</strong>
+                            Plataforma em produção (<a href="https://intalenti.com.br/vagas/" target="_blank">intalenti.com.br/vagas/</a>) atendendo secretarias públicas e empresas parceiras com triagem geográfica de candidatos e alta estabilidade.
                         </div>
                     </div>
 
-                    <div class="project-links-row">
-                        <a href="https://intalenti.com.br/vagas/" target="_blank" class="project-link-btn">
+                    <div class="project-links">
+                        <a href="https://intalenti.com.br/vagas/" target="_blank" class="project-link-main">
                             <i class="fas fa-external-link-alt"></i> Acessar Plataforma ao Vivo
                         </a>
-                        <a href="https://github.com/ADM-448/Projetos/blob/main/%F0%9F%92%BC%20Showcase%20de%20Arquitetura_%20InTalenti%20Vagas.md" target="_blank" class="project-link-btn project-link-subtle">
+                        <a href="https://github.com/ADM-448/Projetos/blob/main/%F0%9F%92%BC%20Showcase%20de%20Arquitetura_%20InTalenti%20Vagas.md" target="_blank" class="project-link-secondary">
                             <i class="fab fa-github"></i> Estudo de Caso Completo
                         </a>
                     </div>
                 </div>
 
             </div>
-        </div>
-    </section>
 
-    <!-- F. TECHNOLOGIES I'M USING (TECH STACK) -->
-    <section class="tech-stack-section" id="stack">
-        <div class="container">
-            <div class="section-header">
-                <div class="section-tag"><i class="fas fa-terminal"></i> Tecnologias & Competências</div>
-                <h2 class="section-title">Technologies I'm Using</h2>
-                <p class="section-desc">Conjunto rigoroso de linguagens, frameworks, ferramentas e boas práticas de engenharia empregadas no desenvolvimento de sistemas corporativos escaláveis.</p>
-            </div>
+            <!-- Outras Aplicações & Repositórios -->
+            <div class="mini-projects-section">
+                <h4 class="mini-section-title">
+                    <i class="fas fa-folder-open"></i> Outras Aplicações & Repositórios
+                </h4>
 
-            <div class="tech-icons-cloud">
-                <div class="tech-icon-pill">
-                    <i class="devicon-php-plain text-purple"></i>
-                    <span>PHP 8.x</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="devicon-laravel-plain text-purple"></i>
-                    <span>Laravel</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="devicon-vuejs-plain text-cyan"></i>
-                    <span>Vue.js</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="fas fa-exchange-alt text-cyan"></i>
-                    <span>Inertia.js</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="devicon-mysql-plain text-cyan"></i>
-                    <span>MySQL</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="devicon-tailwindcss-plain text-cyan"></i>
-                    <span>Tailwind CSS</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="devicon-docker-plain text-cyan"></i>
-                    <span>Docker</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="fas fa-network-wired text-purple"></i>
-                    <span>APIs RESTful</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="fas fa-code-compare text-purple"></i>
-                    <span>Integração SOAP</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="devicon-nginx-original text-cyan"></i>
-                    <span>NGINX</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="devicon-apache-plain text-purple"></i>
-                    <span>Apache</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="devicon-git-plain text-purple"></i>
-                    <span>Git / Git Flow</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="fas fa-layer-group text-purple"></i>
-                    <span>Service Layer</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="fas fa-clock text-cyan"></i>
-                    <span>Queues / Horizon</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="fas fa-broom text-cyan"></i>
-                    <span>Clean Code</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="fas fa-shapes text-purple"></i>
-                    <span>Princípios SOLID</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="fas fa-database text-cyan"></i>
-                    <span>Modelagem Relacional</span>
-                </div>
-                <div class="tech-icon-pill">
-                    <i class="fas fa-tasks text-purple"></i>
-                    <span>Metodologias Ágeis</span>
+                <div class="mini-projects-grid">
+                    <div class="mini-project-card">
+                        <div class="mini-card-header">
+                            <span class="mini-tag">PHP &bull; PDO &bull; MVC</span>
+                            <a href="https://github.com/ADM-448/E-Compras-PDO/tree/main" target="_blank" class="mini-icon-link" title="Repositório"><i class="fab fa-github"></i></a>
+                        </div>
+                        <h5>E-Compras — Plataforma de E-commerce</h5>
+                        <p>Arquitetura em PHP nativo com conexão PDO segura, controle de sessões, carrinho dinâmico e painel de pedidos.</p>
+                        <a href="https://github.com/ADM-448/E-Compras-PDO/tree/main" target="_blank" class="mini-text-link">Ver Código no GitHub &rarr;</a>
+                    </div>
+
+                    <div class="mini-project-card">
+                        <div class="mini-card-header">
+                            <span class="mini-tag">Laravel &bull; Blade &bull; MySQL</span>
+                            <a href="https://github.com/ADM-448/Projetos/tree/main/HDC%20EVENTS%20Laravel" target="_blank" class="mini-icon-link" title="Repositório"><i class="fab fa-github"></i></a>
+                        </div>
+                        <h5>HDC Events — Gestão de Eventos</h5>
+                        <p>Sistema completo de criação e confirmação de presença em eventos com upload de mídias, relacionamentos e autenticação.</p>
+                        <a href="https://github.com/ADM-448/Projetos/tree/main/HDC%20EVENTS%20Laravel" target="_blank" class="mini-text-link">Ver Código no GitHub &rarr;</a>
+                    </div>
+
+                    <div class="mini-project-card">
+                        <div class="mini-card-header">
+                            <span class="mini-tag">Web &bull; Institucional</span>
+                            <a href="http://www.portalchaves.com.br/" target="_blank" class="mini-icon-link" title="Visitar Site"><i class="fas fa-external-link-alt"></i></a>
+                        </div>
+                        <h5>Portal Chaves — Serviços Comerciais</h5>
+                        <p>Portal web comercial responsivo voltado para apresentação corporativa de serviços e canal direto de atendimento.</p>
+                        <a href="http://www.portalchaves.com.br/" target="_blank" class="mini-text-link">Acessar Site &rarr;</a>
+                    </div>
+
+                    <div class="mini-project-card">
+                        <div class="mini-card-header">
+                            <span class="mini-tag">Frontend &bull; Responsivo</span>
+                            <a href="https://adm-448.github.io/Padoca/" target="_blank" class="mini-icon-link" title="Visitar Demo"><i class="fas fa-external-link-alt"></i></a>
+                        </div>
+                        <h5>Padoca & Landing Pages Locais</h5>
+                        <p>Conjunto de interfaces com design responsivo, catálogo visual e conversão direta via WhatsApp para negócios locais.</p>
+                        <a href="https://adm-448.github.io/Padoca/" target="_blank" class="mini-text-link">Acessar Demonstração &rarr;</a>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- G. TRAJETÓRIA & FORMAÇÃO -->
-    <section class="trajectory-section" id="trajetoria">
+    <!-- I. STACK TECNOLÓGICA -->
+    <section class="section stack-section" id="stack">
         <div class="container">
             <div class="section-header">
-                <div class="section-tag"><i class="fas fa-route"></i> Experiência Profissional</div>
-                <h2 class="section-title">Trajetória na Engenharia de Software</h2>
-                <p class="section-desc">Evolução de carreira focada na resolução de gargalos operacionais e construção de produtos SaaS de alto impacto.</p>
+                <div class="section-badge"><i class="fas fa-layer-group"></i> Ecossistema Técnico</div>
+                <h2 class="section-title">Tecnologias & Ferramentas</h2>
+                <p class="section-desc">Conjunto de tecnologias consolidadas que utilizo no dia a dia para desenvolver sistemas corporativos eficientes e seguros.</p>
             </div>
 
-            <div class="career-timeline-grid">
+            <div class="stack-categories-grid">
+                
+                <div class="stack-group">
+                    <div class="stack-group-title">
+                        <i class="fas fa-server"></i> Back-end & Frameworks
+                    </div>
+                    <div class="stack-badges-wrap">
+                        <div class="stack-pill"><i class="devicon-php-plain"></i> PHP 8.x</div>
+                        <div class="stack-pill"><i class="devicon-laravel-plain"></i> Laravel 11/12</div>
+                        <div class="stack-pill"><i class="fas fa-clock"></i> Laravel Horizon</div>
+                        <div class="stack-pill"><i class="fas fa-network-wired"></i> APIs RESTful</div>
+                        <div class="stack-pill"><i class="fas fa-exchange-alt"></i> Webhooks & SOAP</div>
+                    </div>
+                </div>
+
+                <div class="stack-group">
+                    <div class="stack-group-title">
+                        <i class="fas fa-desktop"></i> Front-end & Reatividade
+                    </div>
+                    <div class="stack-badges-wrap">
+                        <div class="stack-pill"><i class="devicon-vuejs-plain"></i> Vue.js</div>
+                        <div class="stack-pill"><i class="fas fa-sync-alt"></i> Inertia.js</div>
+                        <div class="stack-pill"><i class="devicon-tailwindcss-plain"></i> Tailwind CSS</div>
+                        <div class="stack-pill"><i class="devicon-javascript-plain"></i> JavaScript (ES6+)</div>
+                        <div class="stack-pill"><i class="devicon-html5-plain"></i> HTML5 / CSS3</div>
+                    </div>
+                </div>
+
+                <div class="stack-group">
+                    <div class="stack-group-title">
+                        <i class="fas fa-database"></i> Banco de Dados & Cache
+                    </div>
+                    <div class="stack-badges-wrap">
+                        <div class="stack-pill"><i class="devicon-mysql-plain"></i> MySQL Relacional</div>
+                        <div class="stack-pill"><i class="devicon-redis-plain"></i> Redis (Cache & Filas)</div>
+                        <div class="stack-pill"><i class="fas fa-table"></i> Modelagem Relacional</div>
+                        <div class="stack-pill"><i class="fas fa-tachometer-alt"></i> Otimização de Queries</div>
+                    </div>
+                </div>
+
+                <div class="stack-group">
+                    <div class="stack-group-title">
+                        <i class="fas fa-cubes"></i> Práticas de Engenharia
+                    </div>
+                    <div class="stack-badges-wrap">
+                        <div class="stack-pill"><i class="fas fa-stream"></i> Service Layer Pattern</div>
+                        <div class="stack-pill"><i class="fas fa-shapes"></i> Princípios SOLID</div>
+                        <div class="stack-pill"><i class="fas fa-broom"></i> Clean Code</div>
+                        <div class="stack-pill"><i class="fas fa-users-cog"></i> Arquitetura Multi-tenant</div>
+                        <div class="stack-pill"><i class="fas fa-tasks"></i> Metodologias Ágeis</div>
+                    </div>
+                </div>
+
+                <div class="stack-group">
+                    <div class="stack-group-title">
+                        <i class="fas fa-tools"></i> DevOps & Infraestrutura
+                    </div>
+                    <div class="stack-badges-wrap">
+                        <div class="stack-pill"><i class="devicon-docker-plain"></i> Docker</div>
+                        <div class="stack-pill"><i class="devicon-git-plain"></i> Git / Git Flow</div>
+                        <div class="stack-pill"><i class="devicon-nginx-original"></i> NGINX</div>
+                        <div class="stack-pill"><i class="devicon-apache-plain"></i> Apache</div>
+                        <div class="stack-pill"><i class="devicon-linux-plain"></i> Linux / Bash</div>
+                    </div>
+                </div>
+
+                <div class="stack-group">
+                    <div class="stack-group-title">
+                        <i class="fas fa-spider"></i> Automação & Scraping
+                    </div>
+                    <div class="stack-badges-wrap">
+                        <div class="stack-pill"><i class="fas fa-robot"></i> Roach-PHP</div>
+                        <div class="stack-pill"><i class="devicon-puppeteer-plain"></i> Puppeteer Headless</div>
+                        <div class="stack-pill"><i class="fas fa-brain"></i> Google Gemini API</div>
+                        <div class="stack-pill"><i class="fas fa-map-marker-alt"></i> Google Maps API</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- J. TRAJETÓRIA PROFISSIONAL & FORMAÇÃO -->
+    <section class="section" id="trajetoria">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-badge"><i class="fas fa-briefcase"></i> Experiência & Carreira</div>
+                <h2 class="section-title">Trajetória Profissional</h2>
+                <p class="section-desc">Evolução prática na engenharia de software com atuação direta na resolução de gargalos operacionais e desenvolvimento de produtos corporativos.</p>
+            </div>
+
+            <div class="timeline-grid">
                 <!-- 1. SDR JARVIS -->
-                <div class="cyber-card career-card">
-                    <div class="career-date-badge">08/2024 – Presente</div>
+                <div class="timeline-card">
+                    <div class="timeline-date">08/2024 – Presente</div>
                     <h4>Desenvolvedor Back-end</h4>
-                    <div class="career-company">SDR JARVIS</div>
+                    <div class="timeline-company">SDR JARVIS</div>
                     <ul>
-                        <li>Liderou a engenharia do CRM multi-tenant e estruturou webhooks da API do WhatsApp integrados a Jobs assíncronos em background.</li>
-                        <li>Arquitetou o ecossistema de mensageria em tempo real e orquestração de cadências outbound omnichannel (WhatsApp, VoIP e E-mail).</li>
-                        <li>Otimizou consultas complexas e indexação relacional no MySQL para suportar alta concorrência em pipelines e quadros Kanban de vendas.</li>
+                        <li>Atuou na engenharia do CRM multi-tenant estruturando ingestão de webhooks da API do WhatsApp integrados a Jobs assíncronos.</li>
+                        <li>Estruturou o ecossistema de mensageria e orquestração de fluxos outbound omnichannel (WhatsApp, VoIP e E-mail).</li>
+                        <li>Otimizou consultas complexas e indexação relacional no MySQL para suportar alta concorrência em pipelines de vendas.</li>
                     </ul>
                 </div>
 
                 <!-- 2. Anjo Nexus -->
-                <div class="cyber-card career-card">
-                    <div class="career-date-badge">08/2024 – 11/2024</div>
+                <div class="timeline-card">
+                    <div class="timeline-date">08/2024 – 11/2024</div>
                     <h4>Engenheiro de Software (P&D)</h4>
-                    <div class="career-company">Anjo Nexus</div>
+                    <div class="timeline-company">Anjo Nexus</div>
                     <ul>
-                        <li>Desenvolveu o pipeline avançado de web scraping utilizando Laravel, Roach-PHP e Puppeteer para raspagem e análise contextual em tempo real de editais governamentais de inovação.</li>
+                        <li>Desenvolveu pipeline de web scraping utilizando Laravel, Roach-PHP e Puppeteer para raspagem e análise em tempo real de editais governamentais de inovação.</li>
                         <li>Implementou rotinas concorrentes de extração de dados contornando desafios de páginas dinâmicas em JavaScript e regras de rate limiting.</li>
                         <li>Estruturou algoritmos de sanitização e parser sintático para cruzamento automatizado de requisitos de elegibilidade com bases de startups.</li>
                     </ul>
                 </div>
 
                 <!-- 3. IntalenTI -->
-                <div class="cyber-card career-card">
-                    <div class="career-date-badge">10/2023 – Presente</div>
+                <div class="timeline-card">
+                    <div class="timeline-date">10/2023 – Presente</div>
                     <h4>Desenvolvedor Full Stack / Engenheiro de Software</h4>
-                    <div class="career-company">IntalenTI</div>
+                    <div class="timeline-company">IntalenTI</div>
                     <ul>
                         <li>Arquitetou a plataforma SaaS multi-tenant TalentiPro (PHP 8.x, Laravel, Vue.js, Inertia.js e Horizon), com isolamento estrito de dados e Service Layer.</li>
                         <li>Liderou tecnicamente as iniciativas de engenharia do SDR JARVIS e Anjo Nexus, assegurando Clean Code, testes e princípios SOLID.</li>
-                        <li>Realizou levantamento e análise profunda de requisitos de negócio B2B, atuando como ponte técnica entre a diretoria e a equipe de desenvolvimento para produtos escaláveis.</li>
+                        <li>Realizou levantamento e análise profunda de requisitos de negócio B2B, atuando como ponte técnica entre a diretoria e a equipe de desenvolvimento.</li>
                         <li>Gerenciou governança de banco de dados MySQL, integração contínua, infraestrutura de deploy e segurança em servidores corporativos.</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Formação & Certificações -->
-            <div style="margin-top: 5rem;">
+            <!-- Formação Acadêmica & Certificações -->
+            <div class="education-section">
                 <div class="section-header" style="margin-bottom: 2rem;">
-                    <div class="section-tag"><i class="fas fa-graduation-cap"></i> Educação Continuada</div>
-                    <h3 style="font-size: 2rem; font-weight: 800;">Treinamentos & Formação Acadêmica</h3>
+                    <div class="section-badge"><i class="fas fa-graduation-cap"></i> Formação Contínua</div>
+                    <h3 style="font-size: 1.85rem; font-weight: 800;">Educação & Treinamentos</h3>
                 </div>
 
                 <div class="education-grid">
-                    <div class="cyber-card education-card">
+                    <div class="education-card">
                         <h5><i class="fas fa-university"></i> Bacharelado em Engenharia de Software</h5>
                         <p><strong>UniCesumar</strong> &bull; Previsão de Conclusão: 11/2026</p>
                     </div>
 
-                    <div class="cyber-card education-card">
-                        <h5><i class="fas fa-certificate"></i> PHP 8 Completo do zero: com MVC e MySQL</h5>
-                        <p><strong>Udemy</strong> &bull; Arquitetura MVC, Banco Relacional & Clean Code</p>
+                    <div class="education-card">
+                        <h5><i class="fas fa-certificate"></i> PHP 8 Completo: MVC e MySQL</h5>
+                        <p><strong>Udemy</strong> &bull; Arquitetura MVC, Modelagem Relacional & Clean Code</p>
                     </div>
 
-                    <div class="cyber-card education-card">
+                    <div class="education-card">
                         <h5><i class="fas fa-certificate"></i> PHP do Zero a Maestria</h5>
-                        <p><strong>Udemy</strong> &bull; Domínio Avançado da Linguagem & Boas Práticas</p>
+                        <p><strong>Udemy</strong> &bull; Recursos Avançados da Linguagem & Boas Práticas</p>
                     </div>
                 </div>
             </div>
@@ -630,20 +734,20 @@
         </div>
     </section>
 
-    <!-- H. CTA BANNER ("Deploy An App To Production In Minutes" adaptado) -->
-    <section class="cta-banner-section" id="contato">
+    <!-- K. CONTATO & CTA -->
+    <section class="section" id="contato" style="padding-top: 40px; padding-bottom: 90px;">
         <div class="container">
-            <div class="cta-banner-box">
-                <h2>Pronto para Escalar sua Arquitetura de Software?</h2>
+            <div class="cta-box">
+                <h2>Vamos Conversar Sobre o Seu Próximo Projeto?</h2>
                 <p>
-                    Seja para construir uma nova plataforma SaaS multi-tenant, implementar processamento assíncrono com Laravel Horizon ou traduzir regras complexas B2B em código limpo, vamos conversar sobre o seu próximo projeto.
+                    Seja para construir uma nova plataforma SaaS multi-tenant, implementar processamento assíncrono com Laravel Horizon ou traduzir requisitos complexos de negócio em código limpo, estou à disposição para conversar.
                 </p>
 
-                <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-                    <a href="https://wa.me/5544999640895" target="_blank" class="btn btn-primary" style="padding: 14px 34px; font-size: 1.05rem;">
+                <div class="cta-actions">
+                    <a href="https://wa.me/5544999640895" target="_blank" class="btn btn-primary" style="padding: 13px 28px;">
                         <i class="fab fa-whatsapp"></i> Iniciar Conversa no WhatsApp
                     </a>
-                    <a href="mailto:ademarteisen2004@gmail.com" class="btn btn-outline-cyber" style="padding: 14px 34px; font-size: 1.05rem;">
+                    <a href="mailto:ademarteisen2004@gmail.com" class="btn btn-secondary" style="padding: 13px 28px;">
                         <i class="fas fa-envelope"></i> Enviar Mensagem por E-mail
                     </a>
                 </div>
@@ -651,20 +755,20 @@
         </div>
     </section>
 
-    <!-- I. FOOTER -->
+    <!-- L. FOOTER -->
     <footer class="footer">
         <div class="container">
             <div class="footer-top">
                 <div class="logo">
-                    <span class="logo-badge"><i class="fab fa-laravel"></i></span>
-                    Ademar Teisen <span class="accent">.dev</span>
+                    <span class="logo-icon"><i class="fab fa-laravel"></i></span>
+                    <span>Ademar Teisen <span class="logo-sub">/ dev</span></span>
                 </div>
 
                 <div class="footer-nav">
                     <ul>
                         <li><a href="#home">Início</a></li>
                         <li><a href="#sobre">Sobre</a></li>
-                        <li><a href="#workflow">Workflow</a></li>
+                        <li><a href="#metodologia">Metodologia</a></li>
                         <li><a href="#projetos">Projetos</a></li>
                         <li><a href="#stack">Stack</a></li>
                         <li><a href="#trajetoria">Trajetória</a></li>
@@ -674,10 +778,10 @@
 
             <div class="footer-bottom">
                 <p>&copy; 2026 Ademar de Araújo Teisen. Engenheiro de Software & Desenvolvedor Full Stack Laravel. Todos os direitos reservados.</p>
-                <div style="display: flex; gap: 1.5rem;">
-                    <a href="https://github.com/ADM-448/Projetos" target="_blank" style="color: var(--text-muted);"><i class="fab fa-github"></i> GitHub</a>
-                    <a href="https://www.linkedin.com/in/ademar-teisen-38588b334" target="_blank" style="color: var(--text-muted);"><i class="fab fa-linkedin"></i> LinkedIn</a>
-                    <a href="#home" style="color: var(--neon-cyan);"><i class="fas fa-arrow-up"></i> Topo</a>
+                <div class="footer-links">
+                    <a href="https://github.com/ADM-448/Projetos" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                    <a href="https://www.linkedin.com/in/ademar-teisen-38588b334" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+                    <a href="#home"><i class="fas fa-arrow-up"></i> Topo</a>
                 </div>
             </div>
         </div>
